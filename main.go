@@ -1,35 +1,40 @@
 package main
 
 import (
-	"flag"
 	"fmt"
+	"log"
 	"os"
 	"os/signal"
 	"syscall"
 
 	"github.com/bwmarrin/discordgo"
+	"github.com/flunks-nft/discord-bot/raid"
+	"github.com/joho/godotenv"
 )
 
-// Variables used for command line parameters
-var (
-	Token string
-)
+var discordToken string
 
 func init() {
-	flag.StringVar(&Token, "t", "", "Bot Token")
-	flag.Parse()
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+
+	// Load DISCORD_TOKEN from .env file
+	discordToken = os.Getenv("DISCORD_TOKEN")
 }
 
 func main() {
 	// Create a new Discord session using the provided bot token.
-	dg, err := discordgo.New("Bot " + Token)
+	dg, err := discordgo.New("Bot " + discordToken)
 	if err != nil {
 		fmt.Println("error creating Discord session,", err)
 		return
 	}
 
-	// Register the messageCreate func as a callback for MessageCreate events.
-	dg.AddHandler(messageCreate)
+	// Register the messageCreate functions as a callback for MessageCreate events.
+	dg.AddHandler(raid.PingPongMessageCreate)
+	dg.AddHandler(raid.RaidMessageCreate)
 
 	// Just like the ping pong example, we only care about receiving message
 	// events in this example.
@@ -50,35 +55,4 @@ func main() {
 
 	// Cleanly close down the Discord session.
 	dg.Close()
-}
-
-// This function will be called (due to AddHandler above) every time a new
-// message is created on any channel that the authenticated bot has access to.
-//
-// It is called whenever a message is created but only when it's sent through a
-// server as we did not request IntentsDirectMessages.
-func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
-	// Ignore all messages created by the bot itself
-	// This isn't required in this specific example but it's a good practice.
-	if m.Author.ID == s.State.User.ID {
-		return
-	}
-
-	// In this example, we only care about messages that are "ping".
-	// Note that Message.Content is only available when the intent is enabled on Discord Developer Portal.
-	// Ref: https://github.com/bwmarrin/discordgo/issues/961#issuecomment-1565032340
-	if m.Content != "ping" {
-		return
-	}
-
-	// Reply with "Pong!" in the same channel where the user posted "ping".
-	_, err := s.ChannelMessageSend(m.ChannelID, "Pong!")
-	if err != nil {
-		// If an error occurred, we failed to send the message.
-		fmt.Println("error sending message:", err)
-		s.ChannelMessageSend(
-			m.ChannelID,
-			"Failed to send the message!",
-		)
-	}
 }
