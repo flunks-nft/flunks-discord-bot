@@ -1,0 +1,26 @@
+version: "3"
+services:
+  db:
+    image: postgres:13-alpine
+    restart: always
+    container_name: discord-bot
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=discord-bot
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - ./init:/docker-entrypoint-initdb.d
+    command: ["postgres", "-c", "log_statement=all"]
+
+  db-test:
+    image: postgres:13-alpine
+    restart: always
+    container_name: integration-tests-discord-bot
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_USER: prisma
+      POSTGRES_PASSWORD: prisma
+      POSTGRES_DB: discord-bot
