@@ -8,7 +8,6 @@ import (
 	"syscall"
 
 	"github.com/bwmarrin/discordgo"
-	"github.com/flunks-nft/discord-bot/admin"
 	"github.com/flunks-nft/discord-bot/raid"
 	"github.com/joho/godotenv"
 )
@@ -35,7 +34,8 @@ func main() {
 
 	// Register the messageCreate functions as a callback for MessageCreate events.
 	dg.AddHandler(raid.PingPongMessageCreate)
-	dg.AddHandler(admin.RaidMessageCreate)
+	dg.AddHandler(raid.RaidMessageCreate)
+	dg.AddHandler(raid.ButtonInteractionCreate)
 
 	// Just like the ping pong example, we only care about receiving message
 	// events in this example.
