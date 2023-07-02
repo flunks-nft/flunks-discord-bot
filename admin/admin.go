@@ -54,9 +54,9 @@ func RaidMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 						CustomID: "manage_wallet",
 					},
 					discordgo.Button{
-						Label:    "Check Flunks",
+						Label:    "Yearbook",
 						Style:    discordgo.SecondaryButton,
-						CustomID: "check_flunks",
+						CustomID: "yearbook",
 					},
 					discordgo.Button{
 						Label:    "🍀",
