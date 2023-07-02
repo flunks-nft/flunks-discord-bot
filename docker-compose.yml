@@ -17,7 +17,7 @@ services:
   db-test:
     image: postgres:13-alpine
     restart: always
-    container_name: integration-tests-discord-bot
+    container_name: test-discord-bot
     ports:
       - "5433:5432"
     environment:
