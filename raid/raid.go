@@ -6,34 +6,6 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
-// RaidMessageCreate will be called (due to AddHandler above) every time a new
-// message is created on any channel that the authenticated bot has access to.
-//
-// It is called whenever a "!raid" message is created but only when it's sent through a
-// server as we did not request IntentsDirectMessages.
-func RaidMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
-	// Ignore all messages created by the bot itself
-	if m.Author.ID == s.State.User.ID {
-		return
-	}
-
-	if m.Content != "!raid" {
-		return
-	}
-
-	response := fmt.Sprintf("Yo <@%s>, you flunk started a raid!", m.Author.ID)
-	_, err := s.ChannelMessageSend(m.ChannelID, response)
-	if err != nil {
-		fmt.Println("error sending message:", err)
-		s.ChannelMessageSend(
-			m.ChannelID,
-			"Failed to send the message!",
-		)
-	}
-
-	// TODO: implement actual raid functionality
-}
-
 // This function will be called (due to AddHandler above) every time a new
 // message is created on any channel that the authenticated bot has access to.
 //
