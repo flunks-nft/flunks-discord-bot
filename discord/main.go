@@ -73,7 +73,7 @@ func InitDiscord() {
 	})
 
 	s.AddHandler(func(s *discordgo.Session, r *discordgo.Ready) {
-		log.Printf("Logged in as: %v#%v", s.State.User.Username, s.State.User.Discriminator)
+		log.Printf("➕ Logged in as: %v#%v", s.State.User.Username, s.State.User.Discriminator)
 	})
 
 	// we only care about receiving message events
@@ -92,7 +92,7 @@ func InitDiscord() {
 	defer s.Close()
 
 	// Wait here until CTRL-C or other term signal is received.
-	fmt.Println("Bot is now running. Press CTRL-C to exit.")
+	log.Println("🌱 Bot is now running. Press CTRL-C to exit.")
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
 	<-stop
@@ -100,4 +100,6 @@ func InitDiscord() {
 	if *RemoveCommands {
 		removeSlashCommands()
 	}
+
+	log.Println("🐒 Gracefully shutting down.")
 }
