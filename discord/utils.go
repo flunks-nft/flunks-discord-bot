@@ -27,3 +27,8 @@ func DeleteMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 		log.Printf("Error deleting message: %v", err)
 	}
 }
+
+func WildGuildID() *string {
+	s := ""
+	return &s
+}
