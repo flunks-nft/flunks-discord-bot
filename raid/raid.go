@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/bwmarrin/discordgo"
+	"github.com/flunks-nft/discord-bot/db"
 	"github.com/flunks-nft/discord-bot/utils"
 )
 
@@ -106,60 +107,25 @@ func RaidMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 // ButtonInteractionCreate handles the button click on the Raid Playground button interaction from users.
 // Note it's supposed to send Ephemeral to the user but broadcast in the raid public information log channel.
 func ButtonInteractionCreate(s *discordgo.Session, i *discordgo.InteractionCreate) {
+	// Check user profile in the first place
+	user, err := db.UserProfile(i.Member.User.ID)
+	if err != nil {
+		respondeEphemeralMessage(s, i, "Use /dapper command to set up your Dapper wallet address")
+		return
+	}
+
 	if i.Type == discordgo.InteractionMessageComponent {
 		switch i.MessageComponentData().CustomID {
 		case "start_raid":
-			// Write a code to handle the "start_raid" button interaction
-			err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-				Type: discordgo.InteractionResponseChannelMessageWithSource,
-				Data: &discordgo.InteractionResponseData{
-					Content: fmt.Sprintf("<@%s> clicked the Raid button.", i.Member.User.ID),
-					Flags:   64, // Ephemeral
-				},
-			})
-			if err != nil {
-				log.Printf("Error handling start_raid: %v", err)
-				return
-			}
+			respondeEphemeralMessage(s, i, "You clicked the Raid button.")
 		case "manage_wallet":
-			// Write a code to handle the "manage_wallet" button interaction
-			err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-				Type: discordgo.InteractionResponseChannelMessageWithSource,
-				Data: &discordgo.InteractionResponseData{
-					Content: fmt.Sprintf("<@%s> clicked the Manage Wallet.", i.Member.User.ID),
-					Flags:   64, // Ephemeral
-				},
-			})
-			if err != nil {
-				log.Printf("Error handling manage_wallet: %v", err)
-				return
-			}
+			respondeEphemeralMessage(s, i, "You clicked the Raid button.")
 		case "yearbook":
-			// Write a code to handle the "yearbook" button interaction
-			err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-				Type: discordgo.InteractionResponseChannelMessageWithSource,
-				Data: &discordgo.InteractionResponseData{
-					Content: fmt.Sprintf("<@%s> clicked the Yearbook button.", i.Member.User.ID),
-					Flags:   64, // Ephemeral
-				},
-			})
-			if err != nil {
-				log.Printf("Error handling yearbook: %v", err)
-				return
-			}
+			tokenIds := user.GetTokenIds()
+			msg := fmt.Sprintf("You have %d Flunks.", len(tokenIds))
+			respondeEphemeralMessage(s, i, msg)
 		case "lottery":
-			// Write a code to handle the "lottery" button interaction
-			err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-				Type: discordgo.InteractionResponseChannelMessageWithSource,
-				Data: &discordgo.InteractionResponseData{
-					Content: fmt.Sprintf("<@%s> clicked the 🍀 button.", i.Member.User.ID),
-					Flags:   64, // Ephemeral
-				},
-			})
-			if err != nil {
-				log.Printf("Error handling lottery: %v", err)
-				return
-			}
+			respondeEphemeralMessage(s, i, "You clicked the Raid button.")
 		}
 	}
 }
@@ -192,5 +158,20 @@ func PingPongMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 			m.ChannelID,
 			"Failed to send the message!",
 		)
+	}
+}
+
+func respondeEphemeralMessage(s *discordgo.Session, i *discordgo.InteractionCreate, msg string) {
+	// Write a code to handle the button interaction
+	err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+		Type: discordgo.InteractionResponseChannelMessageWithSource,
+		Data: &discordgo.InteractionResponseData{
+			Content: msg,
+			Flags:   64, // Ephemeral
+		},
+	})
+	if err != nil {
+		log.Printf("Error handling start_raid: %v", err)
+		return
 	}
 }
