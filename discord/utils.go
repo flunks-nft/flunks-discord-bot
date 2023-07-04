@@ -28,7 +28,7 @@ func DeleteMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 }
 
-func WildGuildID() *string {
+func DefaultGuiID() *string {
 	s := ""
 	return &s
 }

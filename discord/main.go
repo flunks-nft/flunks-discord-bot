@@ -21,6 +21,8 @@ var (
 	RAID_CHANNEL_ID     string
 	RAID_LOG_CHANNEL_ID string
 
+	GUI_ID *string
+
 	dg                  *discordgo.Session
 	messageHandlers     []func(s *discordgo.Session, i *discordgo.MessageCreate)
 	interactionHandlers []func(s *discordgo.Session, i *discordgo.InteractionCreate)
@@ -33,6 +35,8 @@ func init() {
 	RAID_CHANNEL_ID = os.Getenv("RAID_CHANNLE_ID")
 	RAID_LOG_CHANNEL_ID = os.Getenv("RAID_LOG_CHANNEL_ID")
 	DISCORD_TOKEN = os.Getenv("DISCORD_TOKEN")
+
+	GUI_ID = DefaultGuiID()
 
 	messageHandlers = []func(s *discordgo.Session, i *discordgo.MessageCreate){
 		FlowAddressHandler,
