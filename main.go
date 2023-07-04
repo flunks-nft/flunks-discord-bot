@@ -1,16 +1,9 @@
 package main
 
 import (
-	"fmt"
-	"log"
-	"os"
-	"os/signal"
-	"syscall"
-
 	"github.com/bwmarrin/discordgo"
 	"github.com/flunks-nft/discord-bot/db"
-	"github.com/flunks-nft/discord-bot/raid"
-	"github.com/joho/godotenv"
+	"github.com/flunks-nft/discord-bot/discord"
 )
 
 var (
@@ -18,7 +11,6 @@ var (
 	DISCORD_GUI_ID string
 
 	GuildID = ""
-	s       *discordgo.Session
 
 	commands = []*discordgo.ApplicationCommand{
 		{
@@ -42,52 +34,8 @@ var (
 	}
 )
 
-func init() {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file")
-	}
-
-	// Load DISCORD_TOKEN from .env file
-	discordToken = os.Getenv("DISCORD_TOKEN")
-
-	DISCORD_GUI_ID = os.Getenv("DISCORD_GUI_ID")
-}
-
 func main() {
 	// Connect to database & run migrations
 	db.InitDB()
-
-	// Create a new Discord session using the provided bot token.
-	var err error
-	s, err = discordgo.New("Bot " + discordToken)
-	if err != nil {
-		fmt.Println("error creating Discord session,", err)
-		return
-	}
-
-	// Register the messageCreate functions as a callback for MessageCreate events.
-	s.AddHandler(raid.FlowAddressHandler)
-	s.AddHandler(raid.RaidMessageCreate)
-	s.AddHandler(raid.ButtonInteractionCreate)
-
-	// Just like the ping pong example, we only care about receiving message
-	// events in this example.
-	s.Identify.Intents = discordgo.IntentsGuildMessages
-
-	// Open a websocket connection to Discord and begin listening.
-	err = s.Open()
-	if err != nil {
-		fmt.Println("error opening connection,", err)
-		return
-	}
-
-	// Wait here until CTRL-C or other term signal is received.
-	fmt.Println("Bot is now running. Press CTRL-C to exit.")
-	sc := make(chan os.Signal, 1)
-	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
-	<-sc
-
-	// Cleanly close down the Discord session.
-	s.Close()
+	discord.InitDiscord()
 }
