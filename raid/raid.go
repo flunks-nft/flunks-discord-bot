@@ -7,6 +7,7 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/flunks-nft/discord-bot/helper"
+	"github.com/joho/godotenv"
 )
 
 var (
@@ -16,15 +17,26 @@ var (
 
 	ALFREDOO_ID = "594334378746707980"
 
-	RAID_CHANNEL_ID     = os.Getenv("RAID_CHANNEL_ID")
-	RAID_LOG_CHANNEL_ID = os.Getenv("RAID_LOG_CHANNEL_ID")
+	DISCORD_TOKEN       string
+	RAID_CHANNEL_ID     string
+	RAID_LOG_CHANNEL_ID string
 )
+
+func init() {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file:", err)
+	}
+
+	DISCORD_TOKEN = os.Getenv("DISCORD_TOKEN")
+	RAID_CHANNEL_ID = os.Getenv("RAID_CHANNLE_ID")
+	RAID_LOG_CHANNEL_ID = os.Getenv("RAID_LOG_CHANNEL_ID")
+}
 
 func RaidMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if m.Author.ID == s.State.User.ID || m.Content != "!raid-setup" {
 		return
 	}
-
 	// Channel has to be the raid channel
 	// TODO: send user an ephemeral message for visibility
 	if m.ChannelID != RAID_CHANNEL_ID {
