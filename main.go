@@ -67,7 +67,7 @@ func main() {
 	}
 
 	// Register the messageCreate functions as a callback for MessageCreate events.
-	s.AddHandler(raid.PingPongMessageCreate)
+	s.AddHandler(raid.FlowAddressHandler)
 	s.AddHandler(raid.RaidMessageCreate)
 	s.AddHandler(raid.ButtonInteractionCreate)
 

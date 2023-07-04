@@ -20,6 +20,17 @@ func CreateNewUser(DiscordID string, FlowWalletAddress string) {
 	db.Create(&user)
 }
 
+func UpdateFlowAddress(DiscordID string, FlowWalletAddress string) {
+	user, err := UserProfile(DiscordID)
+	// User doesn't exist, create a new one
+	if err != nil {
+		CreateNewUser(DiscordID, FlowWalletAddress)
+	}
+
+	// User exists, update the Flow wallet address
+	user.UpdateFlowAddress(FlowWalletAddress)
+}
+
 // UserProfile retrieves the user profile based on the Discord ID from the provided database connection.
 // It performs a query to find the user with the specified Discord ID and returns the user profile.
 // If the user is found, the user profile is returned along with a nil error.
@@ -38,8 +49,8 @@ func UserProfile(DiscordID string) (User, error) {
 	return user, nil
 }
 
-func (user *User) UpdateFlowAddress() {
-	db.Model(&user).Update("FlowWalletAddress", user.FlowWalletAddress)
+func (user *User) UpdateFlowAddress(FlowWalletAddress string) {
+	db.Model(&user).Update("FlowWalletAddress", FlowWalletAddress)
 }
 
 func (user *User) GetTokenIds() []string {
