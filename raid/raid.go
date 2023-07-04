@@ -122,13 +122,13 @@ func ButtonInteractionCreate(s *discordgo.Session, i *discordgo.InteractionCreat
 		case "start_raid":
 			respondeEphemeralMessage(s, i, "You clicked the Raid button.")
 		case "manage_wallet":
-			respondeEphemeralMessage(s, i, "You clicked the Raid button.")
+			respondeEphemeralMessage(s, i, "You clicked the Manage Wallet button.")
 		case "yearbook":
 			tokenIds := user.GetTokenIds()
 			msg := fmt.Sprintf("You have %d Flunks.", len(tokenIds))
 			respondeEphemeralMessage(s, i, msg)
 		case "lottery":
-			respondeEphemeralMessage(s, i, "You clicked the Raid button.")
+			respondeEphemeralMessage(s, i, "You clicked the 🍀 button.")
 		}
 	}
 }
