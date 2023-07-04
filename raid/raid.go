@@ -6,12 +6,11 @@ import (
 	"os"
 
 	"github.com/bwmarrin/discordgo"
-	"github.com/flunks-nft/discord-bot/helper"
-	"github.com/joho/godotenv"
+	"github.com/flunks-nft/discord-bot/utils"
 )
 
 var (
-	ADMIN_AUTHOR_IDS = []string{
+	ADMIN_AUTHOR_IDS utils.StringArray = []string{
 		"594334378746707980", // Alfredoo
 	}
 
@@ -23,29 +22,35 @@ var (
 )
 
 func init() {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file:", err)
-	}
+	utils.LoadEnv()
 
 	DISCORD_TOKEN = os.Getenv("DISCORD_TOKEN")
 	RAID_CHANNEL_ID = os.Getenv("RAID_CHANNLE_ID")
 	RAID_LOG_CHANNEL_ID = os.Getenv("RAID_LOG_CHANNEL_ID")
 }
 
+// RaidMessageDelete deletes the message sent by users in the channel.
+func RaidMessageDelete(s *discordgo.Session, m *discordgo.MessageCreate) {
+	s.ChannelMessageDelete(m.ChannelID, m.ID)
+}
+
+// RaidMessageCreate creates an embedded message with buttons for users to interact with.
+// Note it's only supposed to be used in the raid channel by admin users.
 func RaidMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if m.Author.ID == s.State.User.ID || m.Content != "!raid-setup" {
 		return
 	}
+
 	// Channel has to be the raid channel
 	// TODO: send user an ephemeral message for visibility
 	if m.ChannelID != RAID_CHANNEL_ID {
 		return
 	}
+	defer RaidMessageDelete(s, m)
 
 	// Check if the user is Alfred
 	// TODO: maintain an admin list
-	if helper.Contains(ADMIN_AUTHOR_IDS, m.Author.ID) == false {
+	if ADMIN_AUTHOR_IDS.Contains(m.Author.ID) == false {
 		response := fmt.Sprintf("Only admins can use this command, ask  <@%s>", ALFREDOO_ID)
 		s.ChannelMessageSend(
 			m.ChannelID,
