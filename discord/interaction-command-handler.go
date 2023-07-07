@@ -1,5 +1,7 @@
 package discord
 
+// This modules is responsible for handling slash commands
+
 import (
 	"flag"
 	"fmt"

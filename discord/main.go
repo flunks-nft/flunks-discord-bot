@@ -22,9 +22,9 @@ var (
 	RAID_CHANNEL_ID     string
 	RAID_LOG_CHANNEL_ID string
 
-	dg                  *discordgo.Session
-	messageHandlers     []func(s *discordgo.Session, i *discordgo.MessageCreate)
-	interactionHandlers []func(s *discordgo.Session, i *discordgo.InteractionCreate)
+	dg                                  *discordgo.Session
+	messageHandlers                     []func(s *discordgo.Session, i *discordgo.MessageCreate)
+	interactionMessageComponentHandlers []func(s *discordgo.Session, i *discordgo.InteractionCreate)
 )
 
 func init() {
@@ -42,7 +42,7 @@ func init() {
 		RaidMessageCreate,
 	}
 
-	interactionHandlers = []func(s *discordgo.Session, i *discordgo.InteractionCreate){
+	interactionMessageComponentHandlers = []func(s *discordgo.Session, i *discordgo.InteractionCreate){
 		ButtonInteractionCreate,
 	}
 }
@@ -62,7 +62,7 @@ func InitDiscord() {
 	}
 
 	// Register interaction handlers
-	for _, handler := range interactionHandlers {
+	for _, handler := range interactionMessageComponentHandlers {
 		dg.AddHandler(handler)
 	}
 

@@ -1,5 +1,7 @@
 package discord
 
+// This modules is responsible for handling button interactions
+
 import (
 	"fmt"
 
