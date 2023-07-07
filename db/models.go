@@ -20,7 +20,7 @@ func CreateNewUser(DiscordID string, FlowWalletAddress string) {
 	db.Create(&user)
 }
 
-func UpdateFlowAddress(DiscordID string, FlowWalletAddress string) {
+func CreateOrUpdateFlowAddress(DiscordID string, FlowWalletAddress string) {
 	user, err := UserProfile(DiscordID)
 	// User doesn't exist, create a new one
 	if err != nil {

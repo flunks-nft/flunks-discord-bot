@@ -2,9 +2,11 @@ package discord
 
 import (
 	"flag"
+	"fmt"
 	"log"
 
 	"github.com/bwmarrin/discordgo"
+	"github.com/flunks-nft/discord-bot/db"
 )
 
 var (
@@ -14,22 +16,55 @@ var (
 
 	commands = []*discordgo.ApplicationCommand{
 		{
-			Name: "basic-command",
-			// All commands and options must have a description
-			// Commands/options without description will fail the registration
-			// of the command.
-			Description: "Basic command",
+			Name:        "dapper",
+			Description: "Set up your Dapper wallet address",
+			Options: []*discordgo.ApplicationCommandOption{
+
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "address",
+					Description: "Dapper wallet address",
+					Required:    true,
+				},
+			},
 		},
 	}
 
 	commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
-		"basic-command": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-				Type: discordgo.InteractionResponseChannelMessageWithSource,
-				Data: &discordgo.InteractionResponseData{
-					Content: "Hey there! Congratulations, you just executed your first slash command",
-				},
-			})
+		"dapper": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			// Access options in the order provided by the user.
+			options := i.ApplicationCommandData().Options
+
+			// Or convert the slice into a map
+			optionMap := make(map[string]*discordgo.ApplicationCommandInteractionDataOption, len(options))
+			for _, opt := range options {
+				optionMap[opt.Name] = opt
+			}
+
+			// This example stores the provided arguments in an []interface{}
+			// which will be used to format the bot's response
+			margs := make([]interface{}, 0, len(options))
+			msgformat := "Your Dapper addressed is updated to: \n"
+
+			// Get the value from the option map.
+			// When the option exists, ok = true
+			option, ok := optionMap["address"]
+			if ok {
+				// Option values must be type asserted from interface{}.
+				// Discordgo provides utility functions to make this simple.
+				margs = append(margs, option.StringValue())
+				msgformat += "> address: %s\n"
+			}
+
+			msg := fmt.Sprintf(
+				msgformat,
+				margs...,
+			)
+
+			// TODO: Update user dapper wallet address
+			db.CreateOrUpdateFlowAddress(i.Member.User.ID, option.StringValue())
+
+			respondeEphemeralMessage(s, i, msg)
 		},
 	}
 

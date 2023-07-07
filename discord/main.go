@@ -66,7 +66,13 @@ func InitDiscord() {
 		dg.AddHandler(handler)
 	}
 
+	// Add slash command handler
 	dg.AddHandler(func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+		// return if not a InteractionApplicationCommand command in case conflicts with other interactions
+		if i.Type != discordgo.InteractionApplicationCommand {
+			return
+		}
+
 		if h, ok := commandHandlers[i.ApplicationCommandData().Name]; ok {
 			h(s, i)
 		}

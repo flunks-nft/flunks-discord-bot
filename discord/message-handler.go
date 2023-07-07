@@ -97,5 +97,5 @@ func FlowAddressHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	// Create or update Flow wallet address for user
 	// TODO: validate the address
-	db.UpdateFlowAddress(m.Author.ID, flowAddress)
+	db.CreateOrUpdateFlowAddress(m.Author.ID, flowAddress)
 }
