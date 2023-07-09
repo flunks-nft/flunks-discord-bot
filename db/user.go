@@ -57,15 +57,3 @@ func (user *User) GetTokenIds() []string {
 	// TODO: implement with correct logic
 	return []string{"1", "2", "3"}
 }
-
-type Raid struct {
-	ID uint
-
-	FromTokenID     uint
-	ToTokenID       uint
-	FromTokenPoints uint
-	ToTokenPoints   uint
-
-	UserID uint // Foreign key referencing User's primary key
-	User   User `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"` // Reference to the User struct
-}
