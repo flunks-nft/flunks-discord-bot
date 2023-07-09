@@ -5,6 +5,7 @@ type Property string
 // @dev: These are the properties that can be assigned to a trait.
 // the properties have special meaning in the game mechanics.
 // for instance, the "A" property counters the "B" property, which counters the "C" property, which counters the "A" property.
+// TODO: implement proper names for the properties
 const (
 	PropertyA Property = "A"
 	PropertyB Property = "B"
