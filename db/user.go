@@ -3,6 +3,7 @@ package db
 import (
 	"errors"
 	"fmt"
+	"time"
 
 	"gorm.io/gorm"
 )
@@ -12,6 +13,9 @@ type User struct {
 
 	DiscordID         string
 	FlowWalletAddress string
+
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 func CreateNewUser(DiscordID string, FlowWalletAddress string) {
