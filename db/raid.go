@@ -34,7 +34,9 @@ type Nft struct {
 	CreatedAt time.Time
 	UpdatedAt time.Time
 
-	LastRaidedAt time.Time
+	LastRaidFinishedAt time.Time
+	isRaiding          bool
+	isQueuedForRaiding bool
 }
 
 type Trait struct {
