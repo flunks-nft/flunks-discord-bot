@@ -13,6 +13,9 @@ type Raid struct {
 	ToNftID   uint
 	ToNft     Nft `gorm:"foreignKey:ToNftID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 
+	ChallengeID uint
+	Challenge   Challenge `gorm:"foreignKey:ChallengeID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+
 	UserID uint // Foreign key referencing User's primary key
 	User   User `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"` // Reference to the User struct
 
@@ -31,7 +34,7 @@ type Nft struct {
 	CreatedAt time.Time
 	UpdatedAt time.Time
 
-	lastRaidedAt time.Time
+	LastRaidedAt time.Time
 }
 
 type Trait struct {
@@ -45,4 +48,12 @@ type Trait struct {
 
 	CreatedAt time.Time
 	UpdatedAt time.Time
+}
+
+type Challenge struct {
+	ID uint
+
+	// Challenge is mapped to Traitm only the "Clique" trait should be used
+	TraitID uint
+	Trait   Trait `gorm:"foreignKey:TraitID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 }
