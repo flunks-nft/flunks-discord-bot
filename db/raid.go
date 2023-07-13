@@ -40,9 +40,9 @@ type Nft struct {
 	CreatedAt time.Time
 	UpdatedAt time.Time
 
-	lastRaidFinishedAt time.Time
-	isRaiding          bool
-	isQueuedForRaiding bool
+	LastRaidFinishedAt time.Time
+	Raiding            bool
+	QueuedForRaiding   bool
 }
 
 func GetNft(tokenID uint) (Nft, error) {
@@ -59,18 +59,18 @@ func GetNft(tokenID uint) (Nft, error) {
 }
 
 func (nft *Nft) IsInRaidQueue() bool {
-	return nft.isQueuedForRaiding
+	return nft.QueuedForRaiding
 }
 
 func (nft *Nft) IsRaiding() bool {
-	return nft.isRaiding
+	return nft.Raiding
 }
 
 func (nft *Nft) IsReadyForRaidQueue() (bool, time.Duration) {
 	// Get current time
 	now := time.Now()
 
-	nextValidRaidTime := nft.lastRaidFinishedAt.Add(24 * time.Hour)
+	nextValidRaidTime := nft.LastRaidFinishedAt.Add(24 * time.Hour)
 
 	// If the current time is less than the next valid raid time, return false
 	// and the hours remaining until the next valid raid time
@@ -82,16 +82,76 @@ func (nft *Nft) IsReadyForRaidQueue() (bool, time.Duration) {
 	return true, 0
 }
 
-func (nft *Nft) QueueForRaid() error {
-	// Update NFT isQueuedForRaiding to true & isRaiding to false in database
-	result := db.Model(&nft).Updates(Nft{isQueuedForRaiding: true, isRaiding: false})
-	if result.Error != nil {
-		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			return fmt.Errorf("NFT not found")
+func (nft *Nft) RaidMatch() error {
+	tx := db.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
 		}
+	}()
+
+	// Get the next available token
+	availableToken, err := GetNextQueuedToken(tx)
+	if err != nil {
+		tx.Rollback()
+		return err
+	} else if availableToken == nil {
+		// Update NFT QueuedForRaiding to true & Raiding to false in database
+		result := tx.Model(&nft).Updates(Nft{QueuedForRaiding: true, Raiding: false})
+		if result.Error != nil {
+			tx.Rollback()
+			if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+				return fmt.Errorf("NFT not found")
+			}
+			return result.Error
+		}
+	} else {
+		// Create a raid
+		raid := &Raid{
+			FromTokenID: nft.TokenID,
+			FromNftID:   nft.ID,
+			ToTokenID:   availableToken.TokenID,
+			ToNftID:     availableToken.ID,
+		}
+		result := tx.Create(&raid)
+		if result.Error != nil {
+			tx.Rollback()
+			return result.Error
+		}
+
+		// Update both NFTs Raiding to true & QueuedForRaiding to false in database
+		result = tx.Model(&nft).Updates(Nft{QueuedForRaiding: false, Raiding: true})
+		if result.Error != nil {
+			tx.Rollback()
+			return result.Error
+		}
+	}
+
+	tx.Commit()
+	return nil
+}
+
+func (nft *Nft) AddToRaidQueue() error {
+	// Update NFT QueuedForRaiding to true in database
+	result := db.Model(&nft).Updates(Nft{QueuedForRaiding: true})
+	if result.Error != nil {
 		return result.Error
 	}
 	return nil
+}
+
+func GetNextQueuedToken(tx *gorm.DB) (*Nft, error) {
+	database := tx
+	if database == nil {
+		database = db
+	}
+
+	nft := &Nft{}
+	err := db.Where("queued_for_raiding = ?", true).Order("RANDOM()").First(nft).Error
+	if err != nil {
+		return nil, err
+	}
+	return nft, nil
 }
 
 type Trait struct {

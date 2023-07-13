@@ -68,12 +68,30 @@ func QueueForRaid(s *discordgo.Session, i *discordgo.InteractionCreate, tokenID 
 		respondeEphemeralMessage(s, i, msg)
 		return
 	}
-	// TODO: queue token for raid and send message to user
-	if err := nft.QueueForRaid(); err != nil {
-		msg := fmt.Sprintf("⚠️ Error queuing NFT with tokenID %v for raid.", tokenID)
+
+	// Try to find a match first
+	// TODO: add this to the worker
+	retryCounter := 0
+	for retryCounter < 10 {
+		err := nft.RaidMatch()
+		retryCounter += 1
+		if err == nil {
+			msg := fmt.Sprintf("Flunk #%v is in the raid queue", tokenID)
+			respondeEphemeralMessage(s, i, msg)
+			break
+		} else {
+			// TODO: log error
+		}
+	}
+
+	// Otherwise just add to the match queue
+	if err := nft.AddToRaidQueue(); err != nil {
+		msg := fmt.Sprintf("⚠️ Failed to add Flunk #%v to the raid queue", tokenID)
+		respondeEphemeralMessage(s, i, msg)
+		return
+	} else {
+		msg := fmt.Sprintf("Flunk #%v is in the raid queue", tokenID)
 		respondeEphemeralMessage(s, i, msg)
 		return
 	}
-	msg := fmt.Sprintf("Flunk #%v is in the raid queue", tokenID)
-	respondeEphemeralMessage(s, i, msg)
 }
