@@ -27,7 +27,8 @@ func ButtonInteractionCreate(s *discordgo.Session, i *discordgo.InteractionCreat
 	if i.Type == discordgo.InteractionMessageComponent {
 		switch i.MessageComponentData().CustomID {
 		case "start_raid":
-			respondeEphemeralMessage(s, i, "You clicked the Raid button.")
+			// TODO: figure out how to get the tokenID from the message
+			QueueForRaid(s, i, 1)
 		case "manage_wallet":
 			respondeEphemeralMessage(s, i, "⚠️ Please use /dapper command to set up / update your Dapper wallet address.")
 		case "yearbook":
@@ -38,4 +39,41 @@ func ButtonInteractionCreate(s *discordgo.Session, i *discordgo.InteractionCreat
 			respondeEphemeralMessage(s, i, "You clicked the 🍀 button.")
 		}
 	}
+}
+
+func QueueForRaid(s *discordgo.Session, i *discordgo.InteractionCreate, tokenID uint) {
+	// Get NFT instance from database
+	nft, err := db.GetNft(tokenID)
+	if err != nil {
+		msg := fmt.Sprintf("⚠️ Flunk #%v not found.", tokenID)
+		respondeEphemeralMessage(s, i, msg)
+		return
+	}
+	// TODO: Check if token is owned by the Discord user
+	// Check if token has raided in the last 24 hours
+	if isReady, nextValidRaidTime := nft.IsReadyForRaidQueue(); !isReady {
+		msg := fmt.Sprintf("⚠️ NFT with tokenID %v is not ready for raid queue. Still %s hours remaining", tokenID, nextValidRaidTime)
+		respondeEphemeralMessage(s, i, msg)
+		return
+	}
+	// check if token is already in the raid queue
+	if isInRaidQueue := nft.IsInRaidQueue(); isInRaidQueue {
+		msg := fmt.Sprintf("⚠️ NFT with tokenID %v is already in the raid queue.", tokenID)
+		respondeEphemeralMessage(s, i, msg)
+		return
+	}
+	// TODO: check if token is already in a raid
+	if isRaiding := nft.IsRaiding(); isRaiding {
+		msg := fmt.Sprintf("⚠️ NFT with tokenID %v is already in a raid.", tokenID)
+		respondeEphemeralMessage(s, i, msg)
+		return
+	}
+	// TODO: queue token for raid and send message to user
+	if err := nft.QueueForRaid(); err != nil {
+		msg := fmt.Sprintf("⚠️ Error queuing NFT with tokenID %v for raid.", tokenID)
+		respondeEphemeralMessage(s, i, msg)
+		return
+	}
+	msg := fmt.Sprintf("Flunk #%v is in the raid queue", tokenID)
+	respondeEphemeralMessage(s, i, msg)
 }
