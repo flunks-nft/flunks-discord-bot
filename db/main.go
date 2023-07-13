@@ -39,7 +39,7 @@ func InitDB() {
 	db = dbConnection
 
 	// Auto Migrate the structs
-	err = db.AutoMigrate(&User{}, &Raid{}, &Nft{}, &NftDisplay{}, &Trait{})
+	err = db.AutoMigrate(&User{}, &Raid{}, &Nft{}, &Trait{})
 	if err != nil {
 		panic("Failed to migrate table")
 	}

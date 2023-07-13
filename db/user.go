@@ -12,11 +12,10 @@ type User struct {
 
 	DiscordID         string
 	FlowWalletAddress string
-	Points            uint
 }
 
 func CreateNewUser(DiscordID string, FlowWalletAddress string) {
-	user := User{DiscordID: DiscordID, FlowWalletAddress: FlowWalletAddress, Points: 0}
+	user := User{DiscordID: DiscordID, FlowWalletAddress: FlowWalletAddress}
 	db.Create(&user)
 }
 

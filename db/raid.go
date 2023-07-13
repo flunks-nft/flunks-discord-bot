@@ -1,42 +1,35 @@
 package db
 
-type Property string
-
-// @dev: These are the properties that can be assigned to a trait.
-// the properties have special meaning in the game mechanics.
-// for instance, the "A" property counters the "B" property, which counters the "C" property, which counters the "A" property.
-// TODO: implement proper names for the properties
-const (
-	PropertyA Property = "A"
-	PropertyB Property = "B"
-	PropertyC Property = "C"
-	PropertyD Property = "E"
-)
-
 type Raid struct {
 	ID uint
 
-	FromTokenID     uint
-	ToTokenID       uint
-	FromTokenPoints uint
-	ToTokenPoints   uint
+	FromTokenID uint
+	FromNftID   uint
+	FromNft     Nft `gorm:"foreignKey:FromNftID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+
+	ToTokenID uint
+	ToNftID   uint
+	ToNft     Nft `gorm:"foreignKey:ToNftID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 
 	UserID uint // Foreign key referencing User's primary key
 	User   User `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"` // Reference to the User struct
 }
 
 type Nft struct {
-	TokenID uint
-	Trait   Trait      `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"` // Reference to the Trait struct
-	Display NftDisplay `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"` // Reference to the Trait struct
-}
+	ID uint
 
-type NftDisplay struct {
-	Uri string
+	TokenID uint
+	Traits  []Trait `gorm:"many2many:nft_traits;"`
+	Uri     string
+	Points  uint
 }
 
 type Trait struct {
-	Name     string
-	Value    string
-	Property Property
+	ID uint
+
+	NftID uint
+
+	Name  string
+	Value string
+	Score uint
 }
