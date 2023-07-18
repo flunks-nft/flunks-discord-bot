@@ -3,19 +3,50 @@ package db
 import (
 	"errors"
 	"fmt"
+	"sort"
 	"time"
 
+	"github.com/flunks-nft/discord-bot/zeero"
 	"gorm.io/gorm"
 )
 
 type User struct {
 	ID uint
 
-	DiscordID         string
-	FlowWalletAddress string
+	DiscordID             string
+	FlowWalletAddress     string
+	LastFetchedTokenIndex uint
 
 	CreatedAt time.Time
 	UpdatedAt time.Time
+}
+
+// BeforeCreate will set a default value before every creation
+func (u *User) BeforeCreate(tx *gorm.DB) (err error) {
+	u.LastFetchedTokenIndex = 0
+	return
+}
+
+func (user *User) GetFlunks() ([]zeero.NftDtoWithActivity, error) {
+	// Sort the items by TemplateID
+	items, err := zeero.GetFlunks(user.FlowWalletAddress)
+	if err != nil {
+		return nil, err
+	}
+
+	// Sort the items by TemplateID
+	sort.Slice(items, func(i, j int) bool {
+		return items[i].TemplateID < items[j].TemplateID
+	})
+
+	return items, nil
+}
+
+func (user *User) GetNextTokenIndex(totalCount int) uint {
+	lastIndex := user.LastFetchedTokenIndex
+	// Increment the last fetched token index by 1 and update the user profile
+	db.Model(&user).Update("last_fetched_token_index", (lastIndex+1)%uint(totalCount))
+	return lastIndex
 }
 
 func CreateNewUser(DiscordID string, FlowWalletAddress string) {

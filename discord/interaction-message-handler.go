@@ -26,19 +26,41 @@ func ButtonInteractionCreate(s *discordgo.Session, i *discordgo.InteractionCreat
 
 	if i.Type == discordgo.InteractionMessageComponent {
 		switch i.MessageComponentData().CustomID {
-		case "start_raid":
+		case "start_raid_all":
 			// TODO: figure out how to get the tokenID from the message
 			QueueForRaid(s, i, 1)
 		case "manage_wallet":
 			respondeEphemeralMessage(s, i, "⚠️ Please use /dapper command to set up / update your Dapper wallet address.")
 		case "yearbook":
-			tokenIds := user.GetTokenIds()
-			msg := fmt.Sprintf("You have %d Flunks.", len(tokenIds))
-			respondeEphemeralMessage(s, i, msg)
+			handlesYearbook(s, i, user)
 		case "lottery":
 			respondeEphemeralMessage(s, i, "You clicked the 🍀 button.")
+		case "start_raid_one":
+			respondeEphemeralMessage(s, i, "You clicked the start_raid_one button.")
+		case "next_flunk":
+			handlesYearbook(s, i, user)
 		}
 	}
+}
+
+func handlesYearbook(s *discordgo.Session, i *discordgo.InteractionCreate, user db.User) {
+	items, err := user.GetFlunks()
+	if err != nil {
+		respondeEphemeralMessage(s, i, "⚠️ Failed to get your Flunks from Dapper.")
+		return
+	}
+
+	if len(items) == 0 {
+		respondeEphemeralMessage(s, i, "⚠️ You don't have any Flunks in your Dapper wallet.")
+		return
+	}
+
+	// returns next Flunk based on last fetched index
+	totalCount := len(items)
+	nextIndex := user.GetNextTokenIndex(totalCount)
+	item := items[nextIndex]
+	respondeEphemeralMessageWithMedia(s, i, item)
+	return
 }
 
 func QueueForRaid(s *discordgo.Session, i *discordgo.InteractionCreate, tokenID uint) {

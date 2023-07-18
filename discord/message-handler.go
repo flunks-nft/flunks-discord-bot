@@ -48,7 +48,7 @@ func RaidMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 					discordgo.Button{
 						Label:    "Raid",
 						Style:    discordgo.PrimaryButton,
-						CustomID: "start_raid",
+						CustomID: "start_raid_all",
 					},
 					discordgo.Button{
 						Label:    "Manage Wallet",
