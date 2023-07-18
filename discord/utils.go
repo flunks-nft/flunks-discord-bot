@@ -28,7 +28,7 @@ func respondeEphemeralMessageWithMedia(s *discordgo.Session, i *discordgo.Intera
 	raidButton := discordgo.Button{
 		Label:    "Raid",
 		Style:    discordgo.PrimaryButton,
-		CustomID: fmt.Sprintf("start_raid_one_%s", item.TemplateID),
+		CustomID: fmt.Sprintf("start_raid_one_%v", item.TemplateID),
 	}
 
 	zeeroButton := discordgo.Button{

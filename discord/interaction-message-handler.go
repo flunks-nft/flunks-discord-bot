@@ -4,6 +4,8 @@ package discord
 
 import (
 	"fmt"
+	"log"
+	"strings"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/flunks-nft/discord-bot/db"
@@ -39,6 +41,37 @@ func ButtonInteractionCreate(s *discordgo.Session, i *discordgo.InteractionCreat
 			respondeEphemeralMessage(s, i, "You clicked the start_raid_one button.")
 		case "next_flunk":
 			handlesYearbook(s, i, user)
+		}
+	}
+}
+
+func ButtonInteractionCreateOne(s *discordgo.Session, i *discordgo.InteractionCreate) {
+	// return if not a InteractionMessageComponent incase conflicts with other interactions
+	if i.Type != discordgo.InteractionMessageComponent {
+		return
+	}
+
+	// Check user profile in the first place
+	_, err := db.UserProfile(i.Member.User.ID)
+	if err != nil {
+		respondeEphemeralMessage(s, i, "⚠️ Please use /dapper command to set up / update your Dapper wallet address.")
+		return
+	}
+
+	customIDParts := strings.Split(i.MessageComponentData().CustomID, "_")
+	if len(customIDParts) < 4 {
+		log.Printf("Invalid custom ID: %s", i.MessageComponentData().CustomID)
+		return
+	}
+
+	if i.Type == discordgo.InteractionMessageComponent {
+		switch customIDParts[0] {
+		case "start":
+			if customIDParts[1] == "raid" && customIDParts[2] == "one" {
+				// You can use customIdParts[3] which should be the tokenID
+				// Replace the line below with your desired function handling the specific tokenID
+				respondeEphemeralMessage(s, i, fmt.Sprintf("Starting Raid for Flunk: %s", customIDParts[3]))
+			}
 		}
 	}
 }

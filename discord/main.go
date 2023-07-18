@@ -43,7 +43,8 @@ func init() {
 	}
 
 	interactionMessageComponentHandlers = []func(s *discordgo.Session, i *discordgo.InteractionCreate){
-		ButtonInteractionCreate,
+		ButtonInteractionCreate,    // for handling generic button interactions
+		ButtonInteractionCreateOne, // for handling button interactions of individual Flunk in the yearbook
 	}
 }
 
