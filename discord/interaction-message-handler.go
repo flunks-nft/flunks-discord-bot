@@ -29,8 +29,7 @@ func ButtonInteractionCreate(s *discordgo.Session, i *discordgo.InteractionCreat
 	if i.Type == discordgo.InteractionMessageComponent {
 		switch i.MessageComponentData().CustomID {
 		case "start_raid_all":
-			// TODO: figure out how to get the tokenID from the message
-			QueueForRaid(s, i, 1)
+			respondeEphemeralMessage(s, i, "⚠️ TODO: queue all of your Flunks to Raid.")
 		case "manage_wallet":
 			respondeEphemeralMessage(s, i, "⚠️ Please use /dapper command to set up / update your Dapper wallet address.")
 		case "yearbook":

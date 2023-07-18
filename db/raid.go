@@ -11,13 +11,13 @@ import (
 type Raid struct {
 	ID uint
 
-	FromTokenID uint
-	FromNftID   uint
-	FromNft     Nft `gorm:"foreignKey:FromNftID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	FromTemplateID uint
+	FromNftID      uint
+	FromNft        Nft `gorm:"foreignKey:FromNftID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 
-	ToTokenID uint
-	ToNftID   uint
-	ToNft     Nft `gorm:"foreignKey:ToNftID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	ToTemplateID uint
+	ToNftID      uint
+	ToNft        Nft `gorm:"foreignKey:ToNftID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 
 	ChallengeID uint
 	Challenge   Challenge `gorm:"foreignKey:ChallengeID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
@@ -32,10 +32,11 @@ type Raid struct {
 type Nft struct {
 	ID uint
 
-	TokenID uint
-	Traits  []Trait `gorm:"many2many:nft_traits;"`
-	Uri     string
-	Points  uint
+	TokenID    uint
+	TemplateID uint
+	Traits     []Trait `gorm:"many2many:nft_traits;"`
+	Uri        string
+	Points     uint
 
 	CreatedAt time.Time
 	UpdatedAt time.Time
@@ -45,10 +46,10 @@ type Nft struct {
 	QueuedForRaiding   bool
 }
 
-func GetNft(tokenID uint) (Nft, error) {
+func GetNft(TemplateID uint) (Nft, error) {
 	var nft Nft
 
-	result := db.Where("token_id = ?", tokenID).First(&nft)
+	result := db.Where("template_id = ?", TemplateID).First(&nft)
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return nft, fmt.Errorf("NFT not found")
@@ -108,10 +109,10 @@ func (nft *Nft) RaidMatch() error {
 	} else {
 		// Create a raid
 		raid := &Raid{
-			FromTokenID: nft.TokenID,
-			FromNftID:   nft.ID,
-			ToTokenID:   availableToken.TokenID,
-			ToNftID:     availableToken.ID,
+			FromTemplateID: nft.TemplateID,
+			FromNftID:      nft.ID,
+			ToTemplateID:   availableToken.TemplateID,
+			ToNftID:        availableToken.ID,
 		}
 		result := tx.Create(&raid)
 		if result.Error != nil {
