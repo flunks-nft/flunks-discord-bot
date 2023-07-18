@@ -70,7 +70,10 @@ func ButtonInteractionCreateOne(s *discordgo.Session, i *discordgo.InteractionCr
 			if customIDParts[1] == "raid" && customIDParts[2] == "one" {
 				// You can use customIdParts[3] which should be the tokenID
 				// Replace the line below with your desired function handling the specific tokenID
-				respondeEphemeralMessage(s, i, fmt.Sprintf("Starting Raid for Flunk: %s", customIDParts[3]))
+				templateID := customIDParts[3]
+				templateIDInt, _ := StringToUInt(templateID)
+				respondeEphemeralMessage(s, i, fmt.Sprintf("Starting Raid for Flunk: %s", templateID))
+				QueueForRaid(s, i, templateIDInt)
 			}
 		}
 	}
@@ -96,30 +99,30 @@ func handlesYearbook(s *discordgo.Session, i *discordgo.InteractionCreate, user 
 	return
 }
 
-func QueueForRaid(s *discordgo.Session, i *discordgo.InteractionCreate, tokenID uint) {
+func QueueForRaid(s *discordgo.Session, i *discordgo.InteractionCreate, templateID uint) {
 	// Get NFT instance from database
-	nft, err := db.GetNft(tokenID)
+	nft, err := db.GetNft(templateID)
 	if err != nil {
-		msg := fmt.Sprintf("⚠️ Flunk #%v not found.", tokenID)
+		msg := fmt.Sprintf("⚠️ Flunk #%v not found.", templateID)
 		respondeEphemeralMessage(s, i, msg)
 		return
 	}
 	// TODO: Check if token is owned by the Discord user
 	// Check if token has raided in the last 24 hours
 	if isReady, nextValidRaidTime := nft.IsReadyForRaidQueue(); !isReady {
-		msg := fmt.Sprintf("⚠️ NFT with tokenID %v is not ready for raid queue. Still %s hours remaining", tokenID, nextValidRaidTime)
+		msg := fmt.Sprintf("⚠️ NFT with tokenID %v is not ready for raid queue. Still %s hours remaining", templateID, nextValidRaidTime)
 		respondeEphemeralMessage(s, i, msg)
 		return
 	}
 	// check if token is already in the raid queue
 	if isInRaidQueue := nft.IsInRaidQueue(); isInRaidQueue {
-		msg := fmt.Sprintf("⚠️ NFT with tokenID %v is already in the raid queue.", tokenID)
+		msg := fmt.Sprintf("⚠️ NFT with tokenID %v is already in the raid queue.", templateID)
 		respondeEphemeralMessage(s, i, msg)
 		return
 	}
 	// TODO: check if token is already in a raid
 	if isRaiding := nft.IsRaiding(); isRaiding {
-		msg := fmt.Sprintf("⚠️ NFT with tokenID %v is already in a raid.", tokenID)
+		msg := fmt.Sprintf("⚠️ NFT with tokenID %v is already in a raid.", templateID)
 		respondeEphemeralMessage(s, i, msg)
 		return
 	}
@@ -131,7 +134,7 @@ func QueueForRaid(s *discordgo.Session, i *discordgo.InteractionCreate, tokenID 
 		err := nft.RaidMatch()
 		retryCounter += 1
 		if err == nil {
-			msg := fmt.Sprintf("Flunk #%v is in the raid queue", tokenID)
+			msg := fmt.Sprintf("Flunk #%v is in the raid queue", templateID)
 			respondeEphemeralMessage(s, i, msg)
 			break
 		} else {
@@ -141,11 +144,11 @@ func QueueForRaid(s *discordgo.Session, i *discordgo.InteractionCreate, tokenID 
 
 	// Otherwise just add to the match queue
 	if err := nft.AddToRaidQueue(); err != nil {
-		msg := fmt.Sprintf("⚠️ Failed to add Flunk #%v to the raid queue", tokenID)
+		msg := fmt.Sprintf("⚠️ Failed to add Flunk #%v to the raid queue", templateID)
 		respondeEphemeralMessage(s, i, msg)
 		return
 	} else {
-		msg := fmt.Sprintf("Flunk #%v is in the raid queue", tokenID)
+		msg := fmt.Sprintf("Flunk #%v is in the raid queue", templateID)
 		respondeEphemeralMessage(s, i, msg)
 		return
 	}
