@@ -28,6 +28,10 @@ func init() {
 	DB_PORT = os.Getenv("DB_PORT")
 }
 
+func GetDB() *gorm.DB {
+	return db
+}
+
 func InitDB() {
 	// PostgreSQL connection details
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=Asia/Singapore", DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, DB_PORT)

@@ -4,8 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"os/signal"
-	"syscall"
+	"sync"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/flunks-nft/discord-bot/utils"
@@ -48,7 +47,7 @@ func init() {
 	}
 }
 
-func InitDiscord() {
+func InitDiscord(wg *sync.WaitGroup, done chan struct{}) {
 	// Create a new Discord session using the provided bot token.
 	s, err := discordgo.New("Bot " + DISCORD_TOKEN)
 	if err != nil {
@@ -98,11 +97,12 @@ func InitDiscord() {
 	// Cleanly close down the Discord session.
 	defer s.Close()
 
+	// Signal the WaitGroup that Discord service has started
+	wg.Done()
+
 	// Wait here until CTRL-C or other term signal is received.
 	log.Println("🌱 Bot is now running. Press CTRL-C to exit.")
-	stop := make(chan os.Signal, 1)
-	signal.Notify(stop, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
-	<-stop
+	<-done
 
 	if *RemoveCommands {
 		removeSlashCommands()
