@@ -46,16 +46,31 @@ type Nft struct {
 	QueuedForRaiding   bool
 }
 
-func GetNft(TemplateID uint) (Nft, error) {
+func GetNftByTemplateID(templateID uint) (Nft, error) {
 	var nft Nft
 
-	result := db.Where("template_id = ?", TemplateID).First(&nft)
+	result := db.Where("template_id = ?", templateID).First(&nft)
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return nft, fmt.Errorf("NFT not found")
 		}
 		return nft, result.Error
 	}
+	return nft, nil
+}
+
+func CreateNft(tokenID uint, templateID uint) (Nft, error) {
+	nft := Nft{
+		TokenID:    tokenID,
+		TemplateID: templateID,
+	}
+	db.Create(&nft)
+
+	nft, err := GetNftByTemplateID(templateID)
+	if err != nil {
+		return nft, err
+	}
+
 	return nft, nil
 }
 

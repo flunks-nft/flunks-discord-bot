@@ -29,17 +29,20 @@ func ButtonInteractionCreate(s *discordgo.Session, i *discordgo.InteractionCreat
 	if i.Type == discordgo.InteractionMessageComponent {
 		switch i.MessageComponentData().CustomID {
 		case "start_raid_all":
-			respondeEphemeralMessage(s, i, "⚠️ TODO: queue all of your Flunks to Raid.")
+			QueueForRaidAll(s, i, user)
+			return
 		case "manage_wallet":
 			respondeEphemeralMessage(s, i, "⚠️ Please use /dapper command to set up / update your Dapper wallet address.")
 		case "yearbook":
 			handlesYearbook(s, i, user)
+			return
 		case "lottery":
 			respondeEphemeralMessage(s, i, "You clicked the 🍀 button.")
 		case "start_raid_one":
 			respondeEphemeralMessage(s, i, "You clicked the start_raid_one button.")
 		case "next_flunk":
 			handlesYearbook(s, i, user)
+			return
 		}
 	}
 }
@@ -86,7 +89,8 @@ func handlesRaidOne(s *discordgo.Session, i *discordgo.InteractionCreate) {
 				templateID := customIDParts[3]
 				templateIDInt, _ := StringToUInt(templateID)
 				respondeEphemeralMessage(s, i, fmt.Sprintf("Starting Raid for Flunk: %s", templateID))
-				QueueForRaid(s, i, templateIDInt)
+				msg, _ := QueueForRaidOne(s, i, templateIDInt)
+				respondeEphemeralMessage(s, i, msg)
 			}
 		}
 	}
@@ -110,7 +114,6 @@ func handlesYearbook(s *discordgo.Session, i *discordgo.InteractionCreate, user 
 	nextIndex := user.GetNextTokenIndex(totalCount)
 	item := items[nextIndex]
 	respondeEphemeralMessageWithMedia(s, i, item)
-	return
 }
 
 // handlesZeeroRedirect is a handler for the "Check on Zeero" button to Zeero
@@ -124,63 +127,71 @@ func handlesZeeroRedirect(s *discordgo.Session, i *discordgo.InteractionCreate) 
 				tokenID := customIDParts[2]
 				msg := fmt.Sprintf("https://zeero.art/collection/flunks/%v", tokenID)
 				respondeEphemeralMessage(s, i, msg)
-				return
 			}
 		}
 	}
 }
 
-func QueueForRaid(s *discordgo.Session, i *discordgo.InteractionCreate, templateID uint) {
-	// Get NFT instance from database
-	nft, err := db.GetNft(templateID)
+// QueueForRaidAll adds all Flunks that belongs to a user to a raid queue for the challenge match
+func QueueForRaidAll(s *discordgo.Session, i *discordgo.InteractionCreate, user db.User) {
+	// Retrieve Flunks for the user
+	items, err := user.GetFlunks()
 	if err != nil {
-		msg := fmt.Sprintf("⚠️ Flunk #%v not found.", templateID)
-		respondeEphemeralMessage(s, i, msg)
+		respondeEphemeralMessage(s, i, "⚠️ Failed to get your Flunks from Dapper.")
 		return
+	}
+
+	if len(items) == 0 {
+		respondeEphemeralMessage(s, i, "⚠️ You don't have any Flunks in your Dapper wallet.")
+		return
+	}
+
+	msgArray := []string{}
+
+	// Queue them all
+	for _, item := range items {
+		msg, err := QueueForRaidOne(s, i, uint(item.TemplateID))
+		if err == nil {
+			msgArray = append(msgArray, msg)
+		}
+	}
+
+	msg := fmt.Sprintf("✅ %v Flunks have been added to the raid queue.", len(msgArray))
+
+	// Send a message to the user with all the Flunks that are queued
+	respondeEphemeralMessage(s, i, msg)
+}
+
+// QueueForRaidOne adds Flunk to a raid queue for the challenge match
+func QueueForRaidOne(s *discordgo.Session, i *discordgo.InteractionCreate, templateID uint) (string, error) {
+	// Get NFT instance from database
+	nft, err := db.GetNftByTemplateID(templateID)
+	if err != nil {
+		nft, err = db.CreateNft(0, templateID)
 	}
 	// TODO: Check if token is owned by the Discord user
 	// Check if token has raided in the last 24 hours
 	if isReady, nextValidRaidTime := nft.IsReadyForRaidQueue(); !isReady {
 		msg := fmt.Sprintf("⚠️ NFT with tokenID %v is not ready for raid queue. Still %s hours remaining", templateID, nextValidRaidTime)
-		respondeEphemeralMessage(s, i, msg)
-		return
+		return msg, err
 	}
 	// check if token is already in the raid queue
 	if isInRaidQueue := nft.IsInRaidQueue(); isInRaidQueue {
 		msg := fmt.Sprintf("⚠️ NFT with tokenID %v is already in the raid queue.", templateID)
-		respondeEphemeralMessage(s, i, msg)
-		return
+		return msg, err
 	}
 	// TODO: check if token is already in a raid
 	if isRaiding := nft.IsRaiding(); isRaiding {
 		msg := fmt.Sprintf("⚠️ NFT with tokenID %v is already in a raid.", templateID)
-		respondeEphemeralMessage(s, i, msg)
-		return
+		return msg, err
 	}
 
-	// Try to find a match first
-	// TODO: add this to the worker
-	retryCounter := 0
-	for retryCounter < 10 {
-		err := nft.RaidMatch()
-		retryCounter += 1
-		if err == nil {
-			msg := fmt.Sprintf("Flunk #%v is in the raid queue", templateID)
-			respondeEphemeralMessage(s, i, msg)
-			break
-		} else {
-			// TODO: log error
-		}
-	}
-
-	// Otherwise just add to the match queue
+	// Add Flunk to the match queue
 	if err := nft.AddToRaidQueue(); err != nil {
 		msg := fmt.Sprintf("⚠️ Failed to add Flunk #%v to the raid queue", templateID)
-		respondeEphemeralMessage(s, i, msg)
-		return
+		return msg, err
 	} else {
-		msg := fmt.Sprintf("Flunk #%v is in the raid queue", templateID)
-		respondeEphemeralMessage(s, i, msg)
-		return
+		msg := fmt.Sprintf("%v", templateID)
+		return msg, nil
 	}
 }
