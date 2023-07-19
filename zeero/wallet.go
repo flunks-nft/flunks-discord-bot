@@ -37,6 +37,8 @@ type NftMetadataDto struct {
 	URI string `json:"uri"`
 }
 
+// GetFlunks gets all the Flunks and their metadata from the Zeero API
+// TODO: it's currently 50 Flunks, but we need to paginate
 func GetFlunks(address string) ([]NftDtoWithActivity, error) {
 	// Send an HTTP GET request
 	url := fmt.Sprintf("%s/users/%s", ZEERO_API_URL, address)

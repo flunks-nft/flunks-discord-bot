@@ -57,6 +57,19 @@ func ButtonInteractionCreateOne(s *discordgo.Session, i *discordgo.InteractionCr
 		return
 	}
 
+	customID := i.MessageComponentData().CustomID
+	if strings.Contains(customID, "start_raid_one") {
+		handlesRaidOne(s, i)
+		return
+	}
+
+	if strings.Contains(customID, "redirect_zeero") {
+		handlesZeeroRedirect(s, i)
+		return
+	}
+}
+
+func handlesRaidOne(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	customIDParts := strings.Split(i.MessageComponentData().CustomID, "_")
 	if len(customIDParts) < 4 {
 		log.Printf("Invalid custom ID: %s", i.MessageComponentData().CustomID)
@@ -78,6 +91,7 @@ func ButtonInteractionCreateOne(s *discordgo.Session, i *discordgo.InteractionCr
 	}
 }
 
+// handlesZeeroRedirect is a handler for the Yearbook button to Zeero
 func handlesYearbook(s *discordgo.Session, i *discordgo.InteractionCreate, user db.User) {
 	items, err := user.GetFlunks()
 	if err != nil {
@@ -96,6 +110,23 @@ func handlesYearbook(s *discordgo.Session, i *discordgo.InteractionCreate, user 
 	item := items[nextIndex]
 	respondeEphemeralMessageWithMedia(s, i, item)
 	return
+}
+
+// handlesZeeroRedirect is a handler for the "Check on Zeero" button to Zeero
+func handlesZeeroRedirect(s *discordgo.Session, i *discordgo.InteractionCreate) {
+	customIDParts := strings.Split(i.MessageComponentData().CustomID, "_")
+
+	if i.Type == discordgo.InteractionMessageComponent {
+		switch customIDParts[0] {
+		case "redirect":
+			if customIDParts[1] == "zeero" {
+				tokenID := customIDParts[2]
+				msg := fmt.Sprintf("https://zeero.art/collection/flunks/%v", tokenID)
+				respondeEphemeralMessage(s, i, msg)
+				return
+			}
+		}
+	}
 }
 
 func QueueForRaid(s *discordgo.Session, i *discordgo.InteractionCreate, templateID uint) {

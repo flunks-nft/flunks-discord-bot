@@ -32,10 +32,11 @@ func respondeEphemeralMessageWithMedia(s *discordgo.Session, i *discordgo.Intera
 		CustomID: fmt.Sprintf("start_raid_one_%v", item.TemplateID),
 	}
 
+	// Note that Zeero redirect is using tokenID as it's how the url is rendered
 	zeeroButton := discordgo.Button{
 		Label:    "Check on Zeero",
 		Style:    discordgo.PrimaryButton,
-		CustomID: "redirect_zeero",
+		CustomID: fmt.Sprintf("redirect_zeero_%v", item.TokenID),
 	}
 
 	nextButton := discordgo.Button{
