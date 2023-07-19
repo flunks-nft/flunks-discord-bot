@@ -46,19 +46,19 @@ func RaidMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 			discordgo.ActionsRow{
 				Components: []discordgo.MessageComponent{
 					discordgo.Button{
-						Label:    "Raid",
+						Label:    "Raid All",
 						Style:    discordgo.PrimaryButton,
 						CustomID: "start_raid_all",
-					},
-					discordgo.Button{
-						Label:    "Manage Wallet",
-						Style:    discordgo.SuccessButton,
-						CustomID: "manage_wallet",
 					},
 					discordgo.Button{
 						Label:    "Yearbook",
 						Style:    discordgo.SecondaryButton,
 						CustomID: "yearbook",
+					},
+					discordgo.Button{
+						Label:    "Manage Wallet",
+						Style:    discordgo.SuccessButton,
+						CustomID: "manage_wallet",
 					},
 					discordgo.Button{
 						Label:    "🍀",

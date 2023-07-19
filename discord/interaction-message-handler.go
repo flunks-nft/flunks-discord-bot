@@ -69,6 +69,7 @@ func ButtonInteractionCreateOne(s *discordgo.Session, i *discordgo.InteractionCr
 	}
 }
 
+// Handles start raid command for individual Flunks
 func handlesRaidOne(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	customIDParts := strings.Split(i.MessageComponentData().CustomID, "_")
 	if len(customIDParts) < 4 {
