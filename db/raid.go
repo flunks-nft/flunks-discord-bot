@@ -3,6 +3,8 @@ package db
 import (
 	"errors"
 	"fmt"
+	"log"
+	"math/rand"
 	"time"
 
 	"gorm.io/gorm"
@@ -168,6 +170,58 @@ func GetNextQueuedToken(tx *gorm.DB) (*Nft, error) {
 		return nil, err
 	}
 	return nft, nil
+}
+
+func GetNextQueuedTokenPair(tx *gorm.DB) ([]Nft, error) {
+	database := tx
+	if database == nil {
+		database = db
+	}
+
+	var nfts []Nft
+	err := database.Where("queued_for_raiding = ?", true).Order("RANDOM()").Limit(2).Find(&nfts).Error
+	if err != nil {
+		return nil, err
+	}
+
+	if len(nfts) != 2 {
+		return nil, fmt.Errorf("No available pair - has %v", len(nfts))
+	}
+
+	return nfts, nil
+}
+
+func QueueNextTokenPairForRaiding() (*Raid, error) {
+	tx := db.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+
+	nfts, err := GetNextQueuedTokenPair(tx)
+	if err != nil {
+		tx.Rollback()
+		log.Println(err)
+		return nil, err
+	}
+
+	raid := &Raid{
+		FromTemplateID: nfts[0].TemplateID,
+		FromNftID:      nfts[0].ID,
+		ToTemplateID:   nfts[1].TemplateID,
+		ToNftID:        nfts[1].ID,
+		ChallengeID:    uint(rand.Intn(4) + 1),
+	}
+
+	result := tx.Create(&raid)
+	if result.Error != nil {
+		tx.Rollback()
+		return nil, result.Error
+	}
+
+	tx.Commit()
+	return raid, nil
 }
 
 type Trait struct {

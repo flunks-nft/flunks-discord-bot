@@ -6,6 +6,8 @@ import (
 	"os"
 	"sync"
 	"time"
+
+	"github.com/flunks-nft/discord-bot/db"
 )
 
 var (
@@ -23,8 +25,7 @@ func InitRaidWorker(wg *sync.WaitGroup, done chan os.Signal) {
 	for {
 		select {
 		case <-Tiker.C:
-			// Worker logic here
-			fmt.Println("Worker is running...")
+			createMatchedChallenge()
 
 		case <-done:
 			// Stop the worker
@@ -34,4 +35,15 @@ func InitRaidWorker(wg *sync.WaitGroup, done chan os.Signal) {
 			return
 		}
 	}
+}
+
+func createMatchedChallenge() error {
+	raid, err := db.QueueNextTokenPairForRaiding()
+	if err != nil {
+		return err
+	}
+
+	fmt.Println(raid)
+
+	return nil
 }
