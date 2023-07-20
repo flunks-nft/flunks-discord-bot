@@ -3,39 +3,34 @@ package worker
 import (
 	"fmt"
 	"log"
+	"os"
 	"sync"
 	"time"
 )
 
-func InitRaidWorker(wg *sync.WaitGroup, done chan struct{}) {
-	// Create a ticker for the worker
-	ticker := time.NewTicker(3 * time.Second)
+var (
+	Tiker *time.Ticker
+)
 
-	// Start worker service
-	go runWorker(ticker, done, wg)
-
-	// Signal the WaitGroup that Worker service has started
-	wg.Done()
-
-	// Wait for termination signal
-	log.Println("🌱 Worker is now running. Press CTRL-C to exit.")
-	<-done
-
-	log.Println("🐒 Worker is shutdown.")
+func init() {
+	Tiker = time.NewTicker(3 * time.Second)
 }
 
-func runWorker(ticker *time.Ticker, done chan struct{}, wg *sync.WaitGroup) {
+func InitRaidWorker(wg *sync.WaitGroup, done chan os.Signal) {
+	log.Println("🌱 Worker is now running. Press CTRL-C to exit.")
+
 	// Run the worker loop until the done signal is received
 	for {
 		select {
-		case <-ticker.C:
+		case <-Tiker.C:
 			// Worker logic here
 			fmt.Println("Worker is running...")
 
 		case <-done:
 			// Stop the worker
-			ticker.Stop()
+			Tiker.Stop()
 			wg.Done() // Signal worker has completed shutdown
+			log.Println("🐒 Worker is Gracefully shut down.")
 			return
 		}
 	}

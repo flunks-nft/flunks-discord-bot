@@ -47,7 +47,7 @@ func init() {
 	}
 }
 
-func InitDiscord(wg *sync.WaitGroup, done chan struct{}) {
+func InitDiscord(wg *sync.WaitGroup, done chan os.Signal) {
 	// Create a new Discord session using the provided bot token.
 	s, err := discordgo.New("Bot " + DISCORD_TOKEN)
 	if err != nil {
@@ -97,10 +97,7 @@ func InitDiscord(wg *sync.WaitGroup, done chan struct{}) {
 	// Cleanly close down the Discord session.
 	defer s.Close()
 
-	// Signal the WaitGroup that Discord service has started
-	wg.Done()
-
-	// Wait here until CTRL-C or other term signal is received.
+	// Wait here until CTRL-C or other term signal is received. (with <-done)
 	log.Println("🌱 Bot is now running. Press CTRL-C to exit.")
 	<-done
 
@@ -108,5 +105,8 @@ func InitDiscord(wg *sync.WaitGroup, done chan struct{}) {
 		removeSlashCommands()
 	}
 
-	log.Println("🐒 Gracefully shutting down.")
+	log.Println("🐒 Discord Server is Gracefully shut down.")
+
+	// Signal the WaitGroup that Discord service has finished
+	wg.Done()
 }

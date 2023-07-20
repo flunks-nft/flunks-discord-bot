@@ -4,6 +4,7 @@ import (
 	"os"
 	"os/signal"
 	"sync"
+	"syscall"
 
 	"github.com/flunks-nft/discord-bot/db"
 	"github.com/flunks-nft/discord-bot/discord"
@@ -18,8 +19,9 @@ func main() {
 	wg := sync.WaitGroup{}
 	wg.Add(2) // Number of services to wait for shutdown
 
-	// Create a done channel to signal termination
-	done := make(chan struct{})
+	// Create a done channel to signal termination (CTRL + C)
+	done := make(chan os.Signal, 1)
+	signal.Notify(done, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
 
 	// Start Discord service
 	go discord.InitDiscord(&wg, done)
@@ -27,14 +29,9 @@ func main() {
 	// Start worker service
 	go worker.InitRaidWorker(&wg, done)
 
-	// Wait for interrupt signal (Ctrl+C)
-	sig := make(chan os.Signal, 1)
-	signal.Notify(sig, os.Interrupt)
-	<-sig
+	// Wait for services to complete shutdown
+	wg.Wait()
 
 	// Signal termination to the done channel
 	close(done)
-
-	// Wait for services to complete shutdown
-	wg.Wait()
 }
