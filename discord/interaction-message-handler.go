@@ -167,7 +167,8 @@ func QueueForRaidOne(s *discordgo.Session, i *discordgo.InteractionCreate, templ
 	// Get NFT instance from database
 	nft, err := db.GetNftByTemplateID(templateID)
 	if err != nil {
-		nft, err = db.CreateNft(0, templateID)
+		msg := fmt.Sprintf("⚠️ Syncing, please try later...")
+		return msg, err
 	}
 	// TODO: Check if token is owned by the Discord user
 	// Check if token has raided in the last 24 hours

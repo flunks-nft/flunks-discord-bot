@@ -7,6 +7,7 @@ import (
 	"math/rand"
 	"time"
 
+	"github.com/flunks-nft/discord-bot/zeero"
 	"gorm.io/gorm"
 )
 
@@ -60,10 +61,11 @@ func GetNftByTemplateID(templateID uint) (Nft, error) {
 	return nft, nil
 }
 
-func CreateNft(tokenID uint, templateID uint) (Nft, error) {
+func CreateNft(tokenID uint, templateID uint, uri string) (Nft, error) {
 	nft := Nft{
 		TokenID:    tokenID,
 		TemplateID: templateID,
+		Uri:        uri,
 	}
 	db.Create(&nft)
 
@@ -73,6 +75,18 @@ func CreateNft(tokenID uint, templateID uint) (Nft, error) {
 	}
 
 	return nft, nil
+}
+
+// TODO: optimize the logic for CreateOrUpdateFlunks
+func CreateOrUpdateFlunks(flunks []zeero.NftDtoWithActivity) error {
+	for _, flunk := range flunks {
+		// Get NFT instance from database
+		_, err := GetNftByTemplateID(uint(flunk.TemplateID))
+		if err != nil {
+			CreateNft(uint(flunk.TokenID), uint(flunk.TemplateID), flunk.Metadata.URI)
+		}
+	}
+	return nil
 }
 
 func (nft *Nft) IsInRaidQueue() bool {

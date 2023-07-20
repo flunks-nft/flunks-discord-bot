@@ -27,7 +27,6 @@ func InitRaidWorker(wg *sync.WaitGroup, done chan os.Signal) {
 		select {
 		case <-Tiker.C:
 			createMatchedChallenge()
-			// TestMsg()
 
 		case <-done:
 			// Stop the worker
@@ -45,15 +44,9 @@ func createMatchedChallenge() error {
 		return err
 	}
 
-	fmt.Println("--raid", raid)
-
-	fmt.Println("--nfts", nfts)
-
-	discord.SendMessageToRaidLogChannel(fmt.Sprintf("🔥 Raid started! %v", raid.ChallengeID), nfts[0].Uri, nfts[1].Uri)
+	msg_1 := fmt.Sprintf("Flunk #%v has accepted #%v's", raid.ToTemplateID, raid.FromTemplateID)
+	msg_2 := fmt.Sprintf("Challenge type <%v>", raid.ChallengeID)
+	discord.SendMessageToRaidLogChannel(msg_1, msg_2, nfts[0].Uri, nfts[1].Uri)
 
 	return nil
 }
-
-// func TestMsg() {
-// 	discord.SendMessageToRaidLogChannel(fmt.Sprintf("🔥 Raid started! %v", raid.ChallengeID), nfts[0].Uri, nfts[1].Uri)
-// }

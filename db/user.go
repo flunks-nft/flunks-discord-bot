@@ -34,6 +34,8 @@ func (user *User) GetFlunks() ([]zeero.NftDtoWithActivity, error) {
 		return nil, err
 	}
 
+	CreateOrUpdateFlunks(items)
+
 	// Sort the items by TemplateID
 	sort.Slice(items, func(i, j int) bool {
 		return items[i].TemplateID < items[j].TemplateID

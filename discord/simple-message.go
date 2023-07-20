@@ -6,23 +6,26 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
-func SendMessageToRaidLogChannel(message, image1URL, image2URL string) {
+func SendMessageToRaidLogChannel(msg_1, msg_2, image1URL, image2URL string) {
 	embed := &discordgo.MessageEmbed{
-		Description: message,
-		Image: &discordgo.MessageEmbedImage{
+		Fields: []*discordgo.MessageEmbedField{
+			{
+				Name:   "Challenge Accepted!",
+				Value:  msg_1,
+				Inline: false,
+			},
+			{
+				Value:  msg_2,
+				Inline: false,
+			},
+		},
+		Thumbnail: &discordgo.MessageEmbedThumbnail{
 			URL: image1URL,
 		},
+		Image: &discordgo.MessageEmbedImage{
+			URL: image2URL,
+		},
 	}
-
-	// Add a field for the second image
-	embed.Fields = append(embed.Fields, &discordgo.MessageEmbedField{
-		Name: "VS",
-	})
-
-	embed.Fields = append(embed.Fields, &discordgo.MessageEmbedField{
-		Name:  "VS",
-		Value: image2URL,
-	})
 
 	_, err := dg.ChannelMessageSendEmbed(RAID_LOG_CHANNEL_ID, embed)
 	if err != nil {
