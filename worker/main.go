@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/flunks-nft/discord-bot/db"
+	"github.com/flunks-nft/discord-bot/discord"
 )
 
 var (
@@ -15,7 +16,7 @@ var (
 )
 
 func init() {
-	Tiker = time.NewTicker(3 * time.Second)
+	Tiker = time.NewTicker(5 * time.Second)
 }
 
 func InitRaidWorker(wg *sync.WaitGroup, done chan os.Signal) {
@@ -26,6 +27,7 @@ func InitRaidWorker(wg *sync.WaitGroup, done chan os.Signal) {
 		select {
 		case <-Tiker.C:
 			createMatchedChallenge()
+			// TestMsg()
 
 		case <-done:
 			// Stop the worker
@@ -38,12 +40,20 @@ func InitRaidWorker(wg *sync.WaitGroup, done chan os.Signal) {
 }
 
 func createMatchedChallenge() error {
-	raid, err := db.QueueNextTokenPairForRaiding()
+	raid, nfts, err := db.QueueNextTokenPairForRaiding()
 	if err != nil {
 		return err
 	}
 
-	fmt.Println(raid)
+	fmt.Println("--raid", raid)
+
+	fmt.Println("--nfts", nfts)
+
+	discord.SendMessageToRaidLogChannel(fmt.Sprintf("🔥 Raid started! %v", raid.ChallengeID), nfts[0].Uri, nfts[1].Uri)
 
 	return nil
 }
+
+// func TestMsg() {
+// 	discord.SendMessageToRaidLogChannel(fmt.Sprintf("🔥 Raid started! %v", raid.ChallengeID), nfts[0].Uri, nfts[1].Uri)
+// }

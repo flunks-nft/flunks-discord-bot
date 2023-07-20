@@ -21,11 +21,10 @@ type Raid struct {
 	ToNftID      uint
 	ToNft        Nft `gorm:"foreignKey:ToNftID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 
-	ChallengeID uint
-	Challenge   Challenge `gorm:"foreignKey:ChallengeID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	// ChallengeID uint
+	// Challenge   Challenge `gorm:"foreignKey:ChallengeID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 
-	UserID uint // Foreign key referencing User's primary key
-	User   User `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"` // Reference to the User struct
+	ChallengeID uint
 
 	CreatedAt time.Time
 	UpdatedAt time.Time
@@ -191,7 +190,7 @@ func GetNextQueuedTokenPair(tx *gorm.DB) ([]Nft, error) {
 	return nfts, nil
 }
 
-func QueueNextTokenPairForRaiding() (*Raid, error) {
+func QueueNextTokenPairForRaiding() (*Raid, []Nft, error) {
 	tx := db.Begin()
 	defer func() {
 		if r := recover(); r != nil {
@@ -203,7 +202,7 @@ func QueueNextTokenPairForRaiding() (*Raid, error) {
 	if err != nil {
 		tx.Rollback()
 		log.Println(err)
-		return nil, err
+		return nil, nil, err
 	}
 
 	raid := &Raid{
@@ -217,11 +216,11 @@ func QueueNextTokenPairForRaiding() (*Raid, error) {
 	result := tx.Create(&raid)
 	if result.Error != nil {
 		tx.Rollback()
-		return nil, result.Error
+		return nil, nil, result.Error
 	}
 
 	tx.Commit()
-	return raid, nil
+	return raid, nfts, nil
 }
 
 type Trait struct {
@@ -237,10 +236,10 @@ type Trait struct {
 	UpdatedAt time.Time
 }
 
-type Challenge struct {
-	ID uint
+// type Challenge struct {
+// 	ID uint
 
-	// Challenge is mapped to Traitm only the "Clique" trait should be used
-	TraitID uint
-	Trait   Trait `gorm:"foreignKey:TraitID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
-}
+// 	// Challenge is mapped to Traitm only the "Clique" trait should be used
+// 	TraitID uint
+// 	Trait   Trait `gorm:"foreignKey:TraitID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+// }
