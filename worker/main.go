@@ -44,7 +44,7 @@ func createMatchedChallenge() error {
 		return err
 	}
 
-	msg_1 := fmt.Sprintf("Flunk #%v has accepted #%v's", raid.ToTemplateID, raid.FromTemplateID)
+	msg_1 := fmt.Sprintf("Flunk #%v has accepted #%v's challenge!", raid.ToTemplateID, raid.FromTemplateID)
 	msg_2 := fmt.Sprintf("Challenge type <%v>", raid.ChallengeID)
 	discord.SendMessageToRaidLogChannel(msg_1, msg_2, nfts[0].Uri, nfts[1].Uri)
 

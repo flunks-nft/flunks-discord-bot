@@ -7,23 +7,30 @@ import (
 )
 
 func SendMessageToRaidLogChannel(msg_1, msg_2, image1URL, image2URL string) {
+	sendMessageToRaidLogChannel(msg_1)
+	sendFlunksStatsMessageToRaidLogChannel(image1URL)
+	sendFlunksStatsMessageToRaidLogChannel(image2URL)
+
+}
+
+func sendMessageToRaidLogChannel(message string) {
+	_, err := dg.ChannelMessageSend(RAID_LOG_CHANNEL_ID, message)
+	if err != nil {
+		fmt.Println("Error sending message to channel:", err)
+	}
+}
+
+// TODO: display Flunk stats in the message
+func sendFlunksStatsMessageToRaidLogChannel(imgUrl string) {
 	embed := &discordgo.MessageEmbed{
 		Fields: []*discordgo.MessageEmbedField{
 			{
 				Name:   "Challenge Accepted!",
-				Value:  msg_1,
-				Inline: false,
-			},
-			{
-				Value:  msg_2,
 				Inline: false,
 			},
 		},
 		Thumbnail: &discordgo.MessageEmbedThumbnail{
-			URL: image1URL,
-		},
-		Image: &discordgo.MessageEmbedImage{
-			URL: image2URL,
+			URL: imgUrl,
 		},
 	}
 
@@ -31,5 +38,4 @@ func SendMessageToRaidLogChannel(msg_1, msg_2, image1URL, image2URL string) {
 	if err != nil {
 		fmt.Println("Error sending embedded message to channel:", err)
 	}
-
 }
