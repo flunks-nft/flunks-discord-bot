@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"log"
 	"math/rand"
+	"reflect"
 	"time"
 
+	"github.com/flunks-nft/discord-bot/utils"
 	"github.com/flunks-nft/discord-bot/zeero"
 	"gorm.io/gorm"
 )
@@ -61,13 +63,15 @@ func GetNftByTemplateID(templateID uint) (Nft, error) {
 	return nft, nil
 }
 
-func CreateNft(tokenID uint, templateID uint, uri string) (Nft, error) {
+func CreateNft(tokenID uint, templateID uint, uri string, traits []Trait) (Nft, error) {
 	nft := Nft{
 		TokenID:    tokenID,
 		TemplateID: templateID,
 		Uri:        uri,
 	}
 	db.Create(&nft)
+
+	db.Model(&nft).Association("Traits").Append(traits)
 
 	nft, err := GetNftByTemplateID(templateID)
 	if err != nil {
@@ -80,10 +84,16 @@ func CreateNft(tokenID uint, templateID uint, uri string) (Nft, error) {
 // TODO: optimize the logic for CreateOrUpdateFlunks
 func CreateOrUpdateFlunks(flunks []zeero.NftDtoWithActivity) error {
 	for _, flunk := range flunks {
-		// Get NFT instance from database
-		_, err := GetNftByTemplateID(uint(flunk.TemplateID))
+		// Create Traits
+		traits, err := CreateTraitsForFlunks(flunk.Metadata)
 		if err != nil {
-			CreateNft(uint(flunk.TokenID), uint(flunk.TemplateID), flunk.Metadata.URI)
+			return err
+		}
+
+		// Get NFT instance from database
+		_, err = GetNftByTemplateID(uint(flunk.TemplateID))
+		if err != nil {
+			CreateNft(uint(flunk.TokenID), uint(flunk.TemplateID), flunk.Metadata.URI, traits)
 		}
 	}
 	return nil
@@ -240,14 +250,60 @@ func QueueNextTokenPairForRaiding() (*Raid, []Nft, error) {
 type Trait struct {
 	ID uint
 
-	NftID uint
-
 	Name  string
 	Value string
 	Score uint
 
 	CreatedAt time.Time
 	UpdatedAt time.Time
+}
+
+func (trait Trait) CreateTrait() error {
+	result := db.Create(&trait)
+	if result.Error != nil {
+		// silently fail
+	}
+	return nil
+}
+
+func CreateTraitsForFlunks(metadata zeero.NftMetadataDto) ([]Trait, error) {
+	// Use reflection to iterate over the fields of the struct
+	types := reflect.TypeOf(metadata)
+	values := reflect.ValueOf(metadata)
+
+	traits := make([]Trait, 0)
+
+	for i := 0; i < types.NumField(); i++ {
+		field := types.Field(i)
+		value := values.Field(i)
+
+		traitName := field.Name
+		traitValue := value.Interface().(string)
+
+		if traitName == "URI" {
+			continue
+		}
+
+		trait := Trait{
+			Name:  traitName,
+			Value: traitValue,
+		}
+
+		if score, found := utils.TraitToScore[traitValue]; found {
+			trait.Score = score
+		} else {
+			trait.Score = 0 // Set a default value (0) if the traitValue is not found in the map.
+		}
+
+		err := trait.CreateTrait()
+		if err != nil {
+			return traits, err
+		}
+
+		traits = append(traits, trait)
+	}
+
+	return traits, nil
 }
 
 // type Challenge struct {

@@ -16,7 +16,7 @@ var (
 )
 
 func init() {
-	Tiker = time.NewTicker(5 * time.Second)
+	Tiker = time.NewTicker(60 * time.Second)
 }
 
 func InitRaidWorker(wg *sync.WaitGroup, done chan os.Signal) {
