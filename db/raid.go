@@ -199,8 +199,9 @@ func GetNextQueuedToken(tx *gorm.DB) (*Nft, error) {
 	return nft, nil
 }
 
+// GetNextQueuedTokenPair gets the next 2 available tokens pairs
+// that are queued for raiding, including their traits
 func GetNextQueuedTokenPair(tx *gorm.DB) ([]Nft, error) {
-	// !!TODO: return NFT traits as well
 	database := tx
 	if database == nil {
 		database = db
@@ -210,6 +211,14 @@ func GetNextQueuedTokenPair(tx *gorm.DB) ([]Nft, error) {
 	err := database.Where("queued_for_raiding = ?", true).Order("RANDOM()").Limit(2).Find(&nfts).Error
 	if err != nil {
 		return nil, err
+	}
+
+	// Preload the Traits for each Nft
+	for i := range nfts {
+		err := database.Model(&nfts[i]).Association("Traits").Find(&nfts[i].Traits)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	if len(nfts) != 2 {
@@ -286,6 +295,12 @@ func CreateTraitsForFlunks(metadata zeero.NftMetadataDto) ([]Trait, error) {
 		traitValue := value.Interface().(string)
 
 		if traitName == "URI" {
+			continue
+		}
+
+		// only Graduated Flunks have a Type trait
+		// so skip the Type trait if it's empty
+		if traitName == "Type" && traitValue == "" {
 			continue
 		}
 
