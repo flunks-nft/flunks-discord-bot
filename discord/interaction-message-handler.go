@@ -88,7 +88,6 @@ func handlesRaidOne(s *discordgo.Session, i *discordgo.InteractionCreate) {
 				// Replace the line below with your desired function handling the specific tokenID
 				templateID := customIDParts[3]
 				templateIDInt, _ := StringToUInt(templateID)
-				respondeEphemeralMessage(s, i, fmt.Sprintf("Starting Raid for Flunk: %s", templateID))
 				msg, _ := QueueForRaidOne(s, i, templateIDInt)
 				respondeEphemeralMessage(s, i, msg)
 			}
@@ -193,7 +192,7 @@ func QueueForRaidOne(s *discordgo.Session, i *discordgo.InteractionCreate, templ
 		msg := fmt.Sprintf("⚠️ Failed to add Flunk #%v to the raid queue", templateID)
 		return msg, err
 	} else {
-		msg := fmt.Sprintf("%v", templateID)
+		msg := fmt.Sprintf("✅ Flunk %v has been added to the raid queue.", templateID)
 		return msg, nil
 	}
 }
