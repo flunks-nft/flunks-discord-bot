@@ -34,8 +34,8 @@ type NftDtoWithActivity struct {
 }
 
 type NftMetadataDto struct {
-	URI         string  `json:"uri"`
-	Superlative string  `json:"Superlative"`
+	URI string `json:"uri"`
+
 	Clique      string  `json:"Clique"`
 	Face        string  `json:"Face"`
 	Torso       string  `json:"Torso"`
@@ -43,6 +43,7 @@ type NftMetadataDto struct {
 	Pigment     string  `json:"Pigment"`
 	Backdrop    string  `json:"Backdrop"`
 	Type        *string `json:"Type"`
+	Superlative string  `json:"Superlative"`
 }
 
 // GetFlunks gets all the Flunks and their metadata from the Zeero API
