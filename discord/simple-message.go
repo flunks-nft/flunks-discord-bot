@@ -4,12 +4,13 @@ import (
 	"fmt"
 
 	"github.com/bwmarrin/discordgo"
+	"github.com/flunks-nft/discord-bot/db"
 )
 
-func SendMessageToRaidLogChannel(msg_1, msg_2, image1URL, image2URL string) {
+func SendMessageToRaidLogChannel(msg_1 string, msg_2 string, nft1 db.Nft, nft2 db.Nft) {
 	sendMessageToRaidLogChannel(msg_1)
-	sendFlunksStatsMessageToRaidLogChannel(image1URL)
-	sendFlunksStatsMessageToRaidLogChannel(image2URL)
+	sendFlunksStatsMessageToRaidLogChannel(nft1)
+	sendFlunksStatsMessageToRaidLogChannel(nft2)
 
 }
 
@@ -21,16 +22,27 @@ func sendMessageToRaidLogChannel(message string) {
 }
 
 // TODO: display Flunk stats in the message
-func sendFlunksStatsMessageToRaidLogChannel(imgUrl string) {
+func sendFlunksStatsMessageToRaidLogChannel(nft db.Nft) {
+	var fields []*discordgo.MessageEmbedField
+
+	fields = append(fields, &discordgo.MessageEmbedField{
+		Name:   "Challenge Accepted!",
+		Inline: false,
+	})
+
+	traits := nft.GetTraits()
+	for _, trait := range traits {
+		fields = append(fields, &discordgo.MessageEmbedField{
+			Name:   trait.Name,
+			Value:  trait.Value,
+			Inline: false,
+		})
+	}
+
 	embed := &discordgo.MessageEmbed{
-		Fields: []*discordgo.MessageEmbedField{
-			{
-				Name:   "Challenge Accepted!",
-				Inline: false,
-			},
-		},
+		Fields: fields,
 		Thumbnail: &discordgo.MessageEmbedThumbnail{
-			URL: imgUrl,
+			URL: nft.Uri,
 		},
 	}
 

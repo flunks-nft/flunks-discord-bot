@@ -50,6 +50,10 @@ type Nft struct {
 	QueuedForRaiding   bool
 }
 
+func (nft Nft) GetTraits() []Trait {
+	return nft.Traits
+}
+
 func GetNftByTemplateID(templateID uint) (Nft, error) {
 	var nft Nft
 
