@@ -126,55 +126,6 @@ func (nft *Nft) IsReadyForRaidQueue() (bool, time.Duration) {
 	return true, 0
 }
 
-func (nft *Nft) RaidMatch() error {
-	tx := db.Begin()
-	defer func() {
-		if r := recover(); r != nil {
-			tx.Rollback()
-		}
-	}()
-
-	// Get the next available token
-	availableToken, err := GetNextQueuedToken(tx)
-	if err != nil {
-		tx.Rollback()
-		return err
-	} else if availableToken == nil {
-		// Update NFT QueuedForRaiding to true & Raiding to false in database
-		result := tx.Model(&nft).Updates(Nft{QueuedForRaiding: true, Raiding: false})
-		if result.Error != nil {
-			tx.Rollback()
-			if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-				return fmt.Errorf("NFT not found")
-			}
-			return result.Error
-		}
-	} else {
-		// Create a raid
-		raid := &Raid{
-			FromTemplateID: nft.TemplateID,
-			FromNftID:      nft.ID,
-			ToTemplateID:   availableToken.TemplateID,
-			ToNftID:        availableToken.ID,
-		}
-		result := tx.Create(&raid)
-		if result.Error != nil {
-			tx.Rollback()
-			return result.Error
-		}
-
-		// Update both NFTs Raiding to true & QueuedForRaiding to false in database
-		result = tx.Model(&nft).Updates(Nft{QueuedForRaiding: false, Raiding: true})
-		if result.Error != nil {
-			tx.Rollback()
-			return result.Error
-		}
-	}
-
-	tx.Commit()
-	return nil
-}
-
 func (nft *Nft) AddToRaidQueue() error {
 	// Update NFT QueuedForRaiding to true in database
 	result := db.Model(&nft).Updates(Nft{QueuedForRaiding: true})
@@ -251,6 +202,17 @@ func QueueNextTokenPairForRaiding() (*Raid, []Nft, error) {
 	}
 
 	result := tx.Create(&raid)
+	if result.Error != nil {
+		tx.Rollback()
+		return nil, nil, result.Error
+	}
+
+	// Mark both nfts as Raiding and set QueuedForRaiding to false
+	nftUpdateData := map[string]interface{}{
+		"Raiding":          true,
+		"QueuedForRaiding": false,
+	}
+	result = tx.Model(&nfts).Updates(nftUpdateData)
 	if result.Error != nil {
 		tx.Rollback()
 		return nil, nil, result.Error
