@@ -4,3 +4,14 @@ package utils
 var TraitToScore = map[string]uint{
 	"Superlative": 1,
 }
+
+var TraitNameToEmoji = map[string]string{
+	"Clique":      "👯",
+	"Face":        "😀",
+	"Torso":       "👕",
+	"Head":        "🧠",
+	"Pigment":     "🎨",
+	"Backdrop":    "🏞️",
+	"Type":        "🎓",
+	"Superlative": "🏆",
+}

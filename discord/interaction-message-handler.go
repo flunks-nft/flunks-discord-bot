@@ -113,6 +113,7 @@ func handlesYearbook(s *discordgo.Session, i *discordgo.InteractionCreate, user 
 	totalCount := len(items)
 	nextIndex := user.GetNextTokenIndex(totalCount)
 	item := items[nextIndex]
+
 	respondeEphemeralMessageWithMedia(s, i, item)
 }
 

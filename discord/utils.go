@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"github.com/bwmarrin/discordgo"
+	"github.com/flunks-nft/discord-bot/utils"
 	"github.com/flunks-nft/discord-bot/zeero"
 )
 
@@ -45,6 +46,14 @@ func respondeEphemeralMessageWithMedia(s *discordgo.Session, i *discordgo.Intera
 		CustomID: "next_flunk",
 	}
 
+	traits := item.Metadata.Traits()
+	// Create a string to store the concatenated traits
+	var traitsString string
+	for _, trait := range traits {
+		emoji := utils.TraitNameToEmoji[trait.Name]
+		traitsString += fmt.Sprintf("%v %s: %s\n", emoji, trait.Name, trait.Value)
+	}
+
 	// Write a code to handle the button interaction
 	err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 		Type: discordgo.InteractionResponseChannelMessageWithSource,
@@ -61,7 +70,7 @@ func respondeEphemeralMessageWithMedia(s *discordgo.Session, i *discordgo.Intera
 						URL: item.Metadata.URI,
 					},
 					Footer: &discordgo.MessageEmbedFooter{
-						Text: fmt.Sprintf("📚 Flunks # %v", item.TemplateID),
+						Text: fmt.Sprintf("📚 Flunks # %v\n%s", item.TemplateID, traitsString),
 					},
 				},
 			},
