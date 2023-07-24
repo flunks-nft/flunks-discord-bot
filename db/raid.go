@@ -200,6 +200,7 @@ func GetNextQueuedToken(tx *gorm.DB) (*Nft, error) {
 }
 
 func GetNextQueuedTokenPair(tx *gorm.DB) ([]Nft, error) {
+	// !!TODO: return NFT traits as well
 	database := tx
 	if database == nil {
 		database = db
