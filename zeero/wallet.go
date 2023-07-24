@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"reflect"
 
 	"github.com/flunks-nft/discord-bot/utils"
 )
@@ -31,6 +32,47 @@ type NftDtoWithActivity struct {
 	TokenID    int            `json:"tokenId"`
 	TemplateID int            `json:"templateId"`
 	Metadata   NftMetadataDto `json:"metadata"`
+}
+
+type Trait struct {
+	Name  string
+	Value string
+	Score uint
+}
+
+func (metadata NftMetadataDto) Traits() []Trait {
+	// Use reflection to iterate over the fields of the struct
+	types := reflect.TypeOf(metadata)
+	values := reflect.ValueOf(metadata)
+
+	traits := make([]Trait, 0)
+
+	for i := 0; i < types.NumField(); i++ {
+		field := types.Field(i)
+		value := values.Field(i)
+
+		traitName := field.Name
+		traitValue := value.Interface().(string)
+
+		if traitName == "URI" {
+			continue
+		}
+
+		// only Graduated Flunks have a Type trait
+		// so skip the Type trait if it's empty
+		if traitName == "Type" && traitValue == "" {
+			continue
+		}
+
+		trait := Trait{
+			Name:  traitName,
+			Value: traitValue,
+		}
+
+		traits = append(traits, trait)
+	}
+
+	return traits
 }
 
 type NftMetadataDto struct {

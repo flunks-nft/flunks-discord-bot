@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"math/rand"
-	"reflect"
 	"time"
 
 	"github.com/flunks-nft/discord-bot/utils"
@@ -89,7 +88,7 @@ func CreateNft(tokenID uint, templateID uint, uri string, traits []Trait) (Nft, 
 func CreateOrUpdateFlunks(flunks []zeero.NftDtoWithActivity) error {
 	for _, flunk := range flunks {
 		// Create Traits
-		traits, err := CreateTraitsForFlunks(flunk.Metadata)
+		traits, err := CreateTraits(flunk.Metadata)
 		if err != nil {
 			return err
 		}
@@ -272,7 +271,7 @@ type Trait struct {
 	UpdatedAt time.Time
 }
 
-func (trait Trait) CreateTrait() error {
+func (trait Trait) create() error {
 	result := db.Create(&trait)
 	if result.Error != nil {
 		// silently fail
@@ -280,56 +279,22 @@ func (trait Trait) CreateTrait() error {
 	return nil
 }
 
-func CreateTraitsForFlunks(metadata zeero.NftMetadataDto) ([]Trait, error) {
-	// Use reflection to iterate over the fields of the struct
-	types := reflect.TypeOf(metadata)
-	values := reflect.ValueOf(metadata)
+func CreateTraits(metadata zeero.NftMetadataDto) ([]Trait, error) {
+	traits := metadata.Traits()
+	dbTraits := make([]Trait, 0)
 
-	traits := make([]Trait, 0)
-
-	for i := 0; i < types.NumField(); i++ {
-		field := types.Field(i)
-		value := values.Field(i)
-
-		traitName := field.Name
-		traitValue := value.Interface().(string)
-
-		if traitName == "URI" {
-			continue
-		}
-
-		// only Graduated Flunks have a Type trait
-		// so skip the Type trait if it's empty
-		if traitName == "Type" && traitValue == "" {
-			continue
-		}
-
-		trait := Trait{
-			Name:  traitName,
-			Value: traitValue,
-		}
-
-		if score, found := utils.TraitToScore[traitValue]; found {
-			trait.Score = score
+	for _, trait := range traits {
+		dbTrait := Trait{Name: trait.Name, Value: trait.Value}
+		if score, found := utils.TraitToScore[trait.Value]; found {
+			dbTrait.Score = score
 		} else {
-			trait.Score = 0 // Set a default value (0) if the traitValue is not found in the map.
+			dbTrait.Score = 0 // Set a default value (0) if the traitValue is not found in the map.
 		}
+		dbTraits = append(dbTraits, dbTrait)
 
-		err := trait.CreateTrait()
-		if err != nil {
-			return traits, err
-		}
-
-		traits = append(traits, trait)
+		// Add trait in the database
+		dbTrait.create()
 	}
 
-	return traits, nil
+	return dbTraits, nil
 }
-
-// type Challenge struct {
-// 	ID uint
-
-// 	// Challenge is mapped to Traitm only the "Clique" trait should be used
-// 	TraitID uint
-// 	Trait   Trait `gorm:"foreignKey:TraitID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
-// }
