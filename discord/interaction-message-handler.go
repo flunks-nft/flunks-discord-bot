@@ -178,12 +178,12 @@ func QueueForRaidOne(s *discordgo.Session, i *discordgo.InteractionCreate, templ
 	}
 	// check if token is already in the raid queue
 	if isInRaidQueue := nft.IsInRaidQueue(); isInRaidQueue {
-		msg := fmt.Sprintf("⚠️ NFT with tokenID %v is already in the raid queue.", templateID)
+		msg := fmt.Sprintf("⚠️ FLunk #%v is already in the raid queue.", templateID)
 		return msg, err
 	}
 	// TODO: check if token is already in a raid
 	if isRaiding := nft.IsRaiding(); isRaiding {
-		msg := fmt.Sprintf("⚠️ NFT with tokenID %v is already in a raid.", templateID)
+		msg := fmt.Sprintf("⚠️ FLunk #%v is already in a raid.", templateID)
 		return msg, err
 	}
 
