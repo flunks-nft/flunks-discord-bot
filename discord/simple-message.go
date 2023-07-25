@@ -11,7 +11,6 @@ func SendMessageToRaidLogChannel(msg string, nft1 db.Nft, nft2 db.Nft) {
 	sendMessageToRaidLogChannel(msg)
 	sendFlunksStatsMessageToRaidLogChannel(nft1)
 	sendFlunksStatsMessageToRaidLogChannel(nft2)
-
 }
 
 func sendMessageToRaidLogChannel(message string) {

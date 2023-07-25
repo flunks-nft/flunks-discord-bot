@@ -162,17 +162,17 @@ func GetNextQueuedTokenPair(tx *gorm.DB) ([]Nft, error) {
 	}
 
 	var nfts []Nft
-	err := database.Where("queued_for_raiding = ?", true).Order("RANDOM()").Limit(2).Find(&nfts).Error
+	err := database.
+		// Preload the User and Traits for each Nft
+		Preload("Owner").
+		Preload("Traits").
+		Where("nfts.queued_for_raiding = ?", true).
+		Order("RANDOM()").
+		Limit(2).
+		Find(&nfts).
+		Error
 	if err != nil {
 		return nil, err
-	}
-
-	// Preload the Traits for each Nft
-	for i := range nfts {
-		err := database.Model(&nfts[i]).Association("Traits").Find(&nfts[i].Traits)
-		if err != nil {
-			return nil, err
-		}
 	}
 
 	if len(nfts) != 2 {
