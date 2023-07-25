@@ -44,6 +44,9 @@ type Nft struct {
 	CreatedAt time.Time
 	UpdatedAt time.Time
 
+	OwnerUserId uint
+	Owner       User `gorm:"foreignKey:OwnerUserId;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+
 	LastRaidFinishedAt time.Time
 	Raiding            bool
 	QueuedForRaiding   bool
@@ -66,14 +69,15 @@ func GetNftByTemplateID(templateID uint) (Nft, error) {
 	return nft, nil
 }
 
-func CreateNft(tokenID uint, templateID uint, uri string, traits []Trait) (Nft, error) {
+func CreateNft(user *User, tokenID uint, templateID uint, uri string, traits []Trait) (Nft, error) {
 	nft := Nft{
-		TokenID:    tokenID,
-		TemplateID: templateID,
-		Uri:        uri,
+		TokenID:     tokenID,
+		TemplateID:  templateID,
+		Uri:         uri,
+		OwnerUserId: user.ID,
 	}
-	db.Create(&nft)
 
+	db.Create(&nft)
 	db.Model(&nft).Association("Traits").Append(traits)
 
 	nft, err := GetNftByTemplateID(templateID)
@@ -85,7 +89,7 @@ func CreateNft(tokenID uint, templateID uint, uri string, traits []Trait) (Nft, 
 }
 
 // TODO: optimize the logic for CreateOrUpdateFlunks
-func CreateOrUpdateFlunks(flunks []zeero.NftDtoWithActivity) error {
+func CreateOrUpdateFlunks(user *User, flunks []zeero.NftDtoWithActivity) error {
 	for _, flunk := range flunks {
 		// Create Traits
 		traits, err := CreateTraits(flunk.Metadata)
@@ -96,7 +100,7 @@ func CreateOrUpdateFlunks(flunks []zeero.NftDtoWithActivity) error {
 		// Get NFT instance from database
 		_, err = GetNftByTemplateID(uint(flunk.TemplateID))
 		if err != nil {
-			CreateNft(uint(flunk.TokenID), uint(flunk.TemplateID), flunk.Metadata.URI, traits)
+			CreateNft(user, uint(flunk.TokenID), uint(flunk.TemplateID), flunk.Metadata.URI, traits)
 		}
 	}
 	return nil
