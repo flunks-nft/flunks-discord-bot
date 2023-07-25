@@ -7,8 +7,8 @@ import (
 	"github.com/flunks-nft/discord-bot/db"
 )
 
-func SendMessageToRaidLogChannel(msg_1 string, msg_2 string, nft1 db.Nft, nft2 db.Nft) {
-	sendMessageToRaidLogChannel(msg_1)
+func SendMessageToRaidLogChannel(msg string, nft1 db.Nft, nft2 db.Nft) {
+	sendMessageToRaidLogChannel(msg)
 	sendFlunksStatsMessageToRaidLogChannel(nft1)
 	sendFlunksStatsMessageToRaidLogChannel(nft2)
 
