@@ -3,6 +3,7 @@ package discord
 // This modules is responsible for handling button interactions
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"strings"
@@ -88,8 +89,11 @@ func handlesRaidOne(s *discordgo.Session, i *discordgo.InteractionCreate) {
 				// Replace the line below with your desired function handling the specific tokenID
 				templateID := customIDParts[3]
 				templateIDInt, _ := StringToUInt(templateID)
-				msg, _ := QueueForRaidOne(s, i, templateIDInt)
-				respondeEphemeralMessage(s, i, msg)
+				if msg, err := QueueForRaidOne(s, i, templateIDInt); err != nil {
+					respondeEphemeralMessage(s, i, err.Error())
+				} else {
+					respondeEphemeralMessage(s, i, msg)
+				}
 			}
 		}
 	}
@@ -146,20 +150,33 @@ func QueueForRaidAll(s *discordgo.Session, i *discordgo.InteractionCreate, user 
 		return
 	}
 
-	msgArray := []string{}
+	successArray := []string{}
+	failedArray := []string{}
 
 	// Queue them all
 	for _, item := range items {
 		msg, err := QueueForRaidOne(s, i, uint(item.TemplateID))
-		if err == nil {
-			msgArray = append(msgArray, msg)
+		if err != nil {
+			failedArray = append(failedArray, msg)
+			continue
 		}
+		successArray = append(successArray, msg)
 	}
 
-	msg := fmt.Sprintf("✅ %v Flunks have been added to the raid queue.", len(msgArray))
+	succeedCnt := len(successArray)
+	failedCnt := len(failedArray)
 
-	// Send a message to the user with all the Flunks that are queued
-	respondeEphemeralMessage(s, i, msg)
+	if succeedCnt == 0 {
+		msg := fmt.Sprintf("⚠️ Failed to add any Flunks to the raid queue.\n⚠️ Total failed: %v Flunks", failedCnt)
+		respondeEphemeralMessage(s, i, msg)
+		return
+	} else {
+		if failedCnt == 0 {
+			respondeEphemeralMessage(s, i, fmt.Sprintf("✅ %v Flunks have been added to the raid queue.", succeedCnt))
+		} else {
+			respondeEphemeralMessage(s, i, fmt.Sprintf("✅ %v Flunks have been added to the raid queue.\n⚠️ Failed to add %v Flunks.", succeedCnt, failedCnt))
+		}
+	}
 }
 
 // QueueForRaidOne adds Flunk to a raid queue for the challenge match
@@ -168,29 +185,29 @@ func QueueForRaidOne(s *discordgo.Session, i *discordgo.InteractionCreate, templ
 	nft, err := db.GetNftByTemplateID(templateID)
 	if err != nil {
 		msg := fmt.Sprintf("⚠️ Syncing, please try later...")
-		return msg, err
+		return "", errors.New(msg)
 	}
 	// TODO: Check if token is owned by the Discord user
 	// Check if token has raided in the last 24 hours
 	if isReady, nextValidRaidTime := nft.IsReadyForRaidQueue(); !isReady {
 		msg := fmt.Sprintf("⚠️ NFT with tokenID %v is not ready for raid queue. Still %s hours remaining", templateID, nextValidRaidTime)
-		return msg, err
+		return "", errors.New(msg)
 	}
 	// check if token is already in the raid queue
 	if isInRaidQueue := nft.IsInRaidQueue(); isInRaidQueue {
 		msg := fmt.Sprintf("⚠️ FLunk #%v is already in the raid queue.", templateID)
-		return msg, err
+		return "", errors.New(msg)
 	}
 	// TODO: check if token is already in a raid
 	if isRaiding := nft.IsRaiding(); isRaiding {
 		msg := fmt.Sprintf("⚠️ FLunk #%v is already in a raid.", templateID)
-		return msg, err
+		return "", errors.New(msg)
 	}
 
 	// Add Flunk to the match queue
 	if err := nft.AddToRaidQueue(); err != nil {
 		msg := fmt.Sprintf("⚠️ Failed to add Flunk #%v to the raid queue", templateID)
-		return msg, err
+		return "", errors.New(msg)
 	} else {
 		msg := fmt.Sprintf("✅ Flunk %v has been added to the raid queue.", templateID)
 		return msg, nil
