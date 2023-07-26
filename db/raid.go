@@ -14,6 +14,11 @@ import (
 
 var (
 	RAID_CONCLUDE_TIME = 24 * time.Hour
+
+	// TODO: replace them with the real emojis
+	RAID_WON_EMOJI_ID  = "1133908900660400168"
+	RAID_LOST_EMOJI_ID = "1133908899360153672"
+	RADI_WIP_EMOJI_ID  = "1133908899360153672"
 )
 
 type Raid struct {
@@ -48,12 +53,12 @@ func GetRaidHistoryByTemplateID(tokenID uint) []string {
 	// Loop through the raids and create a record for each raid.
 	// TODO: update the emoji based on raid result
 	for _, raid := range raids {
-		emoji := "💥" // Default to the spark emoji.
+		emoji := fmt.Sprintf("<:emoji:%s>", RAID_WON_EMOJI_ID) // Default to the spark emoji.
 
 		// Check if the raid was concluded before RAID_CONCLUDE_TIME ago compared to the current time.
 		concludeTimeAgo := time.Since(raid.CreatedAt)
 		if concludeTimeAgo < RAID_CONCLUDE_TIME {
-			emoji = "🚧" // Set the WIP emoji if the raid is still in progress.
+			emoji = fmt.Sprintf("<:emoji:%s>", RADI_WIP_EMOJI_ID) // Set the WIP emoji if the raid is still in progress.
 		}
 
 		timestamp := raid.CreatedAt.Format("2006-01-02 15:04:05") // Format the timestamp as needed.
