@@ -12,6 +12,10 @@ import (
 	"gorm.io/gorm"
 )
 
+var (
+	RAID_CONCLUDE_TIME = 24 * time.Hour
+)
+
 type Raid struct {
 	ID uint
 
@@ -32,6 +36,34 @@ type Raid struct {
 	UpdatedAt time.Time
 }
 
+func GetRaidHistoryByTemplateID(tokenID uint) []string {
+	var raids []Raid
+	result := db.Where("from_template_id = ? OR to_template_id = ?", tokenID, tokenID).Preload("FromNft").Preload("ToNft").Find(&raids).Order("created_at DESC").Limit(30)
+	if result.Error != nil {
+		log.Println(result.Error)
+	}
+
+	records := make([]string, 0)
+
+	// Loop through the raids and create a record for each raid.
+	// TODO: update the emoji based on raid result
+	for _, raid := range raids {
+		emoji := "💥" // Default to the spark emoji.
+
+		// Check if the raid was concluded before RAID_CONCLUDE_TIME ago compared to the current time.
+		concludeTimeAgo := time.Since(raid.CreatedAt)
+		if concludeTimeAgo < RAID_CONCLUDE_TIME {
+			emoji = "🚧" // Set the WIP emoji if the raid is still in progress.
+		}
+
+		timestamp := raid.CreatedAt.Format("2006-01-02 15:04:05") // Format the timestamp as needed.
+		record := fmt.Sprintf("%s Flunk #%d challenged Flunk: #%d on %s\n", emoji, raid.FromNft.TemplateID, raid.ToNft.TemplateID, timestamp)
+		records = append(records, record)
+	}
+
+	return records
+}
+
 type Nft struct {
 	ID uint
 
@@ -50,6 +82,12 @@ type Nft struct {
 	LastRaidFinishedAt time.Time
 	Raiding            bool
 	QueuedForRaiding   bool
+
+	// Add a reference to the raids where this NFT is the "from" NFT
+	FromRaids []Raid `gorm:"foreignKey:FromNftID"`
+
+	// Add a reference to the raids where this NFT is the "to" NFT
+	ToRaids []Raid `gorm:"foreignKey:ToNftID"`
 }
 
 func (nft Nft) GetTraits() []Trait {
@@ -59,7 +97,7 @@ func (nft Nft) GetTraits() []Trait {
 func GetNftByTemplateID(templateID uint) (Nft, error) {
 	var nft Nft
 
-	result := db.Where("template_id = ?", templateID).Preload("Owner").Preload("Traits").First(&nft)
+	result := db.Where("template_id = ?", templateID).Preload("Owner").Preload("Traits").Preload("FromRaids").Preload("ToRaids").First(&nft)
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return nft, fmt.Errorf("NFT not found")

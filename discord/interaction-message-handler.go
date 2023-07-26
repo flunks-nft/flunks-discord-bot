@@ -71,6 +71,11 @@ func ButtonInteractionCreateOne(s *discordgo.Session, i *discordgo.InteractionCr
 		handlesZeeroRedirect(s, i)
 		return
 	}
+
+	if strings.Contains(customID, "raid_history") {
+		handlesRaidHistory(s, i)
+		return
+	}
 }
 
 // Handles start raid command for individual Flunks
@@ -123,6 +128,9 @@ func handlesYearbook(s *discordgo.Session, i *discordgo.InteractionCreate, user 
 		return
 	}
 
+	fmt.Println(nft.FromRaids)
+	fmt.Println(nft.ToRaids)
+
 	respondeEphemeralMessageWithMedia(s, i, nft)
 }
 
@@ -137,6 +145,33 @@ func handlesZeeroRedirect(s *discordgo.Session, i *discordgo.InteractionCreate) 
 				tokenID := customIDParts[2]
 				msg := fmt.Sprintf("https://zeero.art/collection/flunks/%v", tokenID)
 				respondeEphemeralMessage(s, i, msg)
+			}
+		}
+	}
+}
+
+func handlesRaidHistory(s *discordgo.Session, i *discordgo.InteractionCreate) {
+	customIDParts := strings.Split(i.MessageComponentData().CustomID, "_")
+
+	if i.Type == discordgo.InteractionMessageComponent {
+		switch customIDParts[0] {
+		case "raid":
+			if customIDParts[1] == "history" {
+				templateID := customIDParts[2]
+				templateIDUInt, _ := StringToUInt(templateID)
+				records := db.GetRaidHistoryByTemplateID(templateIDUInt)
+				if len(records) == 0 {
+					msg := fmt.Sprintf("⚠️ No raid history found for Flunk #%s", templateID)
+					respondeEphemeralMessage(s, i, msg)
+					return
+				}
+
+				// Create a string to store the concatenated records
+				var recordsString string
+				for _, record := range records {
+					recordsString += record
+				}
+				respondeEphemeralMessage(s, i, recordsString)
 			}
 		}
 	}

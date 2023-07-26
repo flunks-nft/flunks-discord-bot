@@ -40,6 +40,12 @@ func respondeEphemeralMessageWithMedia(s *discordgo.Session, i *discordgo.Intera
 		CustomID: fmt.Sprintf("redirect_zeero_%v", nft.TokenID),
 	}
 
+	raidHistoryButton := discordgo.Button{
+		Label:    "History",
+		Style:    discordgo.PrimaryButton,
+		CustomID: fmt.Sprintf("raid_history_%v", nft.TemplateID),
+	}
+
 	nextButton := discordgo.Button{
 		Label:    "Next Flunk",
 		Style:    discordgo.PrimaryButton,
@@ -64,7 +70,7 @@ func respondeEphemeralMessageWithMedia(s *discordgo.Session, i *discordgo.Intera
 			Flags: 64, // Ephemeral
 			Components: []discordgo.MessageComponent{
 				&discordgo.ActionsRow{
-					Components: []discordgo.MessageComponent{&raidButton, &zeeroButton, &nextButton},
+					Components: []discordgo.MessageComponent{&raidButton, &raidHistoryButton, &zeeroButton, &nextButton},
 				},
 			},
 			Embeds: []*discordgo.MessageEmbed{
