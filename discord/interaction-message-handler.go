@@ -117,7 +117,13 @@ func handlesYearbook(s *discordgo.Session, i *discordgo.InteractionCreate, user 
 	nextIndex := user.GetNextTokenIndex(totalCount)
 	item := items[nextIndex]
 
-	respondeEphemeralMessageWithMedia(s, i, item)
+	nft, err := db.GetNftByTemplateID(uint(item.TemplateID))
+	if err != nil {
+		respondeEphemeralMessage(s, i, "⚠️ Failed to get your Flunks from Dapper.")
+		return
+	}
+
+	respondeEphemeralMessageWithMedia(s, i, nft)
 }
 
 // handlesZeeroRedirect is a handler for the "Check on Zeero" button to Zeero

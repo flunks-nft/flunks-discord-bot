@@ -6,8 +6,8 @@ import (
 	"strconv"
 
 	"github.com/bwmarrin/discordgo"
+	"github.com/flunks-nft/discord-bot/db"
 	"github.com/flunks-nft/discord-bot/utils"
-	"github.com/flunks-nft/discord-bot/zeero"
 )
 
 func respondeEphemeralMessage(s *discordgo.Session, i *discordgo.InteractionCreate, msg string) {
@@ -25,19 +25,19 @@ func respondeEphemeralMessage(s *discordgo.Session, i *discordgo.InteractionCrea
 	}
 }
 
-func respondeEphemeralMessageWithMedia(s *discordgo.Session, i *discordgo.InteractionCreate, item zeero.NftDtoWithActivity) {
+func respondeEphemeralMessageWithMedia(s *discordgo.Session, i *discordgo.InteractionCreate, nft db.Nft) {
 	// Create the button component
 	raidButton := discordgo.Button{
 		Label:    "Raid",
 		Style:    discordgo.PrimaryButton,
-		CustomID: fmt.Sprintf("start_raid_one_%v", item.TemplateID),
+		CustomID: fmt.Sprintf("start_raid_one_%v", nft.TemplateID),
 	}
 
 	// Note that Zeero redirect is using tokenID as it's how the url is rendered
 	zeeroButton := discordgo.Button{
 		Label:    "Check on Zeero",
 		Style:    discordgo.PrimaryButton,
-		CustomID: fmt.Sprintf("redirect_zeero_%v", item.TokenID),
+		CustomID: fmt.Sprintf("redirect_zeero_%v", nft.TokenID),
 	}
 
 	nextButton := discordgo.Button{
@@ -46,7 +46,10 @@ func respondeEphemeralMessageWithMedia(s *discordgo.Session, i *discordgo.Intera
 		CustomID: "next_flunk",
 	}
 
-	traits := item.Metadata.Traits()
+	traits := nft.Traits
+
+	fmt.Println("traits", traits)
+
 	// Create a string to store the concatenated traits
 	var traitsString string
 	for _, trait := range traits {
@@ -67,10 +70,10 @@ func respondeEphemeralMessageWithMedia(s *discordgo.Session, i *discordgo.Intera
 			Embeds: []*discordgo.MessageEmbed{
 				{
 					Image: &discordgo.MessageEmbedImage{
-						URL: item.Metadata.URI,
+						URL: nft.Uri,
 					},
 					Footer: &discordgo.MessageEmbedFooter{
-						Text: fmt.Sprintf("📚 Flunks # %v\n%s", item.TemplateID, traitsString),
+						Text: fmt.Sprintf("📚 Flunks # %v\n%s", nft.TemplateID, traitsString),
 					},
 				},
 			},

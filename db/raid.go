@@ -59,7 +59,7 @@ func (nft Nft) GetTraits() []Trait {
 func GetNftByTemplateID(templateID uint) (Nft, error) {
 	var nft Nft
 
-	result := db.Where("template_id = ?", templateID).First(&nft)
+	result := db.Where("template_id = ?", templateID).Preload("Owner").Preload("Traits").First(&nft)
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return nft, fmt.Errorf("NFT not found")
