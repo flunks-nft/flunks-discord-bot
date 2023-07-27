@@ -33,7 +33,7 @@ func getRandomChallengeType() ChallengeType {
 }
 
 var (
-	RAID_CONCLUDE_TIME = 24 * time.Hour
+	RAID_CONCLUDE_TIME = 10 * time.Second
 
 	// TODO: replace them with the real emojis
 	RAID_WON_EMOJI_ID  = utils.DiscordEmojis["RAID_WON_EMOJI_ID"]
@@ -57,7 +57,7 @@ type Raid struct {
 	CreatedAt time.Time
 	UpdatedAt time.Time
 
-	IsConcluded      bool
+	IsConcluded      bool `gorm:"default:false;"`
 	WinnerTemplateID uint
 	WinnerNftID      uint
 	WinnerNft        Nft `gorm:"foreignKey:FromNftID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
@@ -84,7 +84,7 @@ func ConcludeOneRaid() (raid Raid, err error) {
 	}()
 
 	// Find the 1 raid where createdAt is more than <RAID_CONCLUDE_TIME> hours ago and is the oldest, and IsConcluded is false
-	result := tx.Where("is_concluded = ? AND created_at < ?", false, time.Now().Add(-RAID_CONCLUDE_TIME)).Order("created_at ASC").First(&raid)
+	result := tx.Where("is_concluded = ? AND created_at < ?", false, time.Now().UTC().Add(-RAID_CONCLUDE_TIME)).Order("created_at ASC").First(&raid)
 	if result.Error != nil {
 		return raid, result.Error
 	}
@@ -117,6 +117,11 @@ func ConcludeOneRaid() (raid Raid, err error) {
 
 	// Update the scores of the winner and loser NFTs
 	updateScores(tx, winnerNFT, loserNFT)
+
+	// Preload the FromNft and ToNft associations for the final raid object
+	if err := tx.Preload("FromNft").Preload("ToNft").Preload("WinnerNft").First(&raid).Error; err != nil {
+		return raid, err
+	}
 
 	// If everything went well, return the updated raid with nil error
 	return raid, nil
@@ -262,7 +267,7 @@ func (nft *Nft) IsReadyForRaidQueue() (bool, time.Duration) {
 	// Get current time
 	now := time.Now()
 
-	nextValidRaidTime := nft.LastRaidFinishedAt.Add(24 * time.Hour)
+	nextValidRaidTime := nft.LastRaidFinishedAt.Add(RAID_CONCLUDE_TIME)
 
 	// If the current time is less than the next valid raid time, return false
 	// and the hours remaining until the next valid raid time

@@ -7,6 +7,11 @@ import (
 	"github.com/flunks-nft/discord-bot/db"
 )
 
+func SendRaidConcludedMessageToRaidLogChannel(msg string, nft db.Nft) {
+	sendMessageToRaidLogChannel(msg)
+	sendFlunksStatsMessageToRaidLogChannel(nft)
+}
+
 func SendMessageToRaidLogChannel(msg string, nft1 db.Nft, nft2 db.Nft) {
 	sendMessageToRaidLogChannel(msg)
 	sendFlunksStatsMessageToRaidLogChannel(nft1)
@@ -24,10 +29,10 @@ func sendMessageToRaidLogChannel(message string) {
 func sendFlunksStatsMessageToRaidLogChannel(nft db.Nft) {
 	var fields []*discordgo.MessageEmbedField
 
-	fields = append(fields, &discordgo.MessageEmbedField{
-		Name:   "Challenge Accepted!",
-		Inline: false,
-	})
+	// fields = append(fields, &discordgo.MessageEmbedField{
+	// 	Name:   "Challenge Accepted!",
+	// 	Inline: false,
+	// })
 
 	traits := nft.GetTraits()
 	for _, trait := range traits {

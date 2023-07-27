@@ -27,6 +27,7 @@ func InitRaidWorker(wg *sync.WaitGroup, done chan os.Signal) {
 		select {
 		case <-Tiker.C:
 			createMatchedChallenge()
+			concludeRaid()
 
 		case <-done:
 			// Stop the worker
@@ -55,4 +56,26 @@ func createMatchedChallenge() error {
 	discord.SendMessageToRaidLogChannel(msg, fromNft, toNft)
 
 	return nil
+}
+
+func concludeRaid() {
+	raid, err := db.ConcludeOneRaid()
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	emoji := fmt.Sprintf("<:emoji:%s>", db.RAID_WON_EMOJI_ID)
+
+	msg := fmt.Sprintf(
+		"%s %s game concluded: Flunk #%d ⚔️ Flunk #%d \n%sWinner: Flunk #%d",
+		raid.ChallengeTypeEmoji(),
+		raid.ChallengeType,
+		raid.FromNft.TemplateID,
+		raid.ToNft.TemplateID,
+		emoji,
+		raid.WinnerNft.TemplateID,
+	)
+
+	discord.SendRaidConcludedMessageToRaidLogChannel(msg, raid.WinnerNft)
 }
