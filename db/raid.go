@@ -119,7 +119,7 @@ func ConcludeOneRaid() (raid Raid, err error) {
 	updateScores(tx, winnerNFT, loserNFT)
 
 	// Preload the FromNft and ToNft associations for the final raid object
-	if err := tx.Preload("FromNft").Preload("ToNft").Preload("WinnerNft").First(&raid).Error; err != nil {
+	if err := tx.Preload("FromNft").Preload("ToNft").Preload("WinnerNft").Preload("FromNft.Owner").Preload("ToNft.Owner").Preload("WinnerNft.Owner").First(&raid).Error; err != nil {
 		return raid, err
 	}
 

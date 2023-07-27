@@ -16,7 +16,7 @@ var (
 )
 
 func init() {
-	Tiker = time.NewTicker(2 * time.Second)
+	Tiker = time.NewTicker(5 * time.Second)
 }
 
 func InitRaidWorker(wg *sync.WaitGroup, done chan os.Signal) {
@@ -26,7 +26,7 @@ func InitRaidWorker(wg *sync.WaitGroup, done chan os.Signal) {
 	for {
 		select {
 		case <-Tiker.C:
-			createMatchedChallenge()
+			// createMatchedChallenge()
 			concludeRaid()
 
 		case <-done:
@@ -64,18 +64,29 @@ func concludeRaid() {
 		log.Println(err)
 		return
 	}
-
 	emoji := fmt.Sprintf("<:emoji:%s>", db.RAID_WON_EMOJI_ID)
-
-	msg := fmt.Sprintf(
-		"%s %s game concluded: Flunk #%d ⚔️ Flunk #%d \n%sWinner: Flunk #%d",
+	msgs := make([]string, 0)
+	msgs = append(msgs, fmt.Sprintf(
+		"%s %s game concluded:\n",
 		raid.ChallengeTypeEmoji(),
 		raid.ChallengeType,
+	))
+	msgs = append(msgs, fmt.Sprintf(
+		"Flunk #%d ⚔️ Flunk #%d\n",
 		raid.FromNft.TemplateID,
 		raid.ToNft.TemplateID,
-		emoji,
-		raid.WinnerNft.TemplateID,
-	)
+	))
+	msgs = append(msgs, fmt.Sprintf("%sWinner: Flunk #%d", emoji, raid.WinnerNft.TemplateID))
 
-	discord.SendRaidConcludedMessageToRaidLogChannel(msg, raid.WinnerNft)
+	var winnerThread, loserThread string
+
+	winnerThread = "<@" + raid.WinnerNft.Owner.DiscordID + ">"
+
+	if raid.WinnerNft.ID == raid.FromNftID {
+		loserThread = "<@" + raid.ToNft.Owner.DiscordID + ">"
+	} else {
+		loserThread = "<@" + raid.FromNft.Owner.DiscordID + ">"
+	}
+
+	discord.SendRaidConcludedMessageToRaidLogChannel(msgs, raid.WinnerNft, winnerThread, loserThread)
 }

@@ -7,12 +7,6 @@ import (
 	"github.com/flunks-nft/discord-bot/db"
 )
 
-// SendRaidConcludedMessageToRaidLogChannel sends a message when a raid is concluded
-func SendRaidConcludedMessageToRaidLogChannel(msg string, nft db.Nft) {
-	sendMessageToRaidLogChannel(msg)
-	sendPureFlunksStatsMessageToRaidLogChannel(nft)
-}
-
 // SendRaidConcludedMessageToRaidLogChannel sends a message when a raid is created
 func SendMessageToRaidLogChannel(msg string, nft1 db.Nft, nft2 db.Nft) {
 	sendMessageToRaidLogChannel(msg)
@@ -27,17 +21,26 @@ func sendMessageToRaidLogChannel(message string) {
 	}
 }
 
-func sendPureFlunksStatsMessageToRaidLogChannel(nft db.Nft) {
+func SendRaidConcludedMessageToRaidLogChannel(msgs []string, nft db.Nft, winnerThread, loserThread string) {
 	var fields []*discordgo.MessageEmbedField
 
-	traits := nft.GetTraits()
-	for _, trait := range traits {
+	for _, msg := range msgs {
 		fields = append(fields, &discordgo.MessageEmbedField{
-			Name:   trait.Name,
-			Value:  trait.Value,
+			Name:   msg,
 			Inline: false,
 		})
 	}
+
+	fields = append(fields, &discordgo.MessageEmbedField{
+		Name:   "Winning Class",
+		Value:  winnerThread,
+		Inline: false,
+	})
+	fields = append(fields, &discordgo.MessageEmbedField{
+		Name:   "Losing Class",
+		Value:  loserThread,
+		Inline: false,
+	})
 
 	embed := &discordgo.MessageEmbed{
 		Fields: fields,
