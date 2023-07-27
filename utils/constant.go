@@ -15,3 +15,16 @@ var TraitNameToEmoji = map[string]string{
 	"Type":        "🎓",
 	"Superlative": "🏆",
 }
+
+var DiscordEmojis = map[string]string{
+	"RAID_WON_EMOJI_ID":  "1133908900660400168",
+	"RAID_LOST_EMOJI_ID": "1133908899360153672",
+	"RADI_WIP_EMOJI_ID":  "1133908899360153672",
+}
+
+var CliqueEmojis = map[string]string{
+	"Prep":  "👔",
+	"Jock":  "🏈",
+	"Freak": "👽",
+	"Geek":  "🎮",
+}

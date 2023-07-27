@@ -12,13 +12,41 @@ import (
 	"gorm.io/gorm"
 )
 
+// ChallengeType is a custom type for representing the challenge type as an enum.
+type ChallengeType string
+
+// String returns the string representation of the challenge type.
+func (c ChallengeType) String() string {
+	return string(c)
+}
+
+// Define the constants for the different challenge types.
+const (
+	ChallengeTypeGeek  ChallengeType = "Geek"
+	ChallengeTypePrep  ChallengeType = "Prep"
+	ChallengeTypeFreak ChallengeType = "Freak"
+	ChallengeTypeJock  ChallengeType = "Jock"
+)
+
+// getRandomChallengeType returns a random challenge type.
+func getRandomChallengeType() ChallengeType {
+	types := [...]ChallengeType{
+		ChallengeTypeGeek,
+		ChallengeTypePrep,
+		ChallengeTypeFreak,
+		ChallengeTypeJock,
+	}
+	rand.Seed(time.Now().UnixNano())
+	return types[rand.Intn(len(types))]
+}
+
 var (
 	RAID_CONCLUDE_TIME = 24 * time.Hour
 
 	// TODO: replace them with the real emojis
-	RAID_WON_EMOJI_ID  = "1133908900660400168"
-	RAID_LOST_EMOJI_ID = "1133908899360153672"
-	RADI_WIP_EMOJI_ID  = "1133908899360153672"
+	RAID_WON_EMOJI_ID  = utils.DiscordEmojis["RAID_WON_EMOJI_ID"]
+	RAID_LOST_EMOJI_ID = utils.DiscordEmojis["RAID_LOST_EMOJI_ID"]
+	RADI_WIP_EMOJI_ID  = utils.DiscordEmojis["RADI_WIP_EMOJI_ID"]
 )
 
 type Raid struct {
@@ -32,10 +60,7 @@ type Raid struct {
 	ToNftID      uint
 	ToNft        Nft `gorm:"foreignKey:ToNftID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 
-	// ChallengeID uint
-	// Challenge   Challenge `gorm:"foreignKey:ChallengeID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
-
-	ChallengeID uint
+	ChallengeType ChallengeType
 
 	CreatedAt time.Time
 	UpdatedAt time.Time
@@ -245,7 +270,7 @@ func QueueNextTokenPairForRaiding() (*Raid, []Nft, error) {
 		FromNftID:      nfts[0].ID,
 		ToTemplateID:   nfts[1].TemplateID,
 		ToNftID:        nfts[1].ID,
-		ChallengeID:    uint(rand.Intn(4) + 1),
+		ChallengeType:  getRandomChallengeType(),
 	}
 
 	result := tx.Create(&raid)

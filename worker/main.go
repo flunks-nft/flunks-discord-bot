@@ -9,6 +9,7 @@ import (
 
 	"github.com/flunks-nft/discord-bot/db"
 	"github.com/flunks-nft/discord-bot/discord"
+	"github.com/flunks-nft/discord-bot/utils"
 )
 
 var (
@@ -51,7 +52,9 @@ func createMatchedChallenge() error {
 	fromNftOwnerDiscordID := fromNft.Owner.DiscordID
 	toNftOwnerDiscordID := toNft.Owner.DiscordID
 
-	msg := fmt.Sprintf("<@%s> Your Flunk has accepted <@%s>'s challenge! It's a <%v> game!", fromNftOwnerDiscordID, toNftOwnerDiscordID, raid.ChallengeID)
+	cliqueEmoji := utils.CliqueEmojis[raid.ChallengeType.String()]
+
+	msg := fmt.Sprintf("<@%s> Your Flunk has accepted <@%s>'s challenge! It's a %s **%v** game!", fromNftOwnerDiscordID, toNftOwnerDiscordID, cliqueEmoji, raid.ChallengeType)
 	discord.SendMessageToRaidLogChannel(msg, fromNft, toNft)
 
 	return nil
