@@ -82,8 +82,17 @@ func GetRaidHistoryByTemplateID(tokenID uint) []string {
 			emoji = fmt.Sprintf("<:emoji:%s>", RADI_WIP_EMOJI_ID) // Set the WIP emoji if the raid is still in progress.
 		}
 
-		timestamp := raid.CreatedAt.Format("2006-01-02 15:04:05") // Format the timestamp as needed.
-		record := fmt.Sprintf("%s Flunk #%d challenged Flunk #%d on %s\n", emoji, raid.FromNft.TemplateID, raid.ToNft.TemplateID, timestamp)
+		timestamp := raid.CreatedAt.Format("2006-01-02") // Format the timestamp as needed.
+		record := fmt.Sprintf(
+			"%s %s game %s Flunk #%d ⚔️ Flunk #%d %s %s \n",
+			emoji,
+			raid.ChallengeType,
+			raid.ChallengeTypeEmoji(),
+			raid.FromNft.TemplateID,
+			raid.ToNft.TemplateID,
+			"⏰",
+			timestamp,
+		)
 		records = append(records, record)
 	}
 
