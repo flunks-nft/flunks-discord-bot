@@ -12,14 +12,6 @@ import (
 	"gorm.io/gorm"
 )
 
-// ChallengeType is a custom type for representing the challenge type as an enum.
-type ChallengeType string
-
-// String returns the string representation of the challenge type.
-func (c ChallengeType) String() string {
-	return string(c)
-}
-
 // Define the constants for the different challenge types.
 const (
 	ChallengeTypeGeek  ChallengeType = "Geek"
@@ -66,6 +58,10 @@ type Raid struct {
 	UpdatedAt time.Time
 }
 
+func (raid Raid) ChallengeTypeEmoji() string {
+	return utils.CliqueEmojis[raid.ChallengeType.String()]
+}
+
 func GetRaidHistoryByTemplateID(tokenID uint) []string {
 	var raids []Raid
 	result := db.Where("from_template_id = ? OR to_template_id = ?", tokenID, tokenID).Preload("FromNft").Preload("ToNft").Find(&raids).Order("created_at DESC").Limit(30)
@@ -87,7 +83,7 @@ func GetRaidHistoryByTemplateID(tokenID uint) []string {
 		}
 
 		timestamp := raid.CreatedAt.Format("2006-01-02 15:04:05") // Format the timestamp as needed.
-		record := fmt.Sprintf("%s Flunk #%d challenged Flunk: #%d on %s\n", emoji, raid.FromNft.TemplateID, raid.ToNft.TemplateID, timestamp)
+		record := fmt.Sprintf("%s Flunk #%d challenged Flunk #%d on %s\n", emoji, raid.FromNft.TemplateID, raid.ToNft.TemplateID, timestamp)
 		records = append(records, record)
 	}
 
