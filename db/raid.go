@@ -56,10 +56,81 @@ type Raid struct {
 
 	CreatedAt time.Time
 	UpdatedAt time.Time
+
+	IsConcluded      bool
+	WinnerTemplateID uint
+	WinnerNftID      uint
+	WinnerNft        Nft `gorm:"foreignKey:FromNftID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 }
 
 func (raid Raid) ChallengeTypeEmoji() string {
 	return utils.CliqueEmojis[raid.ChallengeType.String()]
+}
+
+// ConcludeRaid completes a raid and updates the NFT scores
+// win: 4; draw: 2; lose: 1
+func ConcludeOneRaid() (raid Raid, err error) {
+	tx := db.Begin()
+
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+			err = fmt.Errorf("panic occurred: %v", r)
+		} else if err != nil {
+			tx.Rollback()
+		} else {
+			err = tx.Commit().Error
+		}
+	}()
+
+	// Find the 1 raid where createdAt is more than <RAID_CONCLUDE_TIME> hours ago and is the oldest, and IsConcluded is false
+	result := tx.Where("is_concluded = ? AND created_at < ?", false, time.Now().Add(-RAID_CONCLUDE_TIME)).Order("created_at ASC").First(&raid)
+	if result.Error != nil {
+		return raid, result.Error
+	}
+
+	// Roll the dice to determine the winner (0 or 1)
+	winner := rand.Intn(2) // Randomly generates 0 or 1
+
+	// Update IsConcluded to true
+	if err := tx.Model(&raid).Update("is_concluded", true).Error; err != nil {
+		return raid, err
+	}
+
+	// Determine the winner NFT and update WinnerTemplateID, WinnerNftID
+	var winnerNFT, loserNFT Nft
+	if winner == 0 {
+		// FromNft wins (dice result is 0)
+		if err := tx.Model(&raid).Updates(map[string]interface{}{"winner_template_id": raid.FromTemplateID, "winner_nft_id": raid.FromNftID}).Error; err != nil {
+			return raid, err
+		}
+		winnerNFT = raid.FromNft
+		loserNFT = raid.ToNft
+	} else {
+		// ToNft wins (dice result is 1)
+		if err := tx.Model(&raid).Updates(map[string]interface{}{"winner_template_id": raid.ToTemplateID, "winner_nft_id": raid.ToNftID}).Error; err != nil {
+			return raid, err
+		}
+		winnerNFT = raid.ToNft
+		loserNFT = raid.FromNft
+	}
+
+	// Update the scores of the winner and loser NFTs
+	updateScores(tx, winnerNFT, loserNFT)
+
+	// If everything went well, return the updated raid with nil error
+	return raid, nil
+}
+
+// updateScores updates the scores of the winner and loser NFTs.
+func updateScores(tx *gorm.DB, winner, loser Nft) {
+	// Update the scores based on the outcome (win: 4; draw: 2; lose: 1)
+	winner.Points += 4
+	loser.Points += 1
+
+	// Save the updated scores in the database
+	tx.Model(&winner).Update("points", winner.Points)
+	tx.Model(&loser).Update("points", loser.Points)
 }
 
 func GetRaidHistoryByTemplateID(tokenID uint) []string {
