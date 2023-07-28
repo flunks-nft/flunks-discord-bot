@@ -26,7 +26,7 @@ func InitRaidWorker(wg *sync.WaitGroup, done chan os.Signal) {
 	for {
 		select {
 		case <-Tiker.C:
-			// createMatchedChallenge()
+			createMatchedChallenge()
 			concludeRaid()
 
 		case <-done:
@@ -52,7 +52,15 @@ func createMatchedChallenge() error {
 	fromNftOwnerDiscordID := fromNft.Owner.DiscordID
 	toNftOwnerDiscordID := toNft.Owner.DiscordID
 
-	msg := fmt.Sprintf("<@%s> Your Flunk has accepted <@%s>'s challenge! It's a %s **%v** game!", fromNftOwnerDiscordID, toNftOwnerDiscordID, raid.ChallengeTypeEmoji(), raid.ChallengeType)
+	msg := fmt.Sprintf(
+		"<@%s> #%d is challenging <@%s> #%d, it's a %s **%v** game!",
+		fromNftOwnerDiscordID,
+		fromNft.TemplateID,
+		toNftOwnerDiscordID,
+		toNft.TemplateID,
+		raid.ChallengeTypeEmoji(),
+		raid.ChallengeType,
+	)
 	discord.SendMessageToRaidLogChannel(msg, fromNft, toNft)
 
 	return nil
@@ -79,13 +87,11 @@ func concludeRaid() {
 	msgs = append(msgs, fmt.Sprintf("%sWinner: Flunk #%d", emoji, raid.WinnerNft.TemplateID))
 
 	var winnerThread, loserThread string
-
-	winnerThread = "<@" + raid.WinnerNft.Owner.DiscordID + ">"
-
+	winnerThread = fmt.Sprintf("<@%s>", raid.WinnerNft.Owner.DiscordID)
 	if raid.WinnerNft.ID == raid.FromNftID {
-		loserThread = "<@" + raid.ToNft.Owner.DiscordID + ">"
+		loserThread = fmt.Sprintf("<@%s>", raid.ToNft.Owner.DiscordID)
 	} else {
-		loserThread = "<@" + raid.FromNft.Owner.DiscordID + ">"
+		loserThread = fmt.Sprintf("<@%s>", raid.FromNft.Owner.DiscordID)
 	}
 
 	discord.SendRaidConcludedMessageToRaidLogChannel(msgs, raid.WinnerNft, winnerThread, loserThread)

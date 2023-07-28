@@ -65,48 +65,27 @@ func sendFlunksStatsMessageToRaidLogChannel(nft1 db.Nft, nft2 db.Nft) {
 		Inline: false,
 	})
 
-	traits1 := nft1.GetTraits()
-	traits2 := nft2.GetTraits()
+	// traits := nft.GetTraits()
+	// for _, trait := range traits {
+	// 	fields = append(fields, &discordgo.MessageEmbedField{
+	// 		Name:   trait.Name,
+	// 		Value:  trait.Value,
+	// 		Inline: false,
+	// 	})
+	// }
 
-	for _, trait := range traits1 {
-		fields = append(fields, &discordgo.MessageEmbedField{
-			Name:   trait.Name,
-			Value:  trait.Value,
-			Inline: false,
-		})
-	}
-
-	embed1 := &discordgo.MessageEmbed{
+	embed := &discordgo.MessageEmbed{
 		Fields: fields,
-		Image: &discordgo.MessageEmbedImage{
+		Thumbnail: &discordgo.MessageEmbedThumbnail{
 			URL: nft1.Uri,
 		},
-	}
-
-	fields = []*discordgo.MessageEmbedField{} // reset fields for second embed
-
-	for _, trait := range traits2 {
-		fields = append(fields, &discordgo.MessageEmbedField{
-			Name:   trait.Name,
-			Value:  trait.Value,
-			Inline: false,
-		})
-	}
-
-	embed2 := &discordgo.MessageEmbed{
-		Fields: fields,
 		Image: &discordgo.MessageEmbedImage{
 			URL: nft2.Uri,
 		},
 	}
 
-	_, err := dg.ChannelMessageSendEmbed(RAID_LOG_CHANNEL_ID, embed1)
+	_, err := dg.ChannelMessageSendEmbed(RAID_LOG_CHANNEL_ID, embed)
 	if err != nil {
-		fmt.Println("Error sending first embedded message to channel:", err)
-	}
-
-	_, err = dg.ChannelMessageSendEmbed(RAID_LOG_CHANNEL_ID, embed2)
-	if err != nil {
-		fmt.Println("Error sending second embedded message to channel:", err)
+		fmt.Println("Error sending embedded message to channel:", err)
 	}
 }
