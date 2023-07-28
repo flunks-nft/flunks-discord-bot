@@ -6,8 +6,8 @@ import (
 	"sync"
 	"syscall"
 
-	"github.com/flunks-nft/discord-bot/db"
-	"github.com/flunks-nft/discord-bot/discord"
+	"github.com/flunks-nft/discord-bot/pkg/db"
+	"github.com/flunks-nft/discord-bot/pkg/discord"
 )
 
 func main() {

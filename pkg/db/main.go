@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/flunks-nft/discord-bot/utils"
+	"github.com/flunks-nft/discord-bot/pkg/utils"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )

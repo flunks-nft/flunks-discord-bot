@@ -9,7 +9,7 @@ import (
 	"strings"
 
 	"github.com/bwmarrin/discordgo"
-	"github.com/flunks-nft/discord-bot/db"
+	"github.com/flunks-nft/discord-bot/pkg/db"
 )
 
 // ButtonInteractionCreate handles the button click on the Raid Playground button interaction from users.

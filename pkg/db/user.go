@@ -6,7 +6,7 @@ import (
 	"sort"
 	"time"
 
-	"github.com/flunks-nft/discord-bot/zeero"
+	"github.com/flunks-nft/discord-bot/pkg/zeero"
 	"gorm.io/gorm"
 )
 

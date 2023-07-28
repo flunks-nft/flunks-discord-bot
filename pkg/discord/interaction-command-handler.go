@@ -8,7 +8,7 @@ import (
 	"log"
 
 	"github.com/bwmarrin/discordgo"
-	"github.com/flunks-nft/discord-bot/db"
+	"github.com/flunks-nft/discord-bot/pkg/db"
 )
 
 var (

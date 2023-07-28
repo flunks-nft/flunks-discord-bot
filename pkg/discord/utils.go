@@ -6,8 +6,8 @@ import (
 	"strconv"
 
 	"github.com/bwmarrin/discordgo"
-	"github.com/flunks-nft/discord-bot/db"
-	"github.com/flunks-nft/discord-bot/utils"
+	"github.com/flunks-nft/discord-bot/pkg/db"
+	"github.com/flunks-nft/discord-bot/pkg/utils"
 )
 
 func respondeEphemeralMessage(s *discordgo.Session, i *discordgo.InteractionCreate, msg string) {

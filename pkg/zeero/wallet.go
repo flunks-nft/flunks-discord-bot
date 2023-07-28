@@ -8,7 +8,7 @@ import (
 	"os"
 	"reflect"
 
-	"github.com/flunks-nft/discord-bot/utils"
+	"github.com/flunks-nft/discord-bot/pkg/utils"
 )
 
 var (

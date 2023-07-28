@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/bwmarrin/discordgo"
-	"github.com/flunks-nft/discord-bot/db"
+	"github.com/flunks-nft/discord-bot/pkg/db"
 )
 
 // SendRaidConcludedMessageToRaidLogChannel sends a message when a raid is created

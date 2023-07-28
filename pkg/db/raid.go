@@ -7,8 +7,8 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/flunks-nft/discord-bot/utils"
-	"github.com/flunks-nft/discord-bot/zeero"
+	"github.com/flunks-nft/discord-bot/pkg/utils"
+	"github.com/flunks-nft/discord-bot/pkg/zeero"
 	"gorm.io/gorm"
 )
 
