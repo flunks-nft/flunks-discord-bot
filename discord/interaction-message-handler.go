@@ -106,6 +106,18 @@ func handlesRaidOne(s *discordgo.Session, i *discordgo.InteractionCreate) {
 
 // handlesZeeroRedirect is a handler for the Yearbook button to Zeero
 func handlesYearbook(s *discordgo.Session, i *discordgo.InteractionCreate, user db.User) {
+	// Defer interaction with placeholder Ephemeral msg to we have 15 minutes to respond to the original interaction
+	err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+		Type: discordgo.InteractionResponseDeferredChannelMessageWithSource,
+		Data: &discordgo.InteractionResponseData{
+			Flags: 64, // Ephemeral
+		},
+	})
+	if err != nil {
+		fmt.Println("Failed to defer interaction:", err)
+		return
+	}
+
 	items, err := user.GetFlunks()
 	if err != nil {
 		respondeEphemeralMessage(s, i, "⚠️ Failed to get your Flunks from Dapper.")
@@ -123,11 +135,13 @@ func handlesYearbook(s *discordgo.Session, i *discordgo.InteractionCreate, user 
 	item := items[nextIndex]
 
 	nft, err := db.GetNftByTemplateID(uint(item.TemplateID))
+
 	if err != nil {
 		respondeEphemeralMessage(s, i, "⚠️ Failed to get your Flunks from Dapper.")
 		return
 	}
 
+	// Edit the original deferred interaction response with the new message
 	respondeEphemeralMessageWithMedia(s, i, nft)
 }
 

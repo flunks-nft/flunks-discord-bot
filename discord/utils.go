@@ -61,24 +61,20 @@ func respondeEphemeralMessageWithMedia(s *discordgo.Session, i *discordgo.Intera
 		traitsString += fmt.Sprintf("%v %s: %s\n", emoji, trait.Name, trait.Value)
 	}
 
-	// Write a code to handle the button interaction
-	err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-		Type: discordgo.InteractionResponseChannelMessageWithSource,
-		Data: &discordgo.InteractionResponseData{
-			Flags: 64, // Ephemeral
-			Components: []discordgo.MessageComponent{
-				&discordgo.ActionsRow{
-					Components: []discordgo.MessageComponent{&raidButton, &raidHistoryButton, &zeeroButton, &nextButton},
-				},
+	_, err := s.InteractionResponseEdit(i.Interaction, &discordgo.WebhookEdit{
+		Content: nil,
+		Components: &[]discordgo.MessageComponent{
+			&discordgo.ActionsRow{
+				Components: []discordgo.MessageComponent{&raidButton, &raidHistoryButton, &zeeroButton, &nextButton},
 			},
-			Embeds: []*discordgo.MessageEmbed{
-				{
-					Image: &discordgo.MessageEmbedImage{
-						URL: nft.Uri,
-					},
-					Footer: &discordgo.MessageEmbedFooter{
-						Text: fmt.Sprintf("📚 Flunks # %v\n%s", nft.TemplateID, traitsString),
-					},
+		},
+		Embeds: &[]*discordgo.MessageEmbed{
+			{
+				Image: &discordgo.MessageEmbedImage{
+					URL: nft.Uri,
+				},
+				Footer: &discordgo.MessageEmbedFooter{
+					Text: fmt.Sprintf("📚 Flunks # %v\n%s", nft.TemplateID, traitsString),
 				},
 			},
 		},
