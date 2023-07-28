@@ -24,6 +24,7 @@ func sendMessageToRaidLogChannel(message string) {
 func SendRaidConcludedMessageToRaidLogChannel(msgs []string, nft db.Nft, winnerThread, loserThread string) {
 	var fields []*discordgo.MessageEmbedField
 
+	// Attach the raid result text messages
 	for _, msg := range msgs {
 		fields = append(fields, &discordgo.MessageEmbedField{
 			Name:   msg,
@@ -31,6 +32,7 @@ func SendRaidConcludedMessageToRaidLogChannel(msgs []string, nft db.Nft, winnerT
 		})
 	}
 
+	// Attach the winner and loser threads
 	fields = append(fields, &discordgo.MessageEmbedField{
 		Name:   "Winning Class",
 		Value:  winnerThread,
@@ -42,6 +44,7 @@ func SendRaidConcludedMessageToRaidLogChannel(msgs []string, nft db.Nft, winnerT
 		Inline: false,
 	})
 
+	// Attach the winner image
 	embed := &discordgo.MessageEmbed{
 		Fields: fields,
 		Thumbnail: &discordgo.MessageEmbedThumbnail{
