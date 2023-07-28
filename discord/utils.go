@@ -54,8 +54,6 @@ func respondeEphemeralMessageWithMedia(s *discordgo.Session, i *discordgo.Intera
 
 	traits := nft.Traits
 
-	fmt.Println("traits", traits)
-
 	// Create a string to store the concatenated traits
 	var traitsString string
 	for _, trait := range traits {

@@ -128,9 +128,6 @@ func handlesYearbook(s *discordgo.Session, i *discordgo.InteractionCreate, user 
 		return
 	}
 
-	fmt.Println(nft.FromRaids)
-	fmt.Println(nft.ToRaids)
-
 	respondeEphemeralMessageWithMedia(s, i, nft)
 }
 
