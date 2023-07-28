@@ -26,8 +26,8 @@ func InitRaidWorker(wg *sync.WaitGroup, done chan os.Signal) {
 	for {
 		select {
 		case <-Tiker.C:
-			// createMatchedChallenge()
-			// concludeRaid()
+			createMatchedChallenge()
+			concludeRaid()
 
 		case <-done:
 			// Stop the worker

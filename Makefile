@@ -4,11 +4,17 @@ db-up:
 db-down:
 	@docker-compose down db
 
-build:
-	@go build -o bin/discord-bot
+build-discord-runner:
+	@go build -o bin/discord-runner ./cmd/discord-runner
 
-run: build
-	@./bin/discord-bot
+build-raid-runner:
+	@go build -o bin/raid-runner ./cmd/raid-runner
+
+run-discord: build-discord-runner
+	@./bin/discord-runner
+
+run-raider: build-raid-runner
+	@./bin/raid-runner
 
 test:
 	go test ./... -v
