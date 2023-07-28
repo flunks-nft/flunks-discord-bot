@@ -10,8 +10,7 @@ import (
 // SendRaidConcludedMessageToRaidLogChannel sends a message when a raid is created
 func SendMessageToRaidLogChannel(msg string, nft1 db.Nft, nft2 db.Nft) {
 	sendMessageToRaidLogChannel(msg)
-	sendFlunksStatsMessageToRaidLogChannel(nft1)
-	sendFlunksStatsMessageToRaidLogChannel(nft2)
+	sendFlunksStatsMessageToRaidLogChannel(nft1, nft2)
 }
 
 func sendMessageToRaidLogChannel(message string) {
@@ -58,7 +57,7 @@ func SendRaidConcludedMessageToRaidLogChannel(msgs []string, nft db.Nft, winnerT
 	}
 }
 
-func sendFlunksStatsMessageToRaidLogChannel(nft db.Nft) {
+func sendFlunksStatsMessageToRaidLogChannel(nft1 db.Nft, nft2 db.Nft) {
 	var fields []*discordgo.MessageEmbedField
 
 	fields = append(fields, &discordgo.MessageEmbedField{
@@ -66,8 +65,10 @@ func sendFlunksStatsMessageToRaidLogChannel(nft db.Nft) {
 		Inline: false,
 	})
 
-	traits := nft.GetTraits()
-	for _, trait := range traits {
+	traits1 := nft1.GetTraits()
+	traits2 := nft2.GetTraits()
+
+	for _, trait := range traits1 {
 		fields = append(fields, &discordgo.MessageEmbedField{
 			Name:   trait.Name,
 			Value:  trait.Value,
@@ -75,15 +76,37 @@ func sendFlunksStatsMessageToRaidLogChannel(nft db.Nft) {
 		})
 	}
 
-	embed := &discordgo.MessageEmbed{
+	embed1 := &discordgo.MessageEmbed{
 		Fields: fields,
-		Thumbnail: &discordgo.MessageEmbedThumbnail{
-			URL: nft.Uri,
+		Image: &discordgo.MessageEmbedImage{
+			URL: nft1.Uri,
 		},
 	}
 
-	_, err := dg.ChannelMessageSendEmbed(RAID_LOG_CHANNEL_ID, embed)
+	fields = []*discordgo.MessageEmbedField{} // reset fields for second embed
+
+	for _, trait := range traits2 {
+		fields = append(fields, &discordgo.MessageEmbedField{
+			Name:   trait.Name,
+			Value:  trait.Value,
+			Inline: false,
+		})
+	}
+
+	embed2 := &discordgo.MessageEmbed{
+		Fields: fields,
+		Image: &discordgo.MessageEmbedImage{
+			URL: nft2.Uri,
+		},
+	}
+
+	_, err := dg.ChannelMessageSendEmbed(RAID_LOG_CHANNEL_ID, embed1)
 	if err != nil {
-		fmt.Println("Error sending embedded message to channel:", err)
+		fmt.Println("Error sending first embedded message to channel:", err)
+	}
+
+	_, err = dg.ChannelMessageSendEmbed(RAID_LOG_CHANNEL_ID, embed2)
+	if err != nil {
+		fmt.Println("Error sending second embedded message to channel:", err)
 	}
 }
