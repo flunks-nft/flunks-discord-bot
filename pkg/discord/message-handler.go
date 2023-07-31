@@ -61,9 +61,9 @@ func RaidMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 						CustomID: "manage_wallet",
 					},
 					discordgo.Button{
-						Label:    "🍀",
+						Label:    "🏆Leaderboard",
 						Style:    discordgo.DangerButton,
-						CustomID: "lottery",
+						CustomID: "leaderboard",
 					},
 				},
 			},

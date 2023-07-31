@@ -20,32 +20,49 @@ func ButtonInteractionCreate(s *discordgo.Session, i *discordgo.InteractionCreat
 		return
 	}
 
-	// Check user profile in the first place
-	user, err := db.UserProfile(i.Member.User.ID)
-	if err != nil {
-		respondeEphemeralMessage(s, i, "⚠️ Please use /dapper command to set up / update your Dapper wallet address.")
-		return
-	}
-
 	if i.Type == discordgo.InteractionMessageComponent {
 		switch i.MessageComponentData().CustomID {
 		case "start_raid_all":
+			user, err := ValidateUser(i)
+			if err != nil {
+				respondeEphemeralMessage(s, i, err.Error())
+				return
+			}
 			QueueForRaidAll(s, i, user)
 			return
 		case "manage_wallet":
 			respondeEphemeralMessage(s, i, "⚠️ Please use /dapper command to set up / update your Dapper wallet address.")
 		case "yearbook":
+			user, err := ValidateUser(i)
+			if err != nil {
+				respondeEphemeralMessage(s, i, err.Error())
+				return
+			}
 			handlesYearbook(s, i, user)
 			return
-		case "lottery":
-			respondeEphemeralMessage(s, i, "You clicked the 🍀 button.")
-		case "start_raid_one":
-			respondeEphemeralMessage(s, i, "You clicked the start_raid_one button.")
+		case "leaderboard":
+			handlesLeaderBoard(s, i)
+			return
 		case "next_flunk":
+			user, err := ValidateUser(i)
+			if err != nil {
+				respondeEphemeralMessage(s, i, err.Error())
+				return
+			}
 			handlesYearbook(s, i, user)
 			return
 		}
 	}
+}
+
+func ValidateUser(i *discordgo.InteractionCreate) (db.User, error) {
+	// Check user profile in the first place
+	user, err := db.UserProfile(i.Member.User.ID)
+	if err != nil {
+		return user, errors.New("⚠️ Please use /dapper command to set up / update your Dapper wallet address.")
+	}
+
+	return user, nil
 }
 
 func ButtonInteractionCreateOne(s *discordgo.Session, i *discordgo.InteractionCreate) {
@@ -143,6 +160,44 @@ func handlesYearbook(s *discordgo.Session, i *discordgo.InteractionCreate, user 
 
 	// Edit the original deferred interaction response with the new message
 	respondeEphemeralMessageWithMedia(s, i, nft)
+}
+
+// handlesLeaderBoard displays the leaderboard information of top 10 Flunks
+func handlesLeaderBoard(s *discordgo.Session, i *discordgo.InteractionCreate) {
+	// Defer interaction with placeholder Ephemeral msg to we have 15 minutes to respond to the original interaction
+	err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+		Type: discordgo.InteractionResponseDeferredChannelMessageWithSource,
+		Data: &discordgo.InteractionResponseData{
+			Flags: 64, // Ephemeral
+		},
+	})
+	if err != nil {
+		fmt.Println("Failed to defer interaction:", err)
+		return
+	}
+
+	// Get top 10 Flunks from the database
+	nfts := db.LeaderBoard()
+
+	if len(nfts) == 0 {
+		content := "⚠️ Failed to get the leaderboard information."
+		_, err = s.InteractionResponseEdit(i.Interaction, &discordgo.WebhookEdit{
+			Content: &content,
+		})
+		return
+	}
+
+	// Parse leaderboard information into a string
+	var msg string
+	for idx, nft := range nfts {
+		msg += fmt.Sprintf("🏅%d. Flunk #%v: 🎯%v\n", idx+1, nft.TemplateID, nft.Points)
+	}
+
+	// Edit original ephemeral message with the leaderboard information
+	if err := respondeEditFlunkLeaderBoard(s, i, "🏆Leaderboard", msg); err != nil {
+		log.Printf("Error handling leaderboard: %v", err)
+		return
+	}
 }
 
 // handlesZeeroRedirect is a handler for the "Check on Zeero" button to Zeero

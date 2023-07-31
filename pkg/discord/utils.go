@@ -116,3 +116,23 @@ func StringToUInt(str string) (uint, error) {
 
 	return uint(num), nil
 }
+
+func respondeEditFlunkLeaderBoard(s *discordgo.Session, i *discordgo.InteractionCreate, title string, msg string) error {
+	// Create an embed for the message
+	embed := &discordgo.MessageEmbed{
+		Title:       title,
+		Description: msg,
+		Color:       0x0099ff, // light blue, in hexadecimal
+	}
+
+	// Edit the message to contain the embed
+	_, err := s.InteractionResponseEdit(i.Interaction, &discordgo.WebhookEdit{
+		Embeds: &[]*discordgo.MessageEmbed{
+			embed,
+		},
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}

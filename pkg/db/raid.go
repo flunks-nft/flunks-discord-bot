@@ -67,6 +67,16 @@ func (raid Raid) ChallengeTypeEmoji() string {
 	return utils.CliqueEmojis[raid.ChallengeType.String()]
 }
 
+func LeaderBoard() []Nft {
+	// TODO: add win #, loss #, draw #, win rate
+	var nfts []Nft
+	result := db.Order("points DESC").Limit(10).Find(&nfts)
+	if result.Error != nil {
+		log.Println(result.Error)
+	}
+	return nfts
+}
+
 // ConcludeRaid completes a raid and updates the NFT scores
 // win: 4; draw: 2; lose: 1
 func ConcludeOneRaid() (raid Raid, err error) {
