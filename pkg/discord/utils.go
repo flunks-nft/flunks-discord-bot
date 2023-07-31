@@ -117,10 +117,19 @@ func StringToUInt(str string) (uint, error) {
 	return uint(num), nil
 }
 
-func respondeEditFlunkLeaderBoard(s *discordgo.Session, i *discordgo.InteractionCreate, title string, msg string) error {
+func respondeEditFlunkLeaderBoard(s *discordgo.Session, i *discordgo.InteractionCreate, nfts []db.Nft) error {
+	// Parse leaderboard information into a string
+	var msg string
+	for idx, nft := range nfts {
+		msg += fmt.Sprintf("🏅%d. Flunk #%v: 🎯%v\n", idx+1, nft.TemplateID, nft.Points)
+	}
+
 	// Create an embed for the message
 	embed := &discordgo.MessageEmbed{
-		Title:       title,
+		Title: "🏆Leaderboard",
+		Thumbnail: &discordgo.MessageEmbedThumbnail{
+			URL: nfts[0].Uri,
+		},
 		Description: msg,
 		Color:       0x0099ff, // light blue, in hexadecimal
 	}

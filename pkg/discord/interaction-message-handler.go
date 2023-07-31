@@ -178,7 +178,6 @@ func handlesLeaderBoard(s *discordgo.Session, i *discordgo.InteractionCreate) {
 
 	// Get top 10 Flunks from the database
 	nfts := db.LeaderBoard()
-
 	if len(nfts) == 0 {
 		content := "⚠️ Failed to get the leaderboard information."
 		_, err = s.InteractionResponseEdit(i.Interaction, &discordgo.WebhookEdit{
@@ -187,14 +186,8 @@ func handlesLeaderBoard(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		return
 	}
 
-	// Parse leaderboard information into a string
-	var msg string
-	for idx, nft := range nfts {
-		msg += fmt.Sprintf("🏅%d. Flunk #%v: 🎯%v\n", idx+1, nft.TemplateID, nft.Points)
-	}
-
 	// Edit original ephemeral message with the leaderboard information
-	if err := respondeEditFlunkLeaderBoard(s, i, "🏆Leaderboard", msg); err != nil {
+	if err := respondeEditFlunkLeaderBoard(s, i, nfts); err != nil {
 		log.Printf("Error handling leaderboard: %v", err)
 		return
 	}
