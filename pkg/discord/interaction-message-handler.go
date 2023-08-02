@@ -195,6 +195,10 @@ func handlesLeaderBoard(s *discordgo.Session, i *discordgo.InteractionCreate) {
 
 // handlesZeeroRedirect is a handler for the "Check on Zeero" button to Zeero
 func handlesZeeroRedirect(s *discordgo.Session, i *discordgo.InteractionCreate) {
+	if err := deferEphemeralResponse(s, i); err != nil {
+		return
+	}
+
 	customIDParts := strings.Split(i.MessageComponentData().CustomID, "_")
 
 	if i.Type == discordgo.InteractionMessageComponent {
@@ -203,7 +207,7 @@ func handlesZeeroRedirect(s *discordgo.Session, i *discordgo.InteractionCreate) 
 			if customIDParts[1] == "zeero" {
 				tokenID := customIDParts[2]
 				msg := fmt.Sprintf("https://zeero.art/collection/flunks/%v", tokenID)
-				respondeEphemeralMessage(s, i, msg)
+				editTextResponse(s, i, msg)
 			}
 		}
 	}
