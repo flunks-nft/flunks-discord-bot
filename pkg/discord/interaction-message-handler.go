@@ -148,12 +148,12 @@ func handlesYearbook(s *discordgo.Session, i *discordgo.InteractionCreate, user 
 
 	items, err := user.GetFlunks()
 	if err != nil {
-		respondeEphemeralMessage(s, i, "⚠️ Failed to get your Flunks from Dapper.")
+		editTextResponse(s, i, "⚠️ Failed to get your Flunks from Dapper.")
 		return
 	}
 
 	if len(items) == 0 {
-		respondeEphemeralMessage(s, i, "⚠️ You don't have any Flunks in your Dapper wallet.")
+		editTextResponse(s, i, "⚠️ You don't have any Flunks in your Dapper wallet.")
 		return
 	}
 
@@ -165,12 +165,12 @@ func handlesYearbook(s *discordgo.Session, i *discordgo.InteractionCreate, user 
 	nft, err := db.GetNftByTemplateID(uint(item.TemplateID))
 
 	if err != nil {
-		respondeEphemeralMessage(s, i, "⚠️ Failed to get your Flunks from Dapper.")
+		editTextResponse(s, i, "⚠️ Failed to get your Flunks from Dapper.")
 		return
 	}
 
 	// Edit the original deferred interaction response with the new message
-	respondeEphemeralMessageWithMedia(s, i, nft)
+	editEphemeralMessageWithMedia(s, i, nft)
 }
 
 // handlesLeaderBoard displays the leaderboard information of top 10 Flunks

@@ -25,7 +25,7 @@ func respondeEphemeralMessage(s *discordgo.Session, i *discordgo.InteractionCrea
 	}
 }
 
-func respondeEphemeralMessageWithMedia(s *discordgo.Session, i *discordgo.InteractionCreate, nft db.Nft) {
+func editEphemeralMessageWithMedia(s *discordgo.Session, i *discordgo.InteractionCreate, nft db.Nft) {
 	// Create the button component
 	raidButton := discordgo.Button{
 		Label:    "Raid",
