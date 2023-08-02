@@ -47,6 +47,10 @@ func init() {
 	}
 }
 
+func GetSession() *discordgo.Session {
+	return dg
+}
+
 func InitDiscord(wg *sync.WaitGroup, done chan os.Signal) {
 	// Create a new Discord session using the provided bot token.
 	s, err := discordgo.New("Bot " + DISCORD_TOKEN)
