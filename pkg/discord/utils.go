@@ -141,17 +141,32 @@ func respondeEditFlunkLeaderBoard(s *discordgo.Session, i *discordgo.Interaction
 		},
 	})
 	if err != nil {
+		log.Printf("Error handling leaderboard: %v", err)
 		return err
 	}
 	return nil
 }
 
-func editTextResponse(s *discordgo.Session, i *discordgo.InteractionCreate, msg string) error {
+func deferEphemeralResponse(s *discordgo.Session, i *discordgo.InteractionCreate) error {
+	// Create a defer interaction message
+	err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+		Type: discordgo.InteractionResponseDeferredChannelMessageWithSource,
+		Data: &discordgo.InteractionResponseData{
+			Flags: 64, // Ephemeral
+		},
+	})
+	if err != nil {
+		fmt.Println("Failed to defer interaction:", err)
+		return err
+	}
+	return nil
+}
+
+func editTextResponse(s *discordgo.Session, i *discordgo.InteractionCreate, msg string) {
 	_, err := s.InteractionResponseEdit(i.Interaction, &discordgo.WebhookEdit{
 		Content: &msg,
 	})
 	if err != nil {
-		return err
+		log.Printf("Error editing msg: %v", err)
 	}
-	return nil
 }

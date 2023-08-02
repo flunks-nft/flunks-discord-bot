@@ -92,42 +92,25 @@ func ButtonInteractionCreateOne(s *discordgo.Session, i *discordgo.InteractionCr
 
 func handlesRaidAll(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	// Create a defer interaction message
-	err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-		Type: discordgo.InteractionResponseDeferredChannelMessageWithSource,
-		Data: &discordgo.InteractionResponseData{
-			Flags: 64, // Ephemeral
-		},
-	})
-	if err != nil {
-		fmt.Println("Failed to defer interaction:", err)
+	if err := deferEphemeralResponse(s, i); err != nil {
 		return
 	}
 
+	// Check user profile in the first place
 	user, err := ValidateUser(i)
 	if err != nil {
-		msg := fmt.Sprintf("Error handling start_raid: %v", err)
-		_, err := s.InteractionResponseEdit(i.Interaction, &discordgo.WebhookEdit{
-			Content: &msg,
-		})
-		if err != nil {
-			log.Printf("Error editing msg: %v", err)
-		}
 		return
 	}
 
+	// Queue all Flunks for the raid
 	msg, err := QueueForRaidAll(s, i, user)
 	if err != nil {
-		err = editTextResponse(s, i, err.Error())
-		if err != nil {
-			log.Printf("Error editing msg: %v", err)
-		}
+		editTextResponse(s, i, err.Error())
+		return
 	}
 
 	// Edit the original deferred interaction response with the new message
-	err = editTextResponse(s, i, msg)
-	if err != nil {
-		log.Printf("Error editing msg: %v", err)
-	}
+	editTextResponse(s, i, msg)
 }
 
 // Handles start raid command for individual Flunks
@@ -159,14 +142,7 @@ func handlesRaidOne(s *discordgo.Session, i *discordgo.InteractionCreate) {
 // handlesZeeroRedirect is a handler for the Yearbook button to Zeero
 func handlesYearbook(s *discordgo.Session, i *discordgo.InteractionCreate, user db.User) {
 	// Defer interaction with placeholder Ephemeral msg to we have 15 minutes to respond to the original interaction
-	err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-		Type: discordgo.InteractionResponseDeferredChannelMessageWithSource,
-		Data: &discordgo.InteractionResponseData{
-			Flags: 64, // Ephemeral
-		},
-	})
-	if err != nil {
-		fmt.Println("Failed to defer interaction:", err)
+	if err := deferEphemeralResponse(s, i); err != nil {
 		return
 	}
 
@@ -199,15 +175,7 @@ func handlesYearbook(s *discordgo.Session, i *discordgo.InteractionCreate, user 
 
 // handlesLeaderBoard displays the leaderboard information of top 10 Flunks
 func handlesLeaderBoard(s *discordgo.Session, i *discordgo.InteractionCreate) {
-	// Defer interaction with placeholder Ephemeral msg to we have 15 minutes to respond to the original interaction
-	err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-		Type: discordgo.InteractionResponseDeferredChannelMessageWithSource,
-		Data: &discordgo.InteractionResponseData{
-			Flags: 64, // Ephemeral
-		},
-	})
-	if err != nil {
-		fmt.Println("Failed to defer interaction:", err)
+	if err := deferEphemeralResponse(s, i); err != nil {
 		return
 	}
 
@@ -215,15 +183,12 @@ func handlesLeaderBoard(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	nfts := db.LeaderBoard()
 	if len(nfts) == 0 {
 		content := "⚠️ Failed to get the leaderboard information."
-		_, err = s.InteractionResponseEdit(i.Interaction, &discordgo.WebhookEdit{
-			Content: &content,
-		})
+		editTextResponse(s, i, content)
 		return
 	}
 
 	// Edit original ephemeral message with the leaderboard information
 	if err := respondeEditFlunkLeaderBoard(s, i, nfts); err != nil {
-		log.Printf("Error handling leaderboard: %v", err)
 		return
 	}
 }
