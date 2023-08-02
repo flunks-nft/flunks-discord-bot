@@ -145,3 +145,13 @@ func respondeEditFlunkLeaderBoard(s *discordgo.Session, i *discordgo.Interaction
 	}
 	return nil
 }
+
+func editTextResponse(s *discordgo.Session, i *discordgo.InteractionCreate, msg string) error {
+	_, err := s.InteractionResponseEdit(i.Interaction, &discordgo.WebhookEdit{
+		Content: &msg,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}

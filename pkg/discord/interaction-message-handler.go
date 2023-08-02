@@ -23,12 +23,7 @@ func ButtonInteractionCreate(s *discordgo.Session, i *discordgo.InteractionCreat
 	if i.Type == discordgo.InteractionMessageComponent {
 		switch i.MessageComponentData().CustomID {
 		case "start_raid_all":
-			user, err := ValidateUser(i)
-			if err != nil {
-				respondeEphemeralMessage(s, i, err.Error())
-				return
-			}
-			QueueForRaidAll(s, i, user)
+			handlesRaidAll(s, i)
 			return
 		case "manage_wallet":
 			respondeEphemeralMessage(s, i, "⚠️ Please use /dapper command to set up / update your Dapper wallet address.")
@@ -92,6 +87,46 @@ func ButtonInteractionCreateOne(s *discordgo.Session, i *discordgo.InteractionCr
 	if strings.Contains(customID, "raid_history") {
 		handlesRaidHistory(s, i)
 		return
+	}
+}
+
+func handlesRaidAll(s *discordgo.Session, i *discordgo.InteractionCreate) {
+	// Create a defer interaction message
+	err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+		Type: discordgo.InteractionResponseDeferredChannelMessageWithSource,
+		Data: &discordgo.InteractionResponseData{
+			Flags: 64, // Ephemeral
+		},
+	})
+	if err != nil {
+		fmt.Println("Failed to defer interaction:", err)
+		return
+	}
+
+	user, err := ValidateUser(i)
+	if err != nil {
+		msg := fmt.Sprintf("Error handling start_raid: %v", err)
+		_, err := s.InteractionResponseEdit(i.Interaction, &discordgo.WebhookEdit{
+			Content: &msg,
+		})
+		if err != nil {
+			log.Printf("Error editing msg: %v", err)
+		}
+		return
+	}
+
+	msg, err := QueueForRaidAll(s, i, user)
+	if err != nil {
+		err = editTextResponse(s, i, err.Error())
+		if err != nil {
+			log.Printf("Error editing msg: %v", err)
+		}
+	}
+
+	// Edit the original deferred interaction response with the new message
+	err = editTextResponse(s, i, msg)
+	if err != nil {
+		log.Printf("Error editing msg: %v", err)
 	}
 }
 
@@ -237,17 +272,15 @@ func handlesRaidHistory(s *discordgo.Session, i *discordgo.InteractionCreate) {
 }
 
 // QueueForRaidAll adds all Flunks that belongs to a user to a raid queue for the challenge match
-func QueueForRaidAll(s *discordgo.Session, i *discordgo.InteractionCreate, user db.User) {
+func QueueForRaidAll(s *discordgo.Session, i *discordgo.InteractionCreate, user db.User) (string, error) {
 	// Retrieve Flunks for the user
 	items, err := user.GetFlunks()
 	if err != nil {
-		respondeEphemeralMessage(s, i, "⚠️ Failed to get your Flunks from Dapper.")
-		return
+		return "", fmt.Errorf("⚠️ Failed to get your Flunks from Dapper: %v", err)
 	}
 
 	if len(items) == 0 {
-		respondeEphemeralMessage(s, i, "⚠️ You don't have any Flunks in your Dapper wallet.")
-		return
+		return "", fmt.Errorf("⚠️ You don't have any Flunks in your Dapper wallet.")
 	}
 
 	successArray := []string{}
@@ -267,14 +300,12 @@ func QueueForRaidAll(s *discordgo.Session, i *discordgo.InteractionCreate, user 
 	failedCnt := len(failedArray)
 
 	if succeedCnt == 0 {
-		msg := fmt.Sprintf("⚠️ Failed to add any Flunks to the raid queue.\n⚠️ Total failed: %v Flunks", failedCnt)
-		respondeEphemeralMessage(s, i, msg)
-		return
+		return "", errors.New("⚠️ Failed to add any Flunks to the raid queue.")
 	} else {
 		if failedCnt == 0 {
-			respondeEphemeralMessage(s, i, fmt.Sprintf("✅ %v Flunks have been added to the raid queue.", succeedCnt))
+			return fmt.Sprintf("✅ %v Flunks have been added to the raid queue.", succeedCnt), nil
 		} else {
-			respondeEphemeralMessage(s, i, fmt.Sprintf("✅ %v Flunks have been added to the raid queue.\n⚠️ Failed to add %v Flunks.", succeedCnt, failedCnt))
+			return fmt.Sprintf("✅ %v Flunks have been added to the raid queue.\n⚠️ Failed to add %v Flunks.", succeedCnt, failedCnt), nil
 		}
 	}
 }
