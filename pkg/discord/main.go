@@ -47,8 +47,36 @@ func init() {
 	}
 }
 
-func GetSession() *discordgo.Session {
-	return dg
+// InitPureTextDiscord inits a Discord bot that only sends text messages
+func InitPureTextDiscord(wg *sync.WaitGroup, done chan os.Signal) {
+	// Create a new Discord session using the provided bot token.
+	s, err := discordgo.New("Bot " + DISCORD_TOKEN)
+	if err != nil {
+		fmt.Println("error creating Discord session,", err)
+		return
+	}
+	dg = s
+
+	// we only care about sending messages
+	s.Identify.Intents = discordgo.IntentsGuildMessages
+
+	// Open a websocket connection to Discord and begin listening.
+	err = s.Open()
+	if err != nil {
+		fmt.Println("error opening connection,", err)
+		return
+	}
+	// Cleanly close down the Discord session.
+	defer s.Close()
+
+	// Wait here until CTRL-C or other term signal is received. (with <-done)
+	log.Println("🌱 Discord Text Bot is now running. Press CTRL-C to exit.")
+	<-done
+
+	log.Println("🐒 Discord Text Bot Server is Gracefully shut down.")
+
+	// Signal the WaitGroup that Discord service has finished
+	wg.Done()
 }
 
 func InitDiscord(wg *sync.WaitGroup, done chan os.Signal) {

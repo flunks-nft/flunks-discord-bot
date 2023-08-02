@@ -7,6 +7,7 @@ import (
 	"syscall"
 
 	"github.com/flunks-nft/discord-bot/pkg/db"
+	"github.com/flunks-nft/discord-bot/pkg/discord"
 	"github.com/flunks-nft/discord-bot/pkg/worker"
 )
 
@@ -16,7 +17,7 @@ func main() {
 
 	// Create a wait group to coordinate shutdown
 	wg := sync.WaitGroup{}
-	wg.Add(1) // Number of services to wait for shutdown
+	wg.Add(2) // Number of services to wait for shutdown
 
 	// Create a done channel to signal termination (CTRL + C)
 	// Note: signal.Notify specifies which signals to send to the done channel
@@ -27,6 +28,9 @@ func main() {
 
 	// Start worker service
 	go worker.InitRaidWorker(&wg, done)
+
+	// Start Discord text bot
+	go discord.InitPureTextDiscord(&wg, done)
 
 	// Wait for services to complete shutdown
 	wg.Wait()
