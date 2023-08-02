@@ -125,8 +125,8 @@ func ConcludeOneRaid() (raid Raid, err error) {
 		loserNFT = raid.FromNft
 	}
 
-	// Update the scores of the winner and loser NFTs
-	updateScores(tx, winnerNFT, loserNFT)
+	// Update the points of the winner and loser NFTs
+	updatePoints(tx, winnerNFT, loserNFT)
 
 	// Preload the FromNft and ToNft associations for the final raid object
 	if err := tx.Preload("FromNft").Preload("ToNft").Preload("WinnerNft").Preload("FromNft.Owner").Preload("ToNft.Owner").Preload("WinnerNft.Owner").First(&raid).Error; err != nil {
@@ -137,15 +137,15 @@ func ConcludeOneRaid() (raid Raid, err error) {
 	return raid, nil
 }
 
-// updateScores updates the scores of the winner and loser NFTs.
-func updateScores(tx *gorm.DB, winner, loser Nft) {
+// updatePoints updates the points of the winner and loser NFTs.
+func updatePoints(tx *gorm.DB, winner, loser Nft) {
 	// Update the scores based on the outcome (win: 4; draw: 2; lose: 1)
 	winner.Points += 4
 	loser.Points += 1
 
 	// Save the updated scores in the database
-	tx.Model(&winner).Update("points", winner.Points)
-	tx.Model(&loser).Update("points", loser.Points)
+	tx.Model(&winner).Select("points").Update("points", winner.Points)
+	tx.Model(&loser).Select("points").Update("points", loser.Points)
 }
 
 func GetRaidHistoryByTemplateID(tokenID uint) []string {
