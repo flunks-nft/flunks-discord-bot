@@ -214,6 +214,10 @@ func handlesZeeroRedirect(s *discordgo.Session, i *discordgo.InteractionCreate) 
 }
 
 func handlesRaidHistory(s *discordgo.Session, i *discordgo.InteractionCreate) {
+	if err := deferEphemeralResponse(s, i); err != nil {
+		return
+	}
+
 	customIDParts := strings.Split(i.MessageComponentData().CustomID, "_")
 
 	if i.Type == discordgo.InteractionMessageComponent {
@@ -225,7 +229,7 @@ func handlesRaidHistory(s *discordgo.Session, i *discordgo.InteractionCreate) {
 				records := db.GetRaidHistoryByTemplateID(templateIDUInt)
 				if len(records) == 0 {
 					msg := fmt.Sprintf("⚠️ No raid history found for Flunk #%s", templateID)
-					respondeEphemeralMessage(s, i, msg)
+					editTextResponse(s, i, msg)
 					return
 				}
 
@@ -234,7 +238,7 @@ func handlesRaidHistory(s *discordgo.Session, i *discordgo.InteractionCreate) {
 				for _, record := range records {
 					recordsString += record
 				}
-				respondeEphemeralMessage(s, i, recordsString)
+				editTextResponse(s, i, recordsString)
 			}
 		}
 	}
