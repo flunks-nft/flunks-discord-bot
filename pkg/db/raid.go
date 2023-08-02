@@ -82,6 +82,8 @@ func LeaderBoard() []Nft {
 func ConcludeOneRaid() (raid Raid, err error) {
 	tx := db.Begin()
 
+	// TODO: Discord raid conclude msg is still sent even if the raid is not concluded
+	// i.e. when tx is rolled back
 	defer func() {
 		if r := recover(); r != nil {
 			tx.Rollback()
