@@ -79,11 +79,6 @@ func ButtonInteractionCreateOne(s *discordgo.Session, i *discordgo.InteractionCr
 		return
 	}
 
-	if strings.Contains(customID, "redirect_zeero") {
-		handlesZeeroRedirect(s, i)
-		return
-	}
-
 	if strings.Contains(customID, "raid_history") {
 		handlesRaidHistory(s, i)
 		return
@@ -139,7 +134,7 @@ func handlesRaidOne(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	}
 }
 
-// handlesZeeroRedirect is a handler for the Yearbook button to Zeero
+// handlesYearbook is a handler for the Yearbook button to Zeero
 func handlesYearbook(s *discordgo.Session, i *discordgo.InteractionCreate, user db.User) {
 	// Defer interaction with placeholder Ephemeral msg to we have 15 minutes to respond to the original interaction
 	if err := deferEphemeralResponse(s, i); err != nil {
@@ -190,26 +185,6 @@ func handlesLeaderBoard(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	// Edit original ephemeral message with the leaderboard information
 	if err := respondeEditFlunkLeaderBoard(s, i, nfts); err != nil {
 		return
-	}
-}
-
-// handlesZeeroRedirect is a handler for the "Check on Zeero" button to Zeero
-func handlesZeeroRedirect(s *discordgo.Session, i *discordgo.InteractionCreate) {
-	if err := deferEphemeralResponse(s, i); err != nil {
-		return
-	}
-
-	customIDParts := strings.Split(i.MessageComponentData().CustomID, "_")
-
-	if i.Type == discordgo.InteractionMessageComponent {
-		switch customIDParts[0] {
-		case "redirect":
-			if customIDParts[1] == "zeero" {
-				tokenID := customIDParts[2]
-				msg := fmt.Sprintf("https://zeero.art/collection/flunks/%v", tokenID)
-				editTextResponse(s, i, msg)
-			}
-		}
 	}
 }
 

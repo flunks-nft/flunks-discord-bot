@@ -35,9 +35,9 @@ func editEphemeralMessageWithMedia(s *discordgo.Session, i *discordgo.Interactio
 
 	// Note that Zeero redirect is using tokenID as it's how the url is rendered
 	zeeroButton := discordgo.Button{
-		Label:    "Check on Zeero",
-		Style:    discordgo.PrimaryButton,
-		CustomID: fmt.Sprintf("redirect_zeero_%v", nft.TokenID),
+		Label: "Check on Zeero",
+		Style: discordgo.LinkButton,
+		URL:   fmt.Sprintf("https://zeero.art/collection/flunks/%v", nft.TokenID),
 	}
 
 	raidHistoryButton := discordgo.Button{
