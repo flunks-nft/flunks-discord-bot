@@ -55,13 +55,13 @@ func RaidMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 					},
 					discordgo.Button{
 						Label:    "Yearbook",
-						Style:    discordgo.SecondaryButton,
+						Style:    discordgo.SuccessButton,
 						CustomID: "yearbook",
 					},
 					discordgo.Button{
-						Label:    "Manage Wallet",
-						Style:    discordgo.SuccessButton,
-						CustomID: "manage_wallet",
+						Label: "Manage Wallet",
+						Style: discordgo.LinkButton,
+						URL:   DISCORD_DAPPER_VERIFY_URL,
 					},
 					discordgo.Button{
 						Label:    "🏆Leaderboard",

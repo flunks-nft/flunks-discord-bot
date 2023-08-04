@@ -17,9 +17,10 @@ var (
 
 	ALFREDOO_ID = "594334378746707980"
 
-	DISCORD_TOKEN       string
-	RAID_CHANNEL_ID     string
-	RAID_LOG_CHANNEL_ID string
+	DISCORD_TOKEN             string
+	RAID_CHANNEL_ID           string
+	RAID_LOG_CHANNEL_ID       string
+	DISCORD_DAPPER_VERIFY_URL string
 
 	dg                                  *discordgo.Session
 	messageHandlers                     []func(s *discordgo.Session, i *discordgo.MessageCreate)
@@ -33,6 +34,7 @@ func init() {
 	RAID_CHANNEL_ID = os.Getenv("RAID_CHANNLE_ID")
 	RAID_LOG_CHANNEL_ID = os.Getenv("RAID_LOG_CHANNEL_ID")
 	DISCORD_TOKEN = os.Getenv("DISCORD_TOKEN")
+	DISCORD_DAPPER_VERIFY_URL = os.Getenv("DISCORD_DAPPER_VERIFY_URL")
 
 	GuildID = DefaultGuiID()
 

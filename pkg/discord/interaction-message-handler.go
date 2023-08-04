@@ -25,8 +25,6 @@ func ButtonInteractionCreate(s *discordgo.Session, i *discordgo.InteractionCreat
 		case "start_raid_all":
 			handlesRaidAll(s, i)
 			return
-		case "manage_wallet":
-			respondeEphemeralMessage(s, i, "⚠️ Please use /dapper command to set up / update your Dapper wallet address.")
 		case "yearbook":
 			user, err := ValidateUser(i)
 			if err != nil {
