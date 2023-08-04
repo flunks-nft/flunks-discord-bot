@@ -1,7 +1,8 @@
 import { useWeb3Context } from "../contexts/Web3";
+import generateJWT from "./jwt";
 
 const Button: React.FC<{}> = ({}) => {
-  const { connect, user, executeScript, logout } = useWeb3Context();
+  const { connect, logout, user } = useWeb3Context();
 
   const handleClick = () => {
     if (!user?.loggedIn) {
@@ -12,7 +13,8 @@ const Button: React.FC<{}> = ({}) => {
   };
 
   const redirectToDiscord = () => {
-    const loginUrl = `http://localhost:8080/auth/login?addr=${user.addr}`;
+    const token = generateJWT(user.addr);
+    const loginUrl = `http://localhost:8080/auth/login?token=${token}`;
     window.location.href = loginUrl;
   };
 
@@ -23,7 +25,7 @@ const Button: React.FC<{}> = ({}) => {
           className="border-orange bg-orange hover:bg-orange-dark rounded-md border px-4 py-2 text-black"
           onClick={user?.loggedIn ? redirectToDiscord : handleClick}
         >
-          {user?.loggedIn ? "Logout" : "Connect Dapper"}
+          {user?.loggedIn ? "Click to Verify" : "Connect Dapper"}
         </button>
       </div>
       <div>
