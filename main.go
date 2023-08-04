@@ -7,6 +7,8 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/flunks-nft/discord-bot/pkg/db"
+	"github.com/flunks-nft/discord-bot/pkg/jwt"
 	"github.com/gorilla/mux"
 	"golang.org/x/oauth2"
 )
@@ -49,16 +51,20 @@ func main() {
 // handleLogin sends a user to the Discord login page
 // and redirects the user to /auth/callback when authorized.
 func handleLogin(w http.ResponseWriter, r *http.Request) {
-	authURL := discordOauth2Config.AuthCodeURL(STATE_SEED, oauth2.AccessTypeOnline)
+	// Get the token from the query parameters
+	tokenString := r.URL.Query().Get("token")
 
-	fmt.Println("Redirecting to: " + authURL)
+	authURL := discordOauth2Config.AuthCodeURL(
+		tokenString,
+		oauth2.AccessTypeOnline,
+	)
+
 	http.Redirect(w, r, authURL, http.StatusFound)
 }
 
 // handleCallback handles callbacks from the Discord OAuth2 server
 // and exchanges the user's information from Discord server with their access token.
 func handleCallback(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("Callback")
 	code := r.URL.Query().Get("code")
 	if code == "" {
 		http.Error(w, "No authorization code found", http.StatusBadRequest)
@@ -66,8 +72,19 @@ func handleCallback(w http.ResponseWriter, r *http.Request) {
 	}
 
 	state := r.URL.Query().Get("state")
-	if state != STATE_SEED {
-		http.Error(w, "Invalid state value", http.StatusBadRequest)
+
+	// Validate state
+	ok, err := jwt.IsValidJWT(state)
+	if err != nil || !ok {
+		log.Println("Error in decoding jwt token", err.Error())
+		http.Error(w, "Invalid state token", http.StatusBadRequest)
+		return
+	}
+
+	walletAddress, err := jwt.RetrieveWalletAddress(state)
+	if err != nil {
+		log.Println("Error in decoding jwt token", err.Error())
+		http.Error(w, "Invalid state token", http.StatusBadRequest)
 		return
 	}
 
@@ -107,6 +124,6 @@ func handleCallback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Print the user's Discord ID
-	fmt.Fprintf(w, "User ID: %s\n", user.ID)
+	// TODO: write the user's discord id to the database
+	db.CreateOrUpdateFlowAddress(user.ID, walletAddress)
 }

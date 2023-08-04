@@ -2,7 +2,6 @@ package jwt
 
 import (
 	"fmt"
-	"net/http"
 	"os"
 	"strings"
 
@@ -20,69 +19,40 @@ func init() {
 	JWT_SECRET = os.Getenv("JWT_SECRET")
 }
 
-// Define your secret key for signing and verifying tokens
-var secretKey = []byte(JWT_SECRET) // Replace with your secret key
-
-func verifyJWT(next http.HandlerFunc) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		authHeader := r.Header.Get("Authorization")
-		if authHeader == "" {
-			http.Error(w, "Unauthorized", http.StatusUnauthorized)
-			return
-		}
-
-		// Extract the token from the "Authorization" header
-		bearerToken := strings.Split(authHeader, " ")
-		if len(bearerToken) != 2 || bearerToken[0] != "Bearer" {
-			http.Error(w, "Invalid token", http.StatusBadRequest)
-			return
-		}
-
-		tokenString := bearerToken[1]
-
-		// Parse and verify the token
-		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-			return secretKey, nil
-		})
-
-		if err != nil {
-			http.Error(w, "Invalid token", http.StatusUnauthorized)
-			return
-		}
-
-		if !token.Valid {
-			http.Error(w, "Invalid token", http.StatusUnauthorized)
-			return
-		}
-
-		// Token is valid, continue with the next handler
-		next(w, r)
+func IsValidJWT(tokenString string) (bool, error) {
+	// Split the token string into two parts: header and payload
+	parts := strings.Split(tokenString, ".")
+	if len(parts) != 3 {
+		return false, fmt.Errorf("Invalid token format")
 	}
+
+	// Parse the token and verify the signature with the secret key
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		return []byte(JWT_SECRET), nil
+	})
+
+	// Check if the parsing was successful
+	if err != nil {
+		return false, fmt.Errorf("Failed to parse token: %v", err)
+	}
+
+	// Check if the token is valid and has not expired
+	if token.Valid {
+		return true, nil
+	}
+
+	return false, nil
 }
 
-// // secureHandler gets the user's wallet address from the token claims and return wallet address
-// func RetrieveWalletAddress(w http.ResponseWriter, r *http.Request) (string, error) {
-// 	// Access the user's wallet address from the token claims
-// 	claims, ok := r.Context().Value(jwtKey{}).(jwt.MapClaims)
-// 	if !ok {
-// 		http.Error(w, "Invalid token claims", http.StatusInternalServerError)
-// 		return "", nil
-// 	}
-
-// 	addr, ok := claims["addr"].(string)
-// 	if !ok {
-// 		http.Error(w, "Invalid wallet address", http.StatusInternalServerError)
-// 		return "", nil
-// 	}
-
-// 	return addr, nil
-// }
-
+// RetrieveWalletAddress both parses and verifies the JWT token
+// and then extracts the "addr" claim (wallet address) from the token's payload.
+// If the token is not valid or does not contain the expected claim,
+// appropriate error messages are returned.
 func RetrieveWalletAddress(tokenString string) (string, error) {
 	// Parse the JWT token
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		// Replace "YOUR_SECRET_KEY" with the actual secret key used for signing the tokens
-		return []byte("YOUR_SECRET_KEY"), nil
+		return []byte(JWT_SECRET), nil
 	})
 
 	if err != nil {
