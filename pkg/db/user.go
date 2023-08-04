@@ -48,7 +48,7 @@ func (user *User) GetNextTokenIndex(totalCount int) uint {
 	lastIndex := user.LastFetchedTokenIndex
 	// Increment the last fetched token index by 1 and update the user profile
 	db.Model(&user).Update("last_fetched_token_index", (lastIndex+1)%uint(totalCount))
-	return lastIndex
+	return lastIndex % uint(totalCount)
 }
 
 func CreateNewUser(DiscordID string, FlowWalletAddress string) error {
