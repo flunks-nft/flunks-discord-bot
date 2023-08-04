@@ -4,6 +4,9 @@ db-up:
 db-down:
 	@docker-compose down db
 
+buid-oauth-server:
+	@go build -o bin/oauth-server ./main.go
+
 build-discord-runner:
 	@go build -o bin/discord-runner ./cmd/discord-runner
 
@@ -15,6 +18,9 @@ run-discord: build-discord-runner
 
 run-raider: build-raid-runner
 	@./bin/raid-runner
+
+run-oauth-server: buid-oauth-server
+	@./bin/oauth-server
 
 test:
 	go test ./... -v
