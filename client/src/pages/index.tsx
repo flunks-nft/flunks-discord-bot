@@ -15,8 +15,7 @@ export default function Home() {
             Flunks <span className="text-orange">Verification</span> App
           </h1>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-8">
-            <Button text="Connect Discord" />
-            <Button text="Connect Dapper" />
+            <Button />
           </div>
         </div>
       </main>

@@ -1,33 +1,33 @@
-// const handleClick = () => {
-//   // Here you will redirect to the Discord OAuth2 link
-//   window.location.href = `https://discord.com/api/oauth2/authorize?client_id=${
-//     process.env.REACT_APP_DISCORD_CLIENT_ID
-//   }&redirect_uri=${encodeURIComponent(
-//     process.env.REACT_APP_REDIRECT_URI
-//   )}&response_type=code&scope=identify%20guilds.join`;
-// };
+import { useWeb3Context } from "../contexts/Web3";
 
-const { DISCORD_URL } = process.env;
+const Button: React.FC<{}> = ({}) => {
+  const { connect, user, executeScript, logout } = useWeb3Context();
 
-const handleClick = () => {
-  console.log("clicked!!");
+  const handleClick = () => {
+    if (!user?.loggedIn) {
+      connect();
+    } else {
+      logout();
+    }
+  };
 
-  // Here you will redirect to the Discord OAuth2 link
-  const discordUrl =
-    "https://discord.com/api/oauth2/authorize?client_id=1121560033600208936&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Fauth%2Flogin&response_type=code&scope=identify";
-  window.location.href = discordUrl;
-};
+  const redirectToDiscord = () => {
+    const loginUrl = `http://localhost:8080/auth/login?addr=${user.addr}`;
+    window.location.href = loginUrl;
+  };
 
-const Button: React.FC<{ text: string }> = ({ text }) => {
   return (
     <div className="mb-7 flex flex-col items-center text-center">
       <div className="flex justify-between gap-2">
         <button
           className="border-orange bg-orange hover:bg-orange-dark rounded-md border px-4 py-2 text-black"
-          onClick={handleClick}
+          onClick={user?.loggedIn ? redirectToDiscord : handleClick}
         >
-          {text}
+          {user?.loggedIn ? "Logout" : "Connect Dapper"}
         </button>
+      </div>
+      <div>
+        <h1>{JSON.stringify(user, null, 2)}</h1>
       </div>
     </div>
   );
