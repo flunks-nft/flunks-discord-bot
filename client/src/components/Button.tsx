@@ -7,11 +7,14 @@
 //   )}&response_type=code&scope=identify%20guilds.join`;
 // };
 
-const discordUrl =
-  "https://discord.com/api/oauth2/authorize?client_id=1121560033600208936&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Flogin&response_type=code&scope=identify";
+const { DISCORD_URL } = process.env;
 
 const handleClick = () => {
+  console.log("clicked!!");
+
   // Here you will redirect to the Discord OAuth2 link
+  const discordUrl =
+    "https://discord.com/api/oauth2/authorize?client_id=1121560033600208936&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Fauth%2Flogin&response_type=code&scope=identify";
   window.location.href = discordUrl;
 };
 

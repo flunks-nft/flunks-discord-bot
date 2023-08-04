@@ -15,8 +15,10 @@ const (
 	discordTokenURL     = discordAPIURL + "/oauth2/token"
 	discordClientID     = "1121560033600208936"
 	discordClientSecret = "d67EY4CbaPyfX58pS1OLLMM6Yu6LYp3h"
-	discordRedirectURL  = "http://localhost:3000/" // Your callback URL
-	discordScopes       = "identify"               // You can request additional scopes separated by space if needed
+	discordRedirectURL  = "http://localhost:8080/auth/callback" // Your callback URL
+	discordScopes       = "identify"                            // You can request additional scopes separated by space if needed
+	// Generate and store a random state value to prevent CSRF attacks
+	STATE_SEED = "FLUNKS_DUNK_STATE"
 )
 
 var (
@@ -34,22 +36,27 @@ var (
 
 func main() {
 	r := mux.NewRouter()
-	r.HandleFunc("/login", handleLogin)
-	r.HandleFunc("/callback", handleCallback)
+	r.HandleFunc("/auth/login", handleLogin)
+	r.HandleFunc("/auth/callback", handleCallback)
 	http.Handle("/", r)
 
 	fmt.Println("Server listening on http://localhost:8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
 
+// handleLogin sends a user to the Discord login page
+// and redirects the user to /auth/callback when authorized.
 func handleLogin(w http.ResponseWriter, r *http.Request) {
-	// Generate and store a random state value to prevent CSRF attacks
-	state := "random_state_value"
-	authURL := discordOauth2Config.AuthCodeURL(state, oauth2.AccessTypeOnline)
+	authURL := discordOauth2Config.AuthCodeURL(STATE_SEED, oauth2.AccessTypeOnline)
+
+	fmt.Println("Redirecting to: " + authURL)
 	http.Redirect(w, r, authURL, http.StatusFound)
 }
 
+// handleCallback handles callbacks from the Discord OAuth2 server
+// and exchanges the user's information from Discord server with their access token.
 func handleCallback(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Callback")
 	code := r.URL.Query().Get("code")
 	if code == "" {
 		http.Error(w, "No authorization code found", http.StatusBadRequest)
