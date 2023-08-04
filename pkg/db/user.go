@@ -51,20 +51,30 @@ func (user *User) GetNextTokenIndex(totalCount int) uint {
 	return lastIndex
 }
 
-func CreateNewUser(DiscordID string, FlowWalletAddress string) {
+func CreateNewUser(DiscordID string, FlowWalletAddress string) error {
 	user := User{DiscordID: DiscordID, FlowWalletAddress: FlowWalletAddress}
-	db.Create(&user)
+	result := db.Create(&user)
+	return result.Error
 }
 
-func CreateOrUpdateFlowAddress(DiscordID string, FlowWalletAddress string) {
+func CreateOrUpdateFlowAddress(DiscordID string, FlowWalletAddress string) error {
 	user, err := UserProfile(DiscordID)
-	// User doesn't exist, create a new one
 	if err != nil {
-		CreateNewUser(DiscordID, FlowWalletAddress)
+		// If UserProfile returns an error when a user is not found
+		// Create a new user
+		err = CreateNewUser(DiscordID, FlowWalletAddress)
+		if err != nil {
+			return err
+		}
+	} else {
+		// User exists, update the Flow wallet address
+		err = user.UpdateFlowAddress(FlowWalletAddress)
+		if err != nil {
+			return err
+		}
 	}
 
-	// User exists, update the Flow wallet address
-	user.UpdateFlowAddress(FlowWalletAddress)
+	return nil
 }
 
 // UserProfile retrieves the user profile based on the Discord ID from the provided database connection.
@@ -83,10 +93,12 @@ func UserProfile(DiscordID string) (User, error) {
 		return user, result.Error
 	}
 	return user, nil
+
 }
 
-func (user *User) UpdateFlowAddress(FlowWalletAddress string) {
-	db.Model(&user).Update("FlowWalletAddress", FlowWalletAddress)
+func (user *User) UpdateFlowAddress(FlowWalletAddress string) error {
+	result := db.Model(user).Update("FlowWalletAddress", FlowWalletAddress)
+	return result.Error
 }
 
 func (user *User) GetTokenIds() []string {

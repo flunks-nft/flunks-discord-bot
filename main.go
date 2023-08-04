@@ -44,6 +44,9 @@ func main() {
 	r.HandleFunc("/auth/callback", handleCallback)
 	http.Handle("/", r)
 
+	// Connect to database & run migrations
+	db.InitDB()
+
 	fmt.Println("Server listening on http://localhost:8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
@@ -125,5 +128,13 @@ func handleCallback(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// TODO: write the user's discord id to the database
-	db.CreateOrUpdateFlowAddress(user.ID, walletAddress)
+	err = db.CreateOrUpdateFlowAddress(user.ID, walletAddress)
+	if err != nil {
+		log.Println("Error while creating or updating flow address in database", err.Error())
+		http.Error(w, "Database operation failed", http.StatusInternalServerError)
+		return
+	}
+
+	// Return a success message
+	fmt.Fprintln(w, "Authentication successful! Discord ID:", user.ID, "Wallet Address:", walletAddress)
 }
