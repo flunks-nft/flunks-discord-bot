@@ -1,7 +1,9 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 
@@ -63,9 +65,8 @@ func handleCallback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Ensure the state value matches to prevent CSRF attacks
 	state := r.URL.Query().Get("state")
-	if state != "random_state_value" {
+	if state != STATE_SEED {
 		http.Error(w, "Invalid state value", http.StatusBadRequest)
 		return
 	}
@@ -77,16 +78,35 @@ func handleCallback(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Use the access token to make API requests on behalf of the user
-	// You can also fetch user details like username, discriminator, avatar, etc.
-	// using the access token from the Discord API.
+	client := discordOauth2Config.Client(r.Context(), token)
+	resp, err := client.Get("https://discord.com/api/v8/users/@me")
+	if err != nil {
+		http.Error(w, "Failed to make API request", http.StatusInternalServerError)
+		return
+	}
+	defer resp.Body.Close()
 
-	// For example:
-	// client := discordOauth2Config.Client(r.Context(), token)
-	// resp, err := client.Get("https://discord.com/api/v10/users/@me")
-	// ...
+	// Read the response body
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		http.Error(w, "Failed to read response body", http.StatusInternalServerError)
+		return
+	}
 
-	// You can also store the access token securely and use it to authenticate the user for future requests.
-	// Note: Be cautious about how you store and use access tokens as they grant access to the user's account.
+	// Define a struct to hold user data
+	type User struct {
+		ID string `json:"id"`
+		// Other fields can be added here as needed
+	}
 
-	fmt.Fprintf(w, "Access Token: %s\n", token.AccessToken)
+	// Parse the JSON response into the User struct
+	var user User
+	err = json.Unmarshal(body, &user)
+	if err != nil {
+		http.Error(w, "Failed to parse JSON response", http.StatusInternalServerError)
+		return
+	}
+
+	// Print the user's Discord ID
+	fmt.Fprintf(w, "User ID: %s\n", user.ID)
 }
