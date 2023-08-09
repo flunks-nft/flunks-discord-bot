@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"math/rand"
+	"os"
 	"time"
 
 	"github.com/flunks-nft/discord-bot/pkg/utils"
@@ -33,13 +34,19 @@ func getRandomChallengeType() ChallengeType {
 }
 
 var (
-	RAID_CONCLUDE_TIME = 10 * time.Second
+	RAID_CONCLUDE_TIME time.Duration
 
 	// TODO: replace them with the real emojis
 	RAID_WON_EMOJI_ID  = utils.DiscordEmojis["RAID_WON_EMOJI_ID"]
 	RAID_LOST_EMOJI_ID = utils.DiscordEmojis["RAID_LOST_EMOJI_ID"]
 	RADI_WIP_EMOJI_ID  = utils.DiscordEmojis["RADI_WIP_EMOJI_ID"]
 )
+
+func init() {
+	RAID_CONCLUDE_TIME_IN_SECONDS := os.Getenv("RAID_CONCLUDE_TIME_IN_SECONDS")
+	RAID_CONCLUDE_TIME_IN_SECONDS_INT, _ := utils.StringToInt(RAID_CONCLUDE_TIME_IN_SECONDS)
+	RAID_CONCLUDE_TIME = time.Duration(RAID_CONCLUDE_TIME_IN_SECONDS_INT) * time.Second
+}
 
 type Raid struct {
 	ID uint

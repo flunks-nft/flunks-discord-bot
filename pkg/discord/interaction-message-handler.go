@@ -10,6 +10,7 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/flunks-nft/discord-bot/pkg/db"
+	"github.com/flunks-nft/discord-bot/pkg/utils"
 )
 
 // ButtonInteractionCreate handles the button click on the Raid Playground button interaction from users.
@@ -121,7 +122,7 @@ func handlesRaidOne(s *discordgo.Session, i *discordgo.InteractionCreate) {
 				// You can use customIdParts[3] which should be the tokenID
 				// Replace the line below with your desired function handling the specific tokenID
 				templateID := customIDParts[3]
-				templateIDInt, _ := StringToUInt(templateID)
+				templateIDInt, _ := utils.StringToUInt(templateID)
 				if msg, err := QueueForRaidOne(s, i, templateIDInt); err != nil {
 					respondeEphemeralMessage(s, i, err.Error())
 				} else {
@@ -198,7 +199,7 @@ func handlesRaidHistory(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		case "raid":
 			if customIDParts[1] == "history" {
 				templateID := customIDParts[2]
-				templateIDUInt, _ := StringToUInt(templateID)
+				templateIDUInt, _ := utils.StringToUInt(templateID)
 				records := db.GetRaidHistoryByTemplateID(templateIDUInt)
 				if len(records) == 0 {
 					msg := fmt.Sprintf("⚠️ No raid history found for Flunk #%s", templateID)

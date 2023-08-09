@@ -3,7 +3,6 @@ package discord
 import (
 	"fmt"
 	"log"
-	"strconv"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/flunks-nft/discord-bot/pkg/db"
@@ -95,26 +94,6 @@ func DeleteMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 func DefaultGuiID() *string {
 	s := ""
 	return &s
-}
-
-func StringToInt(str string) (int, error) {
-	num, err := strconv.Atoi(str)
-	if err != nil {
-		fmt.Println("Conversion error:", err)
-		return -1, err
-	}
-
-	return num, nil
-}
-
-func StringToUInt(str string) (uint, error) {
-	num, err := strconv.Atoi(str)
-	if err != nil {
-		fmt.Println("Conversion error:", err)
-		return 0, err
-	}
-
-	return uint(num), nil
 }
 
 func respondeEditFlunkLeaderBoard(s *discordgo.Session, i *discordgo.InteractionCreate, nfts []db.Nft) error {

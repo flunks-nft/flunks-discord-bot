@@ -1,6 +1,11 @@
 package utils
 
-import "github.com/joho/godotenv"
+import (
+	"fmt"
+	"strconv"
+
+	"github.com/joho/godotenv"
+)
 
 func LoadEnv() {
 	err := godotenv.Load()
@@ -19,4 +24,24 @@ func (s StringArray) Contains(e string) bool {
 		}
 	}
 	return false
+}
+
+func StringToInt(str string) (int, error) {
+	num, err := strconv.Atoi(str)
+	if err != nil {
+		fmt.Println("Conversion error:", err)
+		return -1, err
+	}
+
+	return num, nil
+}
+
+func StringToUInt(str string) (uint, error) {
+	num, err := strconv.Atoi(str)
+	if err != nil {
+		fmt.Println("Conversion error:", err)
+		return 0, err
+	}
+
+	return uint(num), nil
 }

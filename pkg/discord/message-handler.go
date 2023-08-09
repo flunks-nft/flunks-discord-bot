@@ -11,9 +11,6 @@ import (
 // RaidMessageCreate creates an embedded message with buttons for users to interact with.
 // Note it's only supposed to be used in the raid channel by admin users.
 func RaidMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
-
-	fmt.Println(m.ChannelID)
-
 	if m.Author.ID == s.State.User.ID || m.Content != "!raid-setup" {
 		return
 	}
