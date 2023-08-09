@@ -9,6 +9,7 @@ import (
 
 	"github.com/flunks-nft/discord-bot/pkg/db"
 	"github.com/flunks-nft/discord-bot/pkg/discord"
+	"github.com/flunks-nft/discord-bot/pkg/utils"
 )
 
 var (
@@ -16,7 +17,10 @@ var (
 )
 
 func init() {
-	Tiker = time.NewTicker(5 * time.Second)
+	RAID_MATCH_INTERVAL_IN_SECONDS := os.Getenv("RAID_MATCH_INTERVAL_IN_SECONDS")
+	RAID_MATCH_INTERVAL_IN_SECONDS_INT, _ := utils.StringToInt(RAID_MATCH_INTERVAL_IN_SECONDS)
+	RAID_MATCH_INTERVAL := time.Duration(RAID_MATCH_INTERVAL_IN_SECONDS_INT) * time.Second
+	Tiker = time.NewTicker(RAID_MATCH_INTERVAL)
 }
 
 func InitRaidWorker(wg *sync.WaitGroup, done chan os.Signal) {

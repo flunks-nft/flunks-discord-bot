@@ -34,7 +34,7 @@ func getRandomChallengeType() ChallengeType {
 }
 
 var (
-	RAID_CONCLUDE_TIME time.Duration
+	RAID_CONCLUDE_INTERVAL_IN_SECONDS time.Duration
 
 	// TODO: replace them with the real emojis
 	RAID_WON_EMOJI_ID  = utils.DiscordEmojis["RAID_WON_EMOJI_ID"]
@@ -43,9 +43,9 @@ var (
 )
 
 func init() {
-	RAID_CONCLUDE_TIME_IN_SECONDS := os.Getenv("RAID_CONCLUDE_TIME_IN_SECONDS")
-	RAID_CONCLUDE_TIME_IN_SECONDS_INT, _ := utils.StringToInt(RAID_CONCLUDE_TIME_IN_SECONDS)
-	RAID_CONCLUDE_TIME = time.Duration(RAID_CONCLUDE_TIME_IN_SECONDS_INT) * time.Second
+	RAID_CONCLUDE_INTERVAL_IN_SECONDS := os.Getenv("RAID_CONCLUDE_TIME_IN_SECONDS")
+	RAID_CONCLUDE_INTERVAL_IN_SECONDS_INT, _ := utils.StringToInt(RAID_CONCLUDE_INTERVAL_IN_SECONDS)
+	RAID_CONCLUDE_INTERVAL = time.Duration(RAID_CONCLUDE_INTERVAL_IN_SECONDS_INT) * time.Second
 }
 
 type Raid struct {
@@ -103,7 +103,7 @@ func ConcludeOneRaid() (raid Raid, err error) {
 	}()
 
 	// Find the 1 raid where createdAt is more than <RAID_CONCLUDE_TIME> hours ago and is the oldest, and IsConcluded is false
-	result := tx.Preload("FromNft").Preload("ToNft").Where("is_concluded = ? AND created_at < ?", false, time.Now().UTC().Add(-RAID_CONCLUDE_TIME)).Order("created_at ASC").First(&raid)
+	result := tx.Preload("FromNft").Preload("ToNft").Where("is_concluded = ? AND created_at < ?", false, time.Now().UTC().Add(-RAID_CONCLUDE_INTERVAL_IN_SECONDS).Order("created_at ASC").First(&raid)
 	if result.Error != nil {
 		return raid, result.Error
 	}
@@ -171,9 +171,9 @@ func GetRaidHistoryByTemplateID(tokenID uint) []string {
 	for _, raid := range raids {
 		emoji := fmt.Sprintf("<:emoji:%s>", RAID_WON_EMOJI_ID) // Default to the spark emoji.
 
-		// Check if the raid was concluded before RAID_CONCLUDE_TIME ago compared to the current time.
+		// Check if the raid was concluded before RAID_CONCLUDE_INTERVAL_IN_SECONDS ago compared to the current time.
 		concludeTimeAgo := time.Since(raid.CreatedAt)
-		if concludeTimeAgo < RAID_CONCLUDE_TIME {
+		if concludeTimeAgo < RAID_CONCLUDE_INTERVAL_IN_SECONDS {
 			emoji = fmt.Sprintf("<:emoji:%s>", RADI_WIP_EMOJI_ID) // Set the WIP emoji if the raid is still in progress.
 		}
 
@@ -286,7 +286,7 @@ func (nft *Nft) IsReadyForRaidQueue() (bool, time.Duration) {
 	// Get current time
 	now := time.Now()
 
-	nextValidRaidTime := nft.LastRaidFinishedAt.Add(RAID_CONCLUDE_TIME)
+	nextValidRaidTime := nft.LastRaidFinishedAt.Add(RAID_CONCLUDE_INTERVAL_IN_SECONDS)
 
 	// If the current time is less than the next valid raid time, return false
 	// and the hours remaining until the next valid raid time
