@@ -27,3 +27,10 @@ test:
 
 docker-build-oauth-server:
 	@docker build -t oauth-server -f ./cmd/oauth-server/Dockerfile .
+
+# Deployment
+
+deploy-oauth-server:
+	cp ./deploy/oauth-server.Dockerfile ./Dockerfile
+	gcloud run deploy oauth-server --source . --project=zeero-marketplace --region=us-west1
+	rm -f ./Dockerfile
