@@ -24,3 +24,6 @@ run-oauth-server: buid-oauth-server
 
 test:
 	go test ./... -v
+
+docker-build-oauth-server:
+	@docker build -t oauth-server -f ./cmd/oauth-server/Dockerfile .
