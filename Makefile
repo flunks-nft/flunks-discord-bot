@@ -40,7 +40,7 @@ deploy-discord-runner:
 	gcloud run deploy discord-runner --source . --project=zeero-marketplace --region=us-west1
 	rm -f ./Dockerfile
 
-deploy-discord-runner:
+deploy-discord-raider:
 	cp ./deploy/discord-raider.Dockerfile ./Dockerfile
 	gcloud run deploy raid-runner --source . --project=zeero-marketplace --region=us-west1
 	rm -f ./Dockerfile

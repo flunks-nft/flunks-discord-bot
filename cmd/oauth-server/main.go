@@ -19,8 +19,8 @@ const (
 	discordTokenURL     = discordAPIURL + "/oauth2/token"
 	discordClientID     = "1121560033600208936"
 	discordClientSecret = "d67EY4CbaPyfX58pS1OLLMM6Yu6LYp3h"
-	discordRedirectURL  = "http://localhost:8080/auth/callback" // Your callback URL
-	discordScopes       = "identify"                            // You can request additional scopes separated by space if needed
+	discordRedirectURL  = "https://oauth-server-s2ncmw3esa-uw.a.run.app/auth/callback" // Your callback URL
+	discordScopes       = "identify"                                                   // You can request additional scopes separated by space if needed
 	// Generate and store a random state value to prevent CSRF attacks
 	STATE_SEED = "FLUNKS_DUNK_STATE"
 )
@@ -47,7 +47,7 @@ func main() {
 	// Connect to database & run migrations
 	db.InitDB()
 
-	fmt.Println("Server listening on http://localhost:8080")
+	fmt.Println("Server listening on port 8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
 

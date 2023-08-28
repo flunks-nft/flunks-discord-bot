@@ -14,7 +14,7 @@ const Button: React.FC<{}> = ({}) => {
 
   const redirectToDiscord = () => {
     const token = generateJWT(user.addr);
-    const loginUrl = `http://localhost:8080/auth/login?token=${token}`;
+    const loginUrl = `https://oauth-server-s2ncmw3esa-uw.a.run.app/auth/login?token=${token}`;
     window.location.href = loginUrl;
   };
 
