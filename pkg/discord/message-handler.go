@@ -39,7 +39,7 @@ func RaidMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 			Title:       "Flunks Raid Playground",
 			Description: "Send Your Flunks to Daily Raids to Earn Rewards!",
 			Image: &discordgo.MessageEmbedImage{
-				URL: "https://storage.googleapis.com/zeero-public/arcade.png", // Replace with the actual image URL
+				URL: "https://storage.googleapis.com/zeero-public/raid_bot_face.png", // Replace with the actual image URL
 			},
 		},
 		Components: []discordgo.MessageComponent{

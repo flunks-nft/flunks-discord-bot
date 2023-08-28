@@ -85,15 +85,15 @@ func ButtonInteractionCreateOne(s *discordgo.Session, i *discordgo.InteractionCr
 }
 
 func handlesRaidAll(s *discordgo.Session, i *discordgo.InteractionCreate) {
-	// Check user profile in the first place
-	user, err := db.UserProfile(i.Member.User.ID)
-	if err != nil {
-		respondeEphemeralMessage(s, i, "⚠️ Please use /dapper command to set up / update your Dapper wallet address.")
+	// Create a defer interaction message
+	if err := deferEphemeralResponse(s, i); err != nil {
 		return
 	}
 
-	// Create a defer interaction message
-	if err := deferEphemeralResponse(s, i); err != nil {
+	// Check user profile in the first place
+	user, err := db.UserProfile(i.Member.User.ID)
+	if err != nil {
+		editTextResponse(s, i, err.Error())
 		return
 	}
 
