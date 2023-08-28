@@ -34,3 +34,8 @@ deploy-oauth-server:
 	cp ./deploy/oauth-server.Dockerfile ./Dockerfile
 	gcloud run deploy oauth-server --source . --project=zeero-marketplace --region=us-west1
 	rm -f ./Dockerfile
+
+deploy-discord-runner:
+	cp ./deploy/discord-runner.Dockerfile ./Dockerfile
+	gcloud run deploy discord-runner --source . --project=zeero-marketplace --region=us-west1
+	rm -f ./Dockerfile

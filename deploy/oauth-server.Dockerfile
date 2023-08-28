@@ -17,7 +17,6 @@ FROM debian:buster-slim
 WORKDIR /root
 
 COPY --from=builder /app/bin/oauth-server .
-COPY --from=builder /app/.env .
 
 CMD ["./oauth-server"]
 
