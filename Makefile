@@ -4,7 +4,7 @@ db-up:
 db-down:
 	@docker-compose down db
 
-buid-oauth-server:
+build-oauth-server:
 	@go build -o bin/oauth-server ./cmd/oauth-server
 
 build-discord-runner:

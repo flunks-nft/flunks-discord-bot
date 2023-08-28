@@ -8,8 +8,8 @@ RUN apt-get update && apt-get install -y make
 
 COPY . .
 
-# Use the Makefile to build the oauth server
-RUN make buid-oauth-server
+# Use the Makefile to build the discord raid runner
+RUN make build-oauth-server
 
 # Final stage
 FROM debian:buster-slim
