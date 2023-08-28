@@ -20,8 +20,7 @@ const (
 	discordAuthURL  = discordAPIURL + "/oauth2/authorize"
 	discordTokenURL = discordAPIURL + "/oauth2/token"
 
-	discordRedirectURL = "https://oauth-server-s2ncmw3esa-uw.a.run.app/auth/callback" // Your callback URL
-	discordScopes      = "identify"                                                   // You can request additional scopes separated by space if needed
+	discordScopes = "identify" // You can request additional scopes separated by space if needed
 	// Generate and store a random state value to prevent CSRF attacks
 	STATE_SEED = "FLUNKS_DUNK_STATE"
 )
@@ -29,7 +28,7 @@ const (
 var (
 	discordClientID     string
 	discordClientSecret string
-
+	discordRedirectURL  string // Discord callback URL
 	discordOauth2Config oauth2.Config
 )
 
@@ -38,6 +37,7 @@ func init() {
 
 	discordClientID = os.Getenv("DISCORD_CLIENT_ID")
 	discordClientSecret = os.Getenv("DISCORD_CLIENT_SECRET")
+	discordRedirectURL = os.Getenv("DISCORD_REDIRECT_URL")
 
 	discordOauth2Config = oauth2.Config{
 		ClientID:     discordClientID,
