@@ -68,7 +68,7 @@ func ButtonInteractionCreateOne(s *discordgo.Session, i *discordgo.InteractionCr
 	// Check user profile in the first place
 	_, err := db.UserProfile(i.Member.User.ID)
 	if err != nil {
-		respondeEphemeralMessage(s, i, "⚠️ Please use /dapper command to set up / update your Dapper wallet address.")
+		respondeEphemeralMessage(s, i, `⚠️ Click on "Manage Wallet" to update your Dapper wallet address.`)
 		return
 	}
 
@@ -93,7 +93,7 @@ func handlesRaidAll(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	// Check user profile in the first place
 	user, err := db.UserProfile(i.Member.User.ID)
 	if err != nil {
-		editTextResponse(s, i, err.Error())
+		respondeEphemeralMessage(s, i, `⚠️ Click on "Manage Wallet" to update your Dapper wallet address.`)
 		return
 	}
 
