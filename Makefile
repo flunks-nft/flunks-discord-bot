@@ -19,7 +19,7 @@ run-discord: build-discord-runner
 run-raider: build-raid-runner
 	@./bin/raid-runner
 
-run-oauth-server: buid-oauth-server
+run-oauth-server: build-oauth-server
 	@./bin/oauth-server
 
 test:

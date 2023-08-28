@@ -6,26 +6,39 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/flunks-nft/discord-bot/pkg/db"
 	"github.com/flunks-nft/discord-bot/pkg/jwt"
+	"github.com/flunks-nft/discord-bot/pkg/utils"
 	"github.com/gorilla/mux"
 	"golang.org/x/oauth2"
 )
 
 const (
-	discordAPIURL       = "https://discord.com/api"
-	discordAuthURL      = discordAPIURL + "/oauth2/authorize"
-	discordTokenURL     = discordAPIURL + "/oauth2/token"
-	discordClientID     = "1121560033600208936"
-	discordClientSecret = "d67EY4CbaPyfX58pS1OLLMM6Yu6LYp3h"
-	discordRedirectURL  = "https://oauth-server-s2ncmw3esa-uw.a.run.app/auth/callback" // Your callback URL
-	discordScopes       = "identify"                                                   // You can request additional scopes separated by space if needed
+	discordAPIURL   = "https://discord.com/api"
+	discordAuthURL  = discordAPIURL + "/oauth2/authorize"
+	discordTokenURL = discordAPIURL + "/oauth2/token"
+
+	discordRedirectURL = "https://oauth-server-s2ncmw3esa-uw.a.run.app/auth/callback" // Your callback URL
+	discordScopes      = "identify"                                                   // You can request additional scopes separated by space if needed
 	// Generate and store a random state value to prevent CSRF attacks
 	STATE_SEED = "FLUNKS_DUNK_STATE"
 )
 
 var (
+	discordClientID     string
+	discordClientSecret string
+
+	discordOauth2Config oauth2.Config
+)
+
+func init() {
+	utils.LoadEnv()
+
+	discordClientID = os.Getenv("DISCORD_CLIENT_ID")
+	discordClientSecret = os.Getenv("DISCORD_CLIENT_SECRET")
+
 	discordOauth2Config = oauth2.Config{
 		ClientID:     discordClientID,
 		ClientSecret: discordClientSecret,
@@ -36,7 +49,7 @@ var (
 			TokenURL: discordTokenURL,
 		},
 	}
-)
+}
 
 func main() {
 	r := mux.NewRouter()
