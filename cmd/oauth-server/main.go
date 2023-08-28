@@ -52,6 +52,8 @@ func init() {
 }
 
 func main() {
+	fmt.Println("--discordRedirectURL", discordRedirectURL)
+
 	r := mux.NewRouter()
 	r.HandleFunc("/auth/login", handleLogin)
 	r.HandleFunc("/auth/callback", handleCallback)
