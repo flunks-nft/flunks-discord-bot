@@ -93,6 +93,7 @@ func handlesRaidAll(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	// Check user profile in the first place
 	user, err := ValidateUser(i)
 	if err != nil {
+		editTextResponse(s, i, err.Error())
 		return
 	}
 
