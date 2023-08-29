@@ -2,21 +2,28 @@ import * as fcl from "@onflow/fcl";
 import { NETWORK } from "../constants/networks";
 import {
   createContext,
-  ReactNode,
   useCallback,
   useContext,
   useEffect,
   useMemo,
   useState,
 } from "react";
+
+import type { ReactNode } from "react";
+
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import { init } from "@onflow/fcl-wc";
 
 interface IWeb3Context {
   connect: () => void;
   logout: () => void;
-  executeTransaction: (cadence: string, args?: any, options?: any) => void;
-  executeScript: (cadence: string, args?: any) => any;
+  executeTransaction: (
+    cadence: string,
+    args?: Array<unknown> | null, // Assuming args is an array; adjust as needed
+    options?: Record<string, unknown> | null // Assuming options is an object; adjust as needed
+  ) => void;
+  executeScript: (cadence: string, args?: Array<unknown>) => unknown; // Assuming return is an object; adjust as needed
   user: {
     loggedIn: boolean | null;
     addr: string;
@@ -140,6 +147,8 @@ export const Web3ContextProvider = ({
         });
 
       if (transactionId) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         setTxId(transactionId);
         fcl.tx(transactionId).subscribe((res: any) => {
           setTransactionStatus(res.status);

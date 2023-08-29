@@ -299,16 +299,16 @@
     "@walletconnect/types" "^2.8.1"
     "@walletconnect/utils" "^2.8.1"
 
-"@onflow/fcl@^1.3.2":
-  version "1.5.0"
-  resolved "https://registry.yarnpkg.com/@onflow/fcl/-/fcl-1.5.0.tgz#62b9715d952cd4dbfd632ffcc7a4af91c2667248"
-  integrity sha512-L3lz95L+ibYTbl4rp2psB6Gd7j4K3ewHaHbhdV85gUeHWR+N4dCtNJH5J68Lk2eTloCGPcYKaKjX6RBy4Ju1jQ==
+"@onflow/fcl@^1.5.2":
+  version "1.5.2"
+  resolved "https://registry.yarnpkg.com/@onflow/fcl/-/fcl-1.5.2.tgz#098e3f0319d1cea098b1adae374ddd5e1bdd4cd7"
+  integrity sha512-SC7mXbAj6xTxVu21F4S0fbeg6N5pCWZDDpf4DjAh1mloqfll9Kr1af8eGtpBbgcjYSeGhH/MS86j+Qo4ocOnDQ==
   dependencies:
     "@babel/runtime" "^7.18.6"
     "@onflow/config" "^1.1.1"
     "@onflow/interaction" "0.0.11"
     "@onflow/rlp" "^1.1.0"
-    "@onflow/sdk" "^1.2.1"
+    "@onflow/sdk" "^1.2.2"
     "@onflow/types" "^1.1.0"
     "@onflow/util-actor" "^1.2.0"
     "@onflow/util-address" "^1.1.0"
@@ -331,15 +331,15 @@
     "@babel/runtime" "^7.18.6"
     buffer "^6.0.3"
 
-"@onflow/sdk@^1.2.1":
-  version "1.2.1"
-  resolved "https://registry.yarnpkg.com/@onflow/sdk/-/sdk-1.2.1.tgz#ab6d7135d3768eefde6644c03ed2bbb2ad69bcc8"
-  integrity sha512-83nMq/NJTq8nnjDKfVNrXLyvqiU0/VrSjVqIO1AhdwUWlmsinp+csCeA88+I96EdqFB6VDRqMhs8OBVPz7/WLA==
+"@onflow/sdk@^1.2.2":
+  version "1.2.2"
+  resolved "https://registry.yarnpkg.com/@onflow/sdk/-/sdk-1.2.2.tgz#f58186fffa0f3f87f0a92a98b90fab4e871ed5ee"
+  integrity sha512-OGwp98C7iP7KUGFoBxgnEr52hnr7vxBTCu/TI/w1giF8USPgjgQXNxJdHVauY54Yu/ruoT6XfdSMAS4PACCB/w==
   dependencies:
     "@babel/runtime" "^7.18.6"
     "@onflow/config" "^1.1.1"
     "@onflow/rlp" "^1.1.0"
-    "@onflow/transport-http" "^1.7.0"
+    "@onflow/transport-http" "^1.7.1"
     "@onflow/util-actor" "^1.2.0"
     "@onflow/util-address" "^1.1.0"
     "@onflow/util-invariant" "^1.1.0"
@@ -348,10 +348,10 @@
     deepmerge "^4.2.2"
     sha3 "^2.1.4"
 
-"@onflow/transport-http@^1.7.0":
-  version "1.7.0"
-  resolved "https://registry.yarnpkg.com/@onflow/transport-http/-/transport-http-1.7.0.tgz#e1f70c0fee81eeb31d56778c40251c359a72c919"
-  integrity sha512-7QbihtUl4qrISyCoJHtmD/hkTsGiedoTROMRQOPPOLJsfYFejsOPCpDuMFBuLR07CCc1JZnIW3ynAOXzz9s+/A==
+"@onflow/transport-http@^1.7.1":
+  version "1.7.1"
+  resolved "https://registry.yarnpkg.com/@onflow/transport-http/-/transport-http-1.7.1.tgz#b56974e1e75cf2fc8adf027ac16bb25311e79d09"
+  integrity sha512-enSKRDf2OMIH61ltyZe5pxLB8KifdRdVpWwE0MU2S0Vq5DmNN3FfwUZVh1nrK2aJZkLdryJrNJtvv7ot2NPrYA==
   dependencies:
     "@babel/runtime" "^7.18.6"
     "@onflow/util-address" "^1.1.0"

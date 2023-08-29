@@ -1,4 +1,6 @@
-const FLOW_ENV = process.env.NEXT_PUBLIC_FLOW_ENV || "testnet";
+const FLOW_ENV = process.env.NEXT_PUBLIC_FLOW_ENV
+  ? process.env.NEXT_PUBLIC_FLOW_ENV
+  : "testnet";
 
 const NETWORKS = {
   testnet: {

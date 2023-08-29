@@ -13,7 +13,7 @@ const Button: React.FC<Record<string, never>> = () => {
   };
 
   const redirectToDiscord = () => {
-    const token: string = generateJWT(user.addr) as string;
+    const token = generateJWT(user.addr);
     const loginUrl = `https://oauth-server-s2ncmw3esa-uw.a.run.app/auth/login?token=${token}`;
     window.location.href = loginUrl;
   };
