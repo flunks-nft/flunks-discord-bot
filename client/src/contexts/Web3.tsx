@@ -9,6 +9,7 @@ import {
   useMemo,
   useState,
 } from "react";
+// @ts-ignore
 import { init } from "@onflow/fcl-wc";
 
 interface IWeb3Context {
@@ -109,6 +110,7 @@ export const Web3ContextProvider = ({
     }
   }, []);
 
+  // @ts-ignore
   useEffect(() => fcl.currentUser.subscribe(setUser), []);
 
   const connect = useCallback(() => {
@@ -125,6 +127,7 @@ export const Web3ContextProvider = ({
       setTransactionStatus(-1);
 
       const transactionId = await fcl
+        // @ts-ignore
         .mutate({
           cadence,
           args,

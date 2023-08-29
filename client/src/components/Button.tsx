@@ -1,7 +1,7 @@
 import { useWeb3Context } from "../contexts/Web3";
 import generateJWT from "./jwt";
 
-const Button: React.FC<{}> = ({}) => {
+const Button: React.FC<Record<string, never>> = () => {
   const { connect, logout, user } = useWeb3Context();
 
   const handleClick = () => {
@@ -13,7 +13,7 @@ const Button: React.FC<{}> = ({}) => {
   };
 
   const redirectToDiscord = () => {
-    const token = generateJWT(user.addr);
+    const token: string = generateJWT(user.addr) as string;
     const loginUrl = `https://oauth-server-s2ncmw3esa-uw.a.run.app/auth/login?token=${token}`;
     window.location.href = loginUrl;
   };
