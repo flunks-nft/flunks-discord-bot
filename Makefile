@@ -44,3 +44,7 @@ deploy-discord-raider:
 	cp ./deploy/discord-raider.Dockerfile ./Dockerfile
 	gcloud run deploy raid-runner --source . --project=zeero-marketplace --region=us-west1
 	rm -f ./Dockerfile
+
+# Socket
+db-socket-production:
+	./scripts/fetchCloudSqlProxy.sh && ./bin/cloud_sql_proxy -instances=zeero-marketplace:us-west1:discord-bot=tcp:5544

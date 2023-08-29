@@ -1,10 +1,10 @@
-# Start from the official golang image
-FROM golang:1.20-alpine AS builder
+# Start from the official golang alpine image
+FROM golang:1.20.1-alpine AS builder
 
 WORKDIR /app
 
-# Install make
-RUN apt-get update && apt-get install -y make
+# Install make and other dependencies
+RUN apk update && apk add --no-cache make git
 
 COPY . .
 
