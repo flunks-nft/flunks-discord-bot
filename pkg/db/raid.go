@@ -117,6 +117,16 @@ func ConcludeOneRaid() (raid Raid, err error) {
 		return raid, err
 	}
 
+	// Update NFT raiding to false
+	if err := tx.Model(&raid.FromNft).Update("raiding", false).Error; err != nil {
+		return raid, err
+	}
+
+	// Update NFT raiding to false
+	if err := tx.Model(&raid.ToNft).Update("raiding", false).Error; err != nil {
+		return raid, err
+	}
+
 	// Determine the winner NFT and update WinnerTemplateID, WinnerNftID
 	var winnerNFT, loserNFT Nft
 	if winner == 0 {
