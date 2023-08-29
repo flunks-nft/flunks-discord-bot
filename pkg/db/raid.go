@@ -104,7 +104,7 @@ func ConcludeOneRaid() (raid Raid, err error) {
 	}()
 
 	// Find the 1 raid where createdAt is more than <RAID_CONCLUDE_TIME> hours ago and is the oldest, and IsConcluded is false
-	result := tx.Preload("FromNft").Preload("ToNft").Where("is_concluded = ? AND created_at < ?", false, time.Now().UTC().Add(-RAID_CONCLUDE_INTERVAL_IN_SECONDS)).Order("created_at ASC").First(&raid)
+	result := tx.Preload("FromNft").Preload("ToNft").Where("is_concluded = ? AND created_at < ?", false, time.Now().UTC().Add(-RAID_CONCLUDE_INTERVAL)).Order("created_at ASC").First(&raid)
 	if result.Error != nil {
 		return raid, result.Error
 	}
