@@ -29,17 +29,20 @@ func main() {
 	// Start Discord service
 	go discord.InitDiscord(&wg, done)
 
-	// For Cloud Run: HTTP handler to respond to requests
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("Hello from Cloud Run!"))
-	})
-	// For Cloud Run: Start HTTP server on port 8080
-	go func() {
-		if err := http.ListenAndServe(":8080", nil); err != nil {
-			panic(err)
-		}
-	}()
+	// For Cloud Run: Start HTTP server on port 8080, only runs in production environment
+	if os.Getenv("ENV") == "production" {
+		// For Cloud Run: HTTP handler to respond to requests
+		http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(http.StatusOK)
+			w.Write([]byte("Hello from Cloud Run!"))
+		})
+
+		go func() {
+			if err := http.ListenAndServe(":8080", nil); err != nil {
+				panic(err)
+			}
+		}()
+	}
 
 	// Wait for services to complete shutdown
 	wg.Wait()

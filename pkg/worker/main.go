@@ -92,11 +92,7 @@ func concludeRaid() {
 
 	var winnerThread, loserThread string
 	winnerThread = fmt.Sprintf("<@%s>", raid.WinnerNft.Owner.DiscordID)
-	if raid.WinnerNft.ID == raid.FromNftID {
-		loserThread = fmt.Sprintf("<@%s>", raid.ToNft.Owner.DiscordID)
-	} else {
-		loserThread = fmt.Sprintf("<@%s>", raid.FromNft.Owner.DiscordID)
-	}
+	loserThread = fmt.Sprintf("<@%s>", raid.LoserNft.Owner.DiscordID)
 
 	discord.SendRaidConcludedMessageToRaidLogChannel(msgs, raid.WinnerNft, winnerThread, loserThread)
 }

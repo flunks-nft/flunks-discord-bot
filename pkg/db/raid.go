@@ -69,6 +69,10 @@ type Raid struct {
 	WinnerTemplateID uint
 	WinnerNftID      uint
 	WinnerNft        Nft `gorm:"foreignKey:FromNftID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+
+	LoserTemplateID uint
+	LoserNftID      uint
+	LoserNft        Nft `gorm:"foreignKey:ToNftID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 }
 
 func (raid Raid) ChallengeTypeEmoji() string {
@@ -127,18 +131,28 @@ func ConcludeOneRaid() (raid Raid, err error) {
 		return raid, err
 	}
 
-	// Determine the winner NFT and update WinnerTemplateID, WinnerNftID
+	// Determine the winner NFT and update WinnerTemplateID, WinnerNftID, LoserTemplateID, LoserNftID
 	var winnerNFT, loserNFT Nft
 	if winner == 0 {
 		// FromNft wins (dice result is 0)
-		if err := tx.Model(&raid).Updates(map[string]interface{}{"winner_template_id": raid.FromTemplateID, "winner_nft_id": raid.FromNftID}).Error; err != nil {
+		if err := tx.Model(&raid).Updates(map[string]interface{}{
+			"winner_template_id": raid.FromTemplateID,
+			"winner_nft_id":      raid.FromNftID,
+			"loser_template_id":  raid.ToTemplateID,
+			"loser_nft_id":       raid.ToNftID,
+		}).Error; err != nil {
 			return raid, err
 		}
 		winnerNFT = raid.FromNft
 		loserNFT = raid.ToNft
 	} else {
 		// ToNft wins (dice result is 1)
-		if err := tx.Model(&raid).Updates(map[string]interface{}{"winner_template_id": raid.ToTemplateID, "winner_nft_id": raid.ToNftID}).Error; err != nil {
+		if err := tx.Model(&raid).Updates(map[string]interface{}{
+			"winner_template_id": raid.ToTemplateID,
+			"winner_nft_id":      raid.ToNftID,
+			"loser_template_id":  raid.FromTemplateID,
+			"loser_nft_id":       raid.FromNftID,
+		}).Error; err != nil {
 			return raid, err
 		}
 		winnerNFT = raid.ToNft
@@ -149,7 +163,7 @@ func ConcludeOneRaid() (raid Raid, err error) {
 	updatePoints(tx, winnerNFT, loserNFT)
 
 	// Preload the FromNft and ToNft associations for the final raid object
-	if err := tx.Preload("FromNft").Preload("ToNft").Preload("WinnerNft").Preload("FromNft.Owner").Preload("ToNft.Owner").Preload("WinnerNft.Owner").First(&raid).Error; err != nil {
+	if err := tx.Preload("FromNft").Preload("ToNft").Preload("WinnerNft").Preload("WinnerNft.Owner").Preload("LoserNft").Preload("LoserNft.Owner").First(&raid).Error; err != nil {
 		return raid, err
 	}
 
