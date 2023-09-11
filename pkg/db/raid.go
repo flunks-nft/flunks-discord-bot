@@ -355,12 +355,15 @@ func GetNextQueuedTokenPair(tx *gorm.DB) ([]Nft, error) {
 	}
 
 	var nfts []Nft
+	subQuery := database.
+		Select("DISTINCT ON (owner_id) *").
+		Where("nfts.queued_for_raiding = ?", true).
+		Order("owner_id, RANDOM()").
+		Table("nfts")
 	err := database.
-		// Preload the User and Traits for each Nft
 		Preload("Owner").
 		Preload("Traits").
-		Where("nfts.queued_for_raiding = ?", true).
-		Order("RANDOM()").
+		Joins("JOIN (?) as distinct_nfts on distinct_nfts.id = nfts.id", subQuery).
 		Limit(2).
 		Find(&nfts).
 		Error
