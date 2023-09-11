@@ -288,7 +288,7 @@ func QueueForRaidOne(s *discordgo.Session, i *discordgo.InteractionCreate, templ
 		msg := fmt.Sprintf("⚠️ Failed to add Flunk #%v to the raid queue", templateID)
 		return "", errors.New(msg)
 	} else {
-		msg := fmt.Sprintf("✅ Flunk %v has been added to the raid queue.", templateID)
+		msg := fmt.Sprintf("✅ Flunk #%v has been added to the raid queue.", templateID)
 		return msg, nil
 	}
 }
