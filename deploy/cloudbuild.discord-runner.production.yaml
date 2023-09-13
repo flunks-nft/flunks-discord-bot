@@ -36,6 +36,7 @@ steps:
         DB_PASSWORD=DB_PASSWORD:latest,
         DISCORD_TOKEN=DISCORD_TOKEN:latest,
         JWT_SECRET=JWT_SECRET:latest,
+        DISCORD_DAPPER_VERIFY_URL=DISCORD_DAPPER_VERIFY_URL:latest,
       - >-
         --update-env-vars=^|||^
         ENV=production|||
@@ -46,7 +47,6 @@ steps:
         RAID_CHANNLE_ID=1145794197773885512|||
         RAID_LOG_CHANNEL_ID=1145794239729516604|||
         ZEERO_API_URL=https://flunks-backend-prod-dot-bionic-hallway-338400.uc.r.appspot.com/|||
-        DISCORD_DAPPER_VERIFY_URL=https://discord-hyi3xe6fc-flunks.vercel.app/|||
         CLOUD_DB_CONNECTION_NAME=zeero-marketplace:us-west1:discord-bot
       - --set-cloudsql-instances=zeero-marketplace:us-west1:discord-bot
 
