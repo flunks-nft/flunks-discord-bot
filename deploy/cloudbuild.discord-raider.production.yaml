@@ -1,0 +1,56 @@
+---
+steps:
+  # Build the container image
+  - id: docker-build
+    name: "gcr.io/cloud-builders/docker"
+    args: [
+        "build",
+        "-t",
+        "gcr.io/zeero-marketplace/discord-raider:$COMMIT_SHA",
+        "-f",
+        # Dockerfile to use for deployment
+        "deploy/discord-raider.run.Dockerfile",
+        ".",
+      ]
+  # Push the container image to Container Registry
+  - id: docker-push
+    name: "gcr.io/cloud-builders/docker"
+    args: ["push", "gcr.io/zeero-marketplace/discord-raider:$COMMIT_SHA"]
+  # Deploy container image to Cloud Run, and start discord-raider
+  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
+    entrypoint: gcloud
+    args:
+      - run
+      - deploy
+      - discord-raider
+      - --image
+      - gcr.io/zeero-marketplace/discord-raider:$COMMIT_SHA
+      - --args=./discord-raider
+      - --region
+      - us-west1
+      - --port=8080
+      - --allow-unauthenticated
+      - >-
+        --set-secrets=
+        DB_USER=DB_USER:latest,
+        DB_PASSWORD=DB_PASSWORD:latest,
+        DISCORD_TOKEN=DISCORD_TOKEN:latest,
+        JWT_SECRET=JWT_SECRET:latest,
+      - >-
+        --update-env-vars=^|||^
+        ENV=production|||
+        DB_PORT=5432|||
+        RAID_CONCLUDE_INTERVAL_IN_SECONDS=10|||
+        RAID_MATCH_INTERVAL_IN_SECONDS=10|||
+        DB_NAME=discord-bot|||
+        RAID_CHANNLE_ID=1145794197773885512|||
+        RAID_LOG_CHANNEL_ID=1145794239729516604|||
+        ZEERO_API_URL=https://flunks-backend-prod-dot-bionic-hallway-338400.uc.r.appspot.com/|||
+        DISCORD_DAPPER_VERIFY_URL=https://discord-hyi3xe6fc-flunks.vercel.app/|||
+        CLOUD_DB_CONNECTION_NAME=zeero-marketplace:us-west1:discord-bot
+      - --set-cloudsql-instances=zeero-marketplace:us-west1:discord-bot
+
+images:
+  - gcr.io/zeero-marketplace/discord-raider
+options:
+  logging: CLOUD_LOGGING_ONLY
