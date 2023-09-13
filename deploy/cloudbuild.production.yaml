@@ -26,7 +26,6 @@ steps:
       - discord-runner-test-deployment
       - --image
       - gcr.io/zeero-marketplace/discord-runner:$COMMIT_SHA
-      - --args=run,start:prod
       - --region
       - us-west1
       - --port=8080
