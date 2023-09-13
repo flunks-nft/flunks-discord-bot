@@ -1,6 +1,8 @@
 import { useWeb3Context } from "../contexts/Web3";
 import generateJWT from "./jwt";
 
+const { NEXT_PUBLIC_AUTH_SERVER_URL } = process.env;
+
 const Button: React.FC<Record<string, never>> = () => {
   const { connect, logout, user } = useWeb3Context();
 
@@ -14,7 +16,7 @@ const Button: React.FC<Record<string, never>> = () => {
 
   const redirectToDiscord = () => {
     const token = generateJWT(user.addr);
-    const loginUrl = `https://oauth-server-s2ncmw3esa-uw.a.run.app/auth/login?token=${token}`;
+    const loginUrl = `${NEXT_PUBLIC_AUTH_SERVER_URL}auth/login?token=${token}`;
     window.location.href = loginUrl;
   };
 
