@@ -55,7 +55,10 @@ func StartOauthServer() {
 	r := mux.NewRouter()
 	r.HandleFunc("/auth/login", handleLogin)
 	r.HandleFunc("/auth/callback", handleCallback)
-	http.Handle("/", r)
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("Hello from Cloud Run!"))
+	})
 
 	fmt.Println("Server listening on port 8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))
