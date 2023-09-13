@@ -36,7 +36,6 @@ steps:
         DB_HOST=DB_HOST:latest,
         DB_USER=DB_USER:latest,
         DB_PASSWORD=DB_PASSWORD:latest,
-        BASIC_SWAGGER_PASSWORD=BASIC_SWAGGER_PASSWORD:latest,
         DISCORD_TOKEN=DISCORD_TOKEN:latest,
         JWT_SECRET=JWT_SECRET:latest,
       - >-
