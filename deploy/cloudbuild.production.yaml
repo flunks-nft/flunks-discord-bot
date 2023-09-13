@@ -9,7 +9,7 @@ steps:
         "gcr.io/zeero-marketplace/discord-runner:$COMMIT_SHA",
         "-f",
         # Dockerfile to use for deployment
-        "deploy/discord-runner.Dockerfile",
+        "deploy/discord-runner.run.Dockerfile",
         ".",
       ]
   # Push the container image to Container Registry
@@ -26,6 +26,7 @@ steps:
       - discord-runner-test-deployment
       - --image
       - gcr.io/zeero-marketplace/discord-runner:$COMMIT_SHA
+      - --args=./discord-runner
       - --region
       - us-west1
       - --port=8080
