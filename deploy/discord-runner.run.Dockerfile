@@ -1,16 +1,3 @@
-# # Start from the official golang alpine image
-# FROM golang:1.20.1
-# WORKDIR /app
-
-# # Install make and other dependencies
-# RUN apt-get update && apt-get install -y make git
-
-# COPY . .
-
-# EXPOSE 8080
-# ENTRYPOINT [ "make" ]
-
-
 # Start from the official golang alpine image
 FROM golang:1.20.1-alpine AS builder
 

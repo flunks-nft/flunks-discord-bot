@@ -22,8 +22,7 @@ steps:
     args:
       - run
       - deploy
-      # TODO: rename it to discord-runner once working
-      - discord-runner-test-deployment
+      - discord-runner
       - --image
       - gcr.io/zeero-marketplace/discord-runner:$COMMIT_SHA
       - --args=./discord-runner
