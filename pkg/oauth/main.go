@@ -1,4 +1,4 @@
-package main
+package oauth
 
 import (
 	"encoding/json"
@@ -51,14 +51,11 @@ func init() {
 	}
 }
 
-func main() {
+func StartOauthServer() {
 	r := mux.NewRouter()
 	r.HandleFunc("/auth/login", handleLogin)
 	r.HandleFunc("/auth/callback", handleCallback)
 	http.Handle("/", r)
-
-	// Connect to database & run migrations
-	db.InitDB()
 
 	fmt.Println("Server listening on port 8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))

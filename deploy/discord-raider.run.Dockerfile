@@ -8,7 +8,7 @@ RUN apk update && apk add --no-cache make git
 
 COPY . .
 
-# Use the Makefile to build the discord runner
+# Use the Makefile to build the discord raider
 RUN make build-raid-runner
 
 # Final stage
