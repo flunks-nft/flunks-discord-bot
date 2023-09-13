@@ -25,7 +25,7 @@ steps:
       - discord-raider
       - --image
       - gcr.io/zeero-marketplace/discord-raider:$COMMIT_SHA
-      - --args=./discord-raider
+      - --args=./raid-runner
       - --region
       - us-west1
       - --port=8080
