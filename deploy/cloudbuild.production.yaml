@@ -33,7 +33,6 @@ steps:
       - --allow-unauthenticated
       - >-
         --set-secrets=
-        DB_HOST=DB_HOST:latest,
         DB_USER=DB_USER:latest,
         DB_PASSWORD=DB_PASSWORD:latest,
         DISCORD_TOKEN=DISCORD_TOKEN:latest,
