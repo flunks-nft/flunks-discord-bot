@@ -99,7 +99,7 @@ func ConcludeOneRaid() (raid Raid, err error) {
 	defer func() {
 		if r := recover(); r != nil {
 			tx.Rollback()
-			err = fmt.Errorf("panic occurred: %v", r)
+			err = fmt.Errorf("Rollback occurred: %v", r)
 		} else if err != nil {
 			tx.Rollback()
 		} else {
@@ -117,17 +117,17 @@ func ConcludeOneRaid() (raid Raid, err error) {
 	winner := rand.Intn(2) // Randomly generates 0 or 1
 
 	// Update IsConcluded to true
-	if err := tx.Model(&raid).Update("is_concluded", true).Error; err != nil {
+	if err := tx.Model(&raid).Select("is_concluded").Update("is_concluded", true).Error; err != nil {
 		return raid, err
 	}
 
 	// Update NFT raiding to false
-	if err := tx.Model(&raid.FromNft).Update("raiding", false).Error; err != nil {
+	if err := tx.Model(&raid.FromNft).Select("raiding").Update("raiding", false).Error; err != nil {
 		return raid, err
 	}
 
 	// Update NFT raiding to false
-	if err := tx.Model(&raid.ToNft).Update("raiding", false).Error; err != nil {
+	if err := tx.Model(&raid.ToNft).Select("raiding").Update("raiding", false).Error; err != nil {
 		return raid, err
 	}
 
@@ -356,9 +356,9 @@ func GetNextQueuedTokenPair(tx *gorm.DB) ([]Nft, error) {
 
 	var nfts []Nft
 	subQuery := database.
-		Select("DISTINCT ON (owner_id) *").
+		Select("DISTINCT ON (owner_user_id) *").
 		Where("nfts.queued_for_raiding = ?", true).
-		Order("owner_id, RANDOM()").
+		Order("owner_user_id, RANDOM()").
 		Table("nfts")
 	err := database.
 		Preload("Owner").
@@ -387,6 +387,7 @@ func QueueNextTokenPairForRaiding() (*Raid, []Nft, error) {
 	}()
 
 	nfts, err := GetNextQueuedTokenPair(tx)
+
 	if err != nil {
 		tx.Rollback()
 		log.Println(err)
@@ -407,12 +408,16 @@ func QueueNextTokenPairForRaiding() (*Raid, []Nft, error) {
 		return nil, nil, result.Error
 	}
 
+	fmt.Println("nfts before update", nfts[0].OwnerUserId, nfts[1].OwnerUserId)
+
 	// Mark both nfts as Raiding and set QueuedForRaiding to false
 	nftUpdateData := map[string]interface{}{
 		"Raiding":          true,
 		"QueuedForRaiding": false,
 	}
-	result = tx.Model(&nfts).Updates(nftUpdateData)
+	tx.Model(&nfts[0]).Updates(nftUpdateData)
+	tx.Model(&nfts[1]).Updates(nftUpdateData)
+
 	if result.Error != nil {
 		tx.Rollback()
 		return nil, nil, result.Error

@@ -19,7 +19,30 @@ func SendMessageToRaidLogChannel(raid *db.Raid, nft1 db.Nft, nft2 db.Nft) {
 
 	// Attach second line descriptions
 	fields = append(fields, &discordgo.MessageEmbedField{
-		Value:  fmt.Sprintf("<@%s> Flunk #%d ⚔️ <@%s> Flunk #%d", nft1.Owner.DiscordID, nft1.TemplateID, nft2.Owner.DiscordID, nft2.TemplateID),
+		Value: fmt.Sprintf(
+			"<@%s> Flunk #%d has accepted <@%s> Flunk #%d's challenge to a %v battle",
+			nft1.Owner.DiscordID,
+			nft1.TemplateID,
+			nft2.Owner.DiscordID,
+			nft2.TemplateID,
+			raid.ChallengeType,
+		),
+		Inline: false,
+	})
+
+	// Attach the from and to classes
+	var challengeClassMsg, challengedClassMsg string
+	challengeClassMsg = fmt.Sprintf("<@%s>", nft1.Owner.DiscordID)
+	challengedClassMsg = fmt.Sprintf("<@%s>", nft2.Owner.DiscordID)
+
+	fields = append(fields, &discordgo.MessageEmbedField{
+		Name:   "Challenger Class",
+		Value:  challengeClassMsg,
+		Inline: false,
+	})
+	fields = append(fields, &discordgo.MessageEmbedField{
+		Name:   "Challenged Class",
+		Value:  challengedClassMsg,
 		Inline: false,
 	})
 
