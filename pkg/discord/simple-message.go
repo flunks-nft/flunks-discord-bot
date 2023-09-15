@@ -7,8 +7,7 @@ import (
 	"github.com/flunks-nft/discord-bot/pkg/db"
 )
 
-// SendRaidConcludedMessageToRaidLogChannel sends a message when a raid is created
-func SendMessageToRaidLogChannel(raid *db.Raid, nfts []db.Nft) {
+func PostRaidAcceptedMsg(raid *db.Raid, nfts []db.Nft) {
 	nft1 := nfts[0]
 	nft2 := nfts[1]
 
@@ -24,8 +23,8 @@ func SendMessageToRaidLogChannel(raid *db.Raid, nfts []db.Nft) {
 	fields = append(fields, &discordgo.MessageEmbedField{
 		Value: fmt.Sprintf(
 			"Flunk #%d has accepted Flunk #%d's challenge to a %v battle",
-			nft1.TemplateID,
 			nft2.TemplateID,
+			nft1.TemplateID,
 			raid.ChallengeType,
 		),
 		Inline: false,
@@ -55,6 +54,36 @@ func SendMessageToRaidLogChannel(raid *db.Raid, nfts []db.Nft) {
 		Image: &discordgo.MessageEmbedImage{
 			URL: nft2.Uri,
 		},
+	}
+
+	_, err := dg.ChannelMessageSendEmbed(RAID_LOG_CHANNEL_ID, embed)
+	if err != nil {
+		fmt.Println("Error sending embedded message to channel:", err)
+	}
+}
+
+func PostRaidDetailsMsg(raid *db.Raid) {
+	nft := raid.FromNft
+
+	var fields []*discordgo.MessageEmbedField
+
+	battleDesc := fmt.Sprintf(
+		"%s | Look at those gains! %d is getting prepped with a **Protein Shake**. \n"+
+			"%s | BOOM! **PROTEIN SHAKE** TO THE DOME, %d just lobbed that shake straight into their face. \n"+
+			"%s | Flunk #%d won!",
+		raid.ChallengeTypeEmoji(), nft.TemplateID,
+		raid.ChallengeTypeEmoji(), nft.TemplateID,
+		raid.ChallengeTypeEmoji(), nft.TemplateID,
+	)
+
+	fields = append(fields, &discordgo.MessageEmbedField{
+		Name:   "Fight Details",
+		Value:  battleDesc,
+		Inline: false,
+	})
+
+	embed := &discordgo.MessageEmbed{
+		Fields: fields,
 	}
 
 	_, err := dg.ChannelMessageSendEmbed(RAID_LOG_CHANNEL_ID, embed)

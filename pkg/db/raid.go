@@ -408,8 +408,6 @@ func QueueNextTokenPairForRaiding() (*Raid, []Nft, error) {
 		return nil, nil, result.Error
 	}
 
-	fmt.Println("nfts before update", nfts[0].OwnerUserId, nfts[1].OwnerUserId)
-
 	// Mark both nfts as Raiding and set QueuedForRaiding to false
 	nftUpdateData := map[string]interface{}{
 		"Raiding":          true,

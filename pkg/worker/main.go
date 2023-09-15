@@ -1,7 +1,6 @@
 package worker
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"sync"
@@ -49,7 +48,7 @@ func createMatchedChallenge() error {
 		return err
 	}
 
-	discord.SendMessageToRaidLogChannel(raid, nfts)
+	discord.PostRaidAcceptedMsg(raid, nfts)
 
 	return nil
 }
@@ -60,23 +59,5 @@ func concludeRaid() {
 		log.Println(err)
 		return
 	}
-	emoji := fmt.Sprintf("<:emoji:%s>", db.RAID_WON_EMOJI_ID)
-	msgs := make([]string, 0)
-	msgs = append(msgs, fmt.Sprintf(
-		"%s %s game concluded:\n",
-		raid.ChallengeTypeEmoji(),
-		raid.ChallengeType,
-	))
-	msgs = append(msgs, fmt.Sprintf(
-		"Flunk #%d ⚔️ Flunk #%d\n",
-		raid.FromNft.TemplateID,
-		raid.ToNft.TemplateID,
-	))
-	msgs = append(msgs, fmt.Sprintf("%sWinner: Flunk #%d", emoji, raid.WinnerNft.TemplateID))
-
-	var winnerThread, loserThread string
-	winnerThread = fmt.Sprintf("<@%s>", raid.WinnerNft.Owner.DiscordID)
-	loserThread = fmt.Sprintf("<@%s>", raid.LoserNft.Owner.DiscordID)
-
-	discord.SendRaidConcludedMessageToRaidLogChannel(msgs, raid.WinnerNft, winnerThread, loserThread)
+	discord.PostRaidDetailsMsg(&raid)
 }
