@@ -8,15 +8,34 @@ import (
 )
 
 // SendRaidConcludedMessageToRaidLogChannel sends a message when a raid is created
-func SendMessageToRaidLogChannel(msg string, nft1 db.Nft, nft2 db.Nft) {
-	sendMessageToRaidLogChannel(msg)
-	sendFlunksStatsMessageToRaidLogChannel(nft1, nft2)
-}
+func SendMessageToRaidLogChannel(raid *db.Raid, nft1 db.Nft, nft2 db.Nft) {
+	var fields []*discordgo.MessageEmbedField
 
-func sendMessageToRaidLogChannel(message string) {
-	_, err := dg.ChannelMessageSend(RAID_LOG_CHANNEL_ID, message)
+	// Attach fist line challenge accepted message
+	fields = append(fields, &discordgo.MessageEmbedField{
+		Name:   fmt.Sprintf("%s Challenge Accepted!", raid.ChallengeTypeEmoji()),
+		Inline: false,
+	})
+
+	// Attach second line descriptions
+	fields = append(fields, &discordgo.MessageEmbedField{
+		Value:  fmt.Sprintf("<@%s> Flunk #%d ⚔️ <@%s> Flunk #%d", nft1.Owner.DiscordID, nft1.TemplateID, nft2.Owner.DiscordID, nft2.TemplateID),
+		Inline: false,
+	})
+
+	embed := &discordgo.MessageEmbed{
+		Fields: fields,
+		Thumbnail: &discordgo.MessageEmbedThumbnail{
+			URL: nft1.Uri,
+		},
+		Image: &discordgo.MessageEmbedImage{
+			URL: nft2.Uri,
+		},
+	}
+
+	_, err := dg.ChannelMessageSendEmbed(RAID_LOG_CHANNEL_ID, embed)
 	if err != nil {
-		fmt.Println("Error sending message to channel:", err)
+		fmt.Println("Error sending embedded message to channel:", err)
 	}
 }
 
@@ -48,39 +67,6 @@ func SendRaidConcludedMessageToRaidLogChannel(msgs []string, nft db.Nft, winnerT
 		Fields: fields,
 		Thumbnail: &discordgo.MessageEmbedThumbnail{
 			URL: nft.Uri,
-		},
-	}
-
-	_, err := dg.ChannelMessageSendEmbed(RAID_LOG_CHANNEL_ID, embed)
-	if err != nil {
-		fmt.Println("Error sending embedded message to channel:", err)
-	}
-}
-
-func sendFlunksStatsMessageToRaidLogChannel(nft1 db.Nft, nft2 db.Nft) {
-	var fields []*discordgo.MessageEmbedField
-
-	fields = append(fields, &discordgo.MessageEmbedField{
-		Name:   "Challenge Accepted!",
-		Inline: false,
-	})
-
-	// traits := nft.GetTraits()
-	// for _, trait := range traits {
-	// 	fields = append(fields, &discordgo.MessageEmbedField{
-	// 		Name:   trait.Name,
-	// 		Value:  trait.Value,
-	// 		Inline: false,
-	// 	})
-	// }
-
-	embed := &discordgo.MessageEmbed{
-		Fields: fields,
-		Thumbnail: &discordgo.MessageEmbedThumbnail{
-			URL: nft1.Uri,
-		},
-		Image: &discordgo.MessageEmbedImage{
-			URL: nft2.Uri,
 		},
 	}
 

@@ -49,23 +49,10 @@ func createMatchedChallenge() error {
 		return err
 	}
 
-	// TODO: get token ownership from the database and mention@ the owners
 	fromNft := nfts[0]
 	toNft := nfts[1]
 
-	fromNftOwnerDiscordID := fromNft.Owner.DiscordID
-	toNftOwnerDiscordID := toNft.Owner.DiscordID
-
-	msg := fmt.Sprintf(
-		"<@%s> #%d is challenging <@%s> #%d, it's a %s **%v** game!",
-		fromNftOwnerDiscordID,
-		fromNft.TemplateID,
-		toNftOwnerDiscordID,
-		toNft.TemplateID,
-		raid.ChallengeTypeEmoji(),
-		raid.ChallengeType,
-	)
-	discord.SendMessageToRaidLogChannel(msg, fromNft, toNft)
+	discord.SendMessageToRaidLogChannel(raid, fromNft, toNft)
 
 	return nil
 }
