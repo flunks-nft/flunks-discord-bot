@@ -49,10 +49,7 @@ func createMatchedChallenge() error {
 		return err
 	}
 
-	fromNft := nfts[0]
-	toNft := nfts[1]
-
-	discord.SendMessageToRaidLogChannel(raid, fromNft, toNft)
+	discord.SendMessageToRaidLogChannel(raid, nfts)
 
 	return nil
 }

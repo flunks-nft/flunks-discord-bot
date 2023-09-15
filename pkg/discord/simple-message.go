@@ -8,7 +8,10 @@ import (
 )
 
 // SendRaidConcludedMessageToRaidLogChannel sends a message when a raid is created
-func SendMessageToRaidLogChannel(raid *db.Raid, nft1 db.Nft, nft2 db.Nft) {
+func SendMessageToRaidLogChannel(raid *db.Raid, nfts []db.Nft) {
+	nft1 := nfts[0]
+	nft2 := nfts[1]
+
 	var fields []*discordgo.MessageEmbedField
 
 	// Attach fist line challenge accepted message
@@ -20,10 +23,8 @@ func SendMessageToRaidLogChannel(raid *db.Raid, nft1 db.Nft, nft2 db.Nft) {
 	// Attach second line descriptions
 	fields = append(fields, &discordgo.MessageEmbedField{
 		Value: fmt.Sprintf(
-			"<@%s> Flunk #%d has accepted <@%s> Flunk #%d's challenge to a %v battle",
-			nft1.Owner.DiscordID,
+			"Flunk #%d has accepted Flunk #%d's challenge to a %v battle",
 			nft1.TemplateID,
-			nft2.Owner.DiscordID,
 			nft2.TemplateID,
 			raid.ChallengeType,
 		),
