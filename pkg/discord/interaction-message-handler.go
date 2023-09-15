@@ -32,7 +32,7 @@ func ButtonInteractionCreate(s *discordgo.Session, i *discordgo.InteractionCreat
 				respondeEphemeralMessage(s, i, err.Error())
 				return
 			}
-			handlesYearbook(s, i, user)
+			HandlesYearbook(s, i, user)
 			return
 		case "leaderboard":
 			handlesLeaderBoard(s, i)
@@ -43,7 +43,7 @@ func ButtonInteractionCreate(s *discordgo.Session, i *discordgo.InteractionCreat
 				respondeEphemeralMessage(s, i, err.Error())
 				return
 			}
-			handlesYearbook(s, i, user)
+			HandlesYearbook(s, i, user)
 			return
 		}
 	}
@@ -134,8 +134,13 @@ func handlesRaidOne(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	}
 }
 
-// handlesYearbook is a handler for the Yearbook button to Zeero
-func handlesYearbook(s *discordgo.Session, i *discordgo.InteractionCreate, user db.User) {
+// HandlesYearbook is a handler for the Yearbook button to Zeero
+func HandlesYearbook(s *discordgo.Session, i *discordgo.InteractionCreate, user db.User, args ...int) {
+	var edition int
+	if len(args) > 0 {
+		edition = args[0]
+	}
+
 	// Defer interaction with placeholder Ephemeral msg to we have 15 minutes to respond to the original interaction
 	if err := deferEphemeralResponse(s, i); err != nil {
 		return
@@ -152,12 +157,23 @@ func handlesYearbook(s *discordgo.Session, i *discordgo.InteractionCreate, user 
 		return
 	}
 
-	// returns next Flunk based on last fetched index
 	totalCount := len(items)
-	nextIndex := user.GetNextTokenIndex(totalCount)
-	item := items[nextIndex]
+	if edition == 0 {
+		// returns next Flunk based on last fetched index
+		nextIndex := user.GetNextTokenIndex(totalCount)
+		item := items[nextIndex]
+		edition = item.TemplateID
+	} else {
+		// Verify the edition is owned by the caller
+		if !user.OwnsFlunk(edition) {
+			editTextResponse(s, i, "⚠️ You don't own this Flunk.")
+			return
+		}
 
-	nft, err := db.GetNftByTemplateID(uint(item.TemplateID))
+		user.ForceUpdateNextTokenIndex(totalCount, edition)
+	}
+
+	nft, err := db.GetNftByTemplateID(uint(edition))
 
 	if err != nil {
 		editTextResponse(s, i, "⚠️ Failed to get your Flunks from Dapper.")

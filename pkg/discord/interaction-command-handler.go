@@ -9,6 +9,7 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/flunks-nft/discord-bot/pkg/db"
+	"github.com/flunks-nft/discord-bot/pkg/utils"
 )
 
 var (
@@ -21,11 +22,22 @@ var (
 			Name:        "dapper",
 			Description: "Set up your Dapper wallet address",
 			Options: []*discordgo.ApplicationCommandOption{
-
 				{
 					Type:        discordgo.ApplicationCommandOptionString,
 					Name:        "address",
 					Description: "Dapper wallet address",
+					Required:    true,
+				},
+			},
+		},
+		{
+			Name:        "flunk",
+			Description: "Check Flunk by ID",
+			Options: []*discordgo.ApplicationCommandOption{
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "edition",
+					Description: "Flunks Edition Number",
 					Required:    true,
 				},
 			},
@@ -63,10 +75,32 @@ var (
 				margs...,
 			)
 
-			// TODO: Update user dapper wallet address
+			// Update user dapper wallet address
 			db.CreateOrUpdateFlowAddress(i.Member.User.ID, option.StringValue())
 
 			respondeEphemeralMessage(s, i, msg)
+		},
+		"flunk": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			user, err := ValidateUser(i)
+			if err != nil {
+				respondeEphemeralMessage(s, i, err.Error())
+				return
+			}
+
+			// Access options in the order provided by the user.
+			options := i.ApplicationCommandData().Options
+
+			// Or convert the slice into a map
+			optionMap := make(map[string]*discordgo.ApplicationCommandInteractionDataOption, len(options))
+			for _, opt := range options {
+				optionMap[opt.Name] = opt
+			}
+
+			editionStr := optionMap["edition"].StringValue()
+			editionInt, _ := utils.StringToInt(editionStr)
+
+			// TODO: add edition pass-in
+			HandlesYearbook(s, i, user, editionInt)
 		},
 	}
 

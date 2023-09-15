@@ -44,11 +44,33 @@ func (user *User) GetFlunks() ([]zeero.NftDtoWithActivity, error) {
 	return items, nil
 }
 
+func (user *User) OwnsFlunk(templateID int) bool {
+	// Get the flunks owned by the user
+	flunks, err := user.GetFlunks()
+	if err != nil {
+		return false
+	}
+
+	// Check if the user owns the flunk with the specified template ID
+	for _, flunk := range flunks {
+		if flunk.TemplateID == templateID {
+			return true
+		}
+	}
+
+	return false
+}
+
 func (user *User) GetNextTokenIndex(totalCount int) uint {
 	lastIndex := user.LastFetchedTokenIndex
 	// Increment the last fetched token index by 1 and update the user profile
 	db.Model(&user).Update("last_fetched_token_index", (lastIndex+1)%uint(totalCount))
 	return lastIndex % uint(totalCount)
+}
+
+func (user *User) ForceUpdateNextTokenIndex(totalCount int, targetIndex int) {
+	// Update the last fetched token index to a provided value
+	db.Model(&user).Update("last_fetched_token_index", uint(targetIndex)%uint(totalCount))
 }
 
 func CreateNewUser(DiscordID string, FlowWalletAddress string) error {
