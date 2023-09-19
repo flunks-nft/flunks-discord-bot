@@ -63,22 +63,31 @@ func PostRaidAcceptedMsg(raid *db.Raid, nfts []db.Nft) {
 }
 
 func PostRaidDetailsMsg(raid *db.Raid) {
-	nft := raid.FromNft
+	// nft := raid.FromNft
 
 	var fields []*discordgo.MessageEmbedField
 
-	battleDesc := fmt.Sprintf(
-		"%s | Look at those gains! Flunk #%d is getting prepped with a **Protein Shake**. \n"+
-			"%s | BOOM! **PROTEIN SHAKE** TO THE DOME, Flunk #%d just lobbed that shake straight into their face. \n"+
-			"%s | Flunk #%d won!",
-		raid.ChallengeTypeEmoji(), nft.TemplateID,
-		raid.ChallengeTypeEmoji(), nft.TemplateID,
-		raid.ChallengeTypeEmoji(), nft.TemplateID,
+	// battleDesc := fmt.Sprintf(
+	// 	"%s | Look at those gains! Flunk #%d is getting prepped with a **Protein Shake**. \n"+
+	// 		"%s | BOOM! **PROTEIN SHAKE** TO THE DOME, Flunk #%d just lobbed that shake straight into their face. \n"+
+	// 		"%s | Flunk #%d won!",
+	// 	raid.ChallengeTypeEmoji(), nft.TemplateID,
+	// 	raid.ChallengeTypeEmoji(), nft.TemplateID,
+	// 	raid.ChallengeTypeEmoji(), nft.TemplateID,
+	// )
+
+	battleLog := fmt.Sprintf(
+		"%s | %s \n"+
+			"%s | %s \n"+
+			"%s | %s",
+		raid.ChallengeTypeEmoji(), raid.BattleLog.Action,
+		raid.ChallengeTypeEmoji(), raid.BattleLog.ActionOutcome,
+		raid.ChallengeTypeEmoji(), raid.BattleLog.BattleOutcome,
 	)
 
 	fields = append(fields, &discordgo.MessageEmbedField{
-		Name:   "Fight Details",
-		Value:  battleDesc,
+		Name:   "Battle Log",
+		Value:  battleLog,
 		Inline: false,
 	})
 

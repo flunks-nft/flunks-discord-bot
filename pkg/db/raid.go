@@ -128,15 +128,13 @@ func ConcludeOneRaid() (raid Raid, err error) {
 	battleRes := raid.getBattleResult()
 	winner := battleRes.Winner
 
-	// Get Battle log and update db
-	raid.BattleLog = battleRes.Log()
+	// Get Battle log and store into db
+	raid.BattleLog = battleRes.Log(raid.FromTemplateID, raid.ToTemplateID)
 	if err := tx.Model(&raid).Select("battle_log").Updates(map[string]interface{}{
 		"battle_log": raid.BattleLog,
 	}).Error; err != nil {
 		return raid, err
 	}
-
-	// Store the fight status text into raid object
 
 	// Update IsConcluded to true
 	if err := tx.Model(&raid).Select("is_concluded").Update("is_concluded", true).Error; err != nil {
