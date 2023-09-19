@@ -8,6 +8,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/flunks-nft/discord-bot/pkg/battle"
 	"github.com/flunks-nft/discord-bot/pkg/utils"
 	"github.com/flunks-nft/discord-bot/pkg/zeero"
 	"gorm.io/gorm"
@@ -30,6 +31,7 @@ func getRandomChallengeType() ChallengeType {
 		ChallengeTypeJock,
 	}
 	rand.Seed(time.Now().UnixNano())
+
 	return types[rand.Intn(len(types))]
 }
 
@@ -73,6 +75,8 @@ type Raid struct {
 	LoserTemplateID uint
 	LoserNftID      uint
 	LoserNft        Nft `gorm:"foreignKey:ToNftID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+
+	BattleLog battle.BattleLog `gorm:"type:jsonb"`
 }
 
 func (raid Raid) ChallengeTypeEmoji() string {
@@ -87,6 +91,13 @@ func LeaderBoard() []Nft {
 		log.Println(result.Error)
 	}
 	return nfts
+}
+
+// concludes a raid by
+// 1. selecting winners
+// 2. generating fight status text
+func (raid Raid) getBattleResult() battle.Battle {
+	return battle.DrawBattleByClique(raid.ChallengeType.String())
 }
 
 // ConcludeRaid completes a raid and updates the NFT scores
@@ -113,8 +124,19 @@ func ConcludeOneRaid() (raid Raid, err error) {
 		return raid, result.Error
 	}
 
-	// Roll the dice to determine the winner (0 or 1)
-	winner := rand.Intn(2) // Randomly generates 0 or 1
+	// Get battle result of a raid
+	battleRes := raid.getBattleResult()
+	winner := battleRes.Winner
+
+	// Get Battle log and update db
+	raid.BattleLog = battleRes.Log()
+	if err := tx.Model(&raid).Select("battle_log").Updates(map[string]interface{}{
+		"battle_log": raid.BattleLog,
+	}).Error; err != nil {
+		return raid, err
+	}
+
+	// Store the fight status text into raid object
 
 	// Update IsConcluded to true
 	if err := tx.Model(&raid).Select("is_concluded").Update("is_concluded", true).Error; err != nil {

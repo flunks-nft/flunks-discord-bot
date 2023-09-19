@@ -2,7 +2,9 @@ package utils
 
 import (
 	"fmt"
+	"math/rand"
 	"os"
+	"reflect"
 	"strconv"
 
 	"github.com/joho/godotenv"
@@ -57,4 +59,22 @@ func StringToUInt(str string) (uint, error) {
 	}
 
 	return uint(num), nil
+}
+
+func RandomItem(slice interface{}) interface{} {
+	// Convert slice to reflect.Value
+	s := reflect.ValueOf(slice)
+
+	// Check if the provided interface is indeed a slice
+	if s.Kind() != reflect.Slice {
+		panic("Expected a slice!")
+	}
+
+	length := s.Len()
+	if length == 0 {
+		return nil // or panic with "empty slice!"
+	}
+
+	// Retrieve a random item from the slice
+	return s.Index(rand.Intn(length)).Interface()
 }
