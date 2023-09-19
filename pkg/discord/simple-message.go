@@ -68,8 +68,8 @@ func PostRaidDetailsMsg(raid *db.Raid) {
 	var fields []*discordgo.MessageEmbedField
 
 	battleDesc := fmt.Sprintf(
-		"%s | Look at those gains! %d is getting prepped with a **Protein Shake**. \n"+
-			"%s | BOOM! **PROTEIN SHAKE** TO THE DOME, %d just lobbed that shake straight into their face. \n"+
+		"%s | Look at those gains! Flunk #%d is getting prepped with a **Protein Shake**. \n"+
+			"%s | BOOM! **PROTEIN SHAKE** TO THE DOME, Flunk #%d just lobbed that shake straight into their face. \n"+
 			"%s | Flunk #%d won!",
 		raid.ChallengeTypeEmoji(), nft.TemplateID,
 		raid.ChallengeTypeEmoji(), nft.TemplateID,
