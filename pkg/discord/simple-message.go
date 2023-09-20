@@ -31,9 +31,9 @@ func PostRaidAcceptedMsg(raid *db.Raid, nfts []db.Nft) {
 	})
 
 	// Attach the from and to classes
-	var challengeClassMsg, challengedClassMsg string
+	var challengeClassMsg, defenderClassMsg string
 	challengeClassMsg = fmt.Sprintf("<@%s>", nft1.Owner.DiscordID)
-	challengedClassMsg = fmt.Sprintf("<@%s>", nft2.Owner.DiscordID)
+	defenderClassMsg = fmt.Sprintf("<@%s>", nft2.Owner.DiscordID)
 
 	fields = append(fields, &discordgo.MessageEmbedField{
 		Name:   "Challenger Class",
@@ -41,8 +41,8 @@ func PostRaidAcceptedMsg(raid *db.Raid, nfts []db.Nft) {
 		Inline: false,
 	})
 	fields = append(fields, &discordgo.MessageEmbedField{
-		Name:   "Challenged Class",
-		Value:  challengedClassMsg,
+		Name:   "Defender Class",
+		Value:  defenderClassMsg,
 		Inline: false,
 	})
 
