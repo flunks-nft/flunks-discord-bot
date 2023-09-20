@@ -75,6 +75,7 @@ func GenerateBattleLog(clique string, challenger, defender uint) (*BattleLog, er
 }
 
 type BattleLog struct {
+	Weapon        string `json:"weapon"`
 	Action        string `json:"action"`
 	ActionOutcome string `json:"actionOutcome"`
 	BattleOutcome string `json:"battleOutcome"`

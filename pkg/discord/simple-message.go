@@ -5,6 +5,7 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/flunks-nft/discord-bot/pkg/db"
+	"github.com/flunks-nft/discord-bot/pkg/utils"
 )
 
 func PostRaidAcceptedMsg(raid *db.Raid, nfts []db.Nft) {
@@ -46,13 +47,15 @@ func PostRaidAcceptedMsg(raid *db.Raid, nfts []db.Nft) {
 		Inline: false,
 	})
 
+	battleBgImgUrl, _ := utils.BattleBgImages[raid.ChallengeType.String()]
+
 	embed := &discordgo.MessageEmbed{
 		Fields: fields,
 		Thumbnail: &discordgo.MessageEmbedThumbnail{
 			URL: nft1.Uri,
 		},
 		Image: &discordgo.MessageEmbedImage{
-			URL: nft2.Uri,
+			URL: battleBgImgUrl,
 		},
 	}
 
@@ -63,23 +66,14 @@ func PostRaidAcceptedMsg(raid *db.Raid, nfts []db.Nft) {
 }
 
 func PostRaidDetailsMsg(raid *db.Raid) {
-	// nft := raid.FromNft
-
 	var fields []*discordgo.MessageEmbedField
-
-	// battleDesc := fmt.Sprintf(
-	// 	"%s | Look at those gains! Flunk #%d is getting prepped with a **Protein Shake**. \n"+
-	// 		"%s | BOOM! **PROTEIN SHAKE** TO THE DOME, Flunk #%d just lobbed that shake straight into their face. \n"+
-	// 		"%s | Flunk #%d won!",
-	// 	raid.ChallengeTypeEmoji(), nft.TemplateID,
-	// 	raid.ChallengeTypeEmoji(), nft.TemplateID,
-	// 	raid.ChallengeTypeEmoji(), nft.TemplateID,
-	// )
 
 	battleLog := fmt.Sprintf(
 		"%s | %s \n"+
 			"%s | %s \n"+
+			"%s | %s \n"+
 			"%s | %s",
+		raid.ChallengeTypeEmoji(), raid.BattleLog.Weapon,
 		raid.ChallengeTypeEmoji(), raid.BattleLog.Action,
 		raid.ChallengeTypeEmoji(), raid.BattleLog.ActionOutcome,
 		raid.ChallengeTypeEmoji(), raid.BattleLog.BattleOutcome,

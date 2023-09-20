@@ -28,3 +28,10 @@ var CliqueEmojis = map[string]string{
 	"Freak": "👽",
 	"Geek":  "🎮",
 }
+
+var BattleBgImages = map[string]string{
+	"Prep":  "https://storage.googleapis.com/zeero-public/prep_battle.png",
+	"Jock":  "https://storage.googleapis.com/zeero-public/jock_battle.png",
+	"Freak": "https://storage.googleapis.com/zeero-public/freak_battle.png",
+	"Geek":  "https://storage.googleapis.com/zeero-public/geek_battle.png",
+}
