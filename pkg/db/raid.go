@@ -96,8 +96,8 @@ func LeaderBoard() []Nft {
 // concludes a raid by
 // 1. selecting winners
 // 2. generating fight status text
-func (raid Raid) getBattleResult() battle.Battle {
-	return battle.DrawBattleByClique(raid.ChallengeType.String())
+func (raid Raid) getBattleResult() battle.BattleLog {
+	return battle.DrawBattleByClique(raid.ChallengeType.String(), raid.FromTemplateID, raid.ToTemplateID)
 }
 
 // ConcludeRaid completes a raid and updates the NFT scores
@@ -124,12 +124,9 @@ func ConcludeOneRaid() (raid Raid, err error) {
 		return raid, result.Error
 	}
 
-	// Get battle result of a raid
-	battleRes := raid.getBattleResult()
-	winner := battleRes.Winner
-
-	// Get Battle log and store into db
-	raid.BattleLog = battleRes.Log(raid.FromTemplateID, raid.ToTemplateID)
+	// Get battle result of a raid, get Battle log and store into db
+	raid.BattleLog = raid.getBattleResult()
+	winner := raid.BattleLog.Winner
 	if err := tx.Model(&raid).Select("battle_log").Updates(map[string]interface{}{
 		"battle_log": raid.BattleLog,
 	}).Error; err != nil {

@@ -11,6 +11,7 @@ require (
 )
 
 require (
+	github.com/ayush6624/go-chatgpt v0.3.0 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/gorilla/mux v1.8.0 // indirect

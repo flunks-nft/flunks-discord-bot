@@ -1,11 +1,13 @@
 package battle
 
 import (
+	"context"
 	"database/sql/driver"
 	"encoding/json"
 	"fmt"
 	"strings"
 
+	"github.com/flunks-nft/discord-bot/pkg/gpt"
 	"github.com/flunks-nft/discord-bot/pkg/utils"
 )
 
@@ -13,6 +15,7 @@ type WeaponOutcomeOption struct {
 	displayMsg    string
 	challengerWon bool
 }
+
 type WeaponOption struct {
 	weapon            string
 	displayMsgOptions []string
@@ -51,10 +54,31 @@ func (b Battle) Log(fromNftEdition uint, toNftEdition uint) BattleLog {
 	}
 }
 
+// GenerateBattleLog interacts with OpenAI's GPT-3.5Turbo API to generate a battle log
+func GenerateBattleLog(clique string, challenger, defender uint) (*BattleLog, error) {
+	ctx := context.Background()
+
+	prompt := gpt.GenerateBattlePrompt(clique, challenger, defender)
+
+	res, err := gpt.ChapGPTClient.SimpleSend(ctx, prompt)
+	if err != nil {
+		return nil, err
+	}
+
+	var log BattleLog
+	err = json.Unmarshal([]byte(res.Choices[0].Message.Content), &log)
+	if err != nil {
+		return nil, err
+	}
+
+	return &log, nil
+}
+
 type BattleLog struct {
 	Action        string `json:"action"`
 	ActionOutcome string `json:"actionOutcome"`
 	BattleOutcome string `json:"battleOutcome"`
+	Winner        int    `json:"winner"`
 }
 
 // Implement the sql.Scanner interface
@@ -103,12 +127,12 @@ func (wo WeaponOption) drawBattle() Battle {
 	}
 }
 
-func DrawBattleByClique(clique string) Battle {
-	// Pick a random weapon
-	weaponOption := utils.RandomItem(BattleWeaponMap[clique]).(WeaponOption)
-
-	// draw battle details from the picked weapon
-	return weaponOption.drawBattle()
+func DrawBattleByClique(clique string, challenger, defender uint) BattleLog {
+	log, err := GenerateBattleLog(clique, challenger, defender)
+	if err != nil {
+		panic(err)
+	}
+	return *log
 }
 
 var BattleWeaponMap = map[string][]WeaponOption{
