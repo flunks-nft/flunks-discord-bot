@@ -29,11 +29,11 @@ func GenerateBattlePrompt(clique string, challenger, defender uint) string {
 	return fmt.Sprintf(
 		`
 	Suppose you are creating a 3-action battle between challenger Flunk #%d and defender Flunk #%d.
-	1st item is weapon, which describes the weapons that Flunk %d has picked,
-	2nd item is the action that Flunk %d has taken.
-	3rd item is actionOutcome, it can either be a positive or negative action for the challenger.
+	1st item is weapon, which describes the weapons that challenger Flunk has picked,
+	2nd item is the action that challenger Flunk has taken.
+	3rd item is actionOutcome, it can either be a positive or negative action for the challenger with equal probability.
 	4th item is battleOutcome, it depends on the action is positive or negative in the action generated in the actionOutcome.
-	Put the winner in a winner variable in the json object, 0 for challenger and 1 for defender.
+	Put the winner in a winner variable in the json object, 0 when challenger's actionOutcome is positive and 1 when challenger's actionOutcome is negative.
 	Make sure the weapon picked fits the clique of a %s battle in a high school setup.
 	Make sure the wording fits the style in the example provided below.
 	Generate a JSON representation for a 'BattleLog' that includes fields 'Action', 'ActionOutcome', and 'BattleOutcome'.
@@ -45,5 +45,5 @@ func GenerateBattlePrompt(clique string, challenger, defender uint) string {
 	"battleOutcome": "Flunk #%d nailed it, we have a winner!",
 	"winner": 0,
 }
-	`, challenger, defender, challenger, challenger, clique, challenger, challenger, challenger, defender, challenger)
+	`, challenger, defender, clique, challenger, challenger, challenger, defender, challenger)
 }
