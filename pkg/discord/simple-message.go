@@ -68,6 +68,19 @@ func PostRaidAcceptedMsg(raid *db.Raid, nfts []db.Nft) {
 func PostRaidDetailsMsg(raid *db.Raid) {
 	var fields []*discordgo.MessageEmbedField
 
+	winnerClass := fmt.Sprintf("<@%s> Flunk #%d", raid.WinnerNft.Owner.DiscordID, raid.WinnerTemplateID)
+	loserClass := fmt.Sprintf("<@%s> Flunk #%d", raid.LoserNft.Owner.DiscordID, raid.LoserTemplateID)
+	fields = append(fields, &discordgo.MessageEmbedField{
+		Name:   "Winner Class",
+		Value:  winnerClass,
+		Inline: false,
+	})
+	fields = append(fields, &discordgo.MessageEmbedField{
+		Name:   "Loser Class",
+		Value:  loserClass,
+		Inline: false,
+	})
+
 	battleLog := fmt.Sprintf(
 		"%s | %s \n"+
 			"%s | %s \n"+
@@ -80,13 +93,15 @@ func PostRaidDetailsMsg(raid *db.Raid) {
 	)
 
 	fields = append(fields, &discordgo.MessageEmbedField{
-		Name:   "Battle Log",
 		Value:  battleLog,
 		Inline: false,
 	})
 
 	embed := &discordgo.MessageEmbed{
 		Fields: fields,
+		Thumbnail: &discordgo.MessageEmbedThumbnail{
+			URL: raid.FromNft.Uri,
+		},
 	}
 
 	_, err := dg.ChannelMessageSendEmbed(RAID_LOG_CHANNEL_ID, embed)
