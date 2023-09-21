@@ -15,8 +15,6 @@ import (
 var (
 	GuildID *string
 
-	RemoveCommands = flag.Bool("rmcmd", true, "Remove all commands after shutdowning or not")
-
 	commands = []*discordgo.ApplicationCommand{
 		{
 			Name:        "dapper",
@@ -111,6 +109,8 @@ func init() {
 }
 
 func registerSlashCommands() {
+	removeSlashCommands()
+
 	log.Println("🚧 Adding commands...")
 	for _, v := range commands {
 		_, err := dg.ApplicationCommandCreate(dg.State.User.ID, *GuildID, v)

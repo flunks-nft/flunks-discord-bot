@@ -135,10 +135,6 @@ func InitDiscord(wg *sync.WaitGroup, done chan os.Signal) {
 	log.Println("🌱 Bot is now running. Press CTRL-C to exit.")
 	<-done
 
-	if *RemoveCommands {
-		removeSlashCommands()
-	}
-
 	log.Println("🐒 Discord Server is Gracefully shut down.")
 
 	// Signal the WaitGroup that Discord service has finished
