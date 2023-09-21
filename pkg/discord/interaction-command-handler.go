@@ -103,8 +103,6 @@ var (
 			HandlesYearbook(s, i, user, editionInt)
 		},
 	}
-
-	registeredCommands []*discordgo.ApplicationCommand
 )
 
 func init() {
@@ -114,27 +112,31 @@ func init() {
 
 func registerSlashCommands() {
 	log.Println("🚧 Adding commands...")
-	registeredCommands = make([]*discordgo.ApplicationCommand, len(commands))
-	for i, v := range commands {
-		cmd, err := dg.ApplicationCommandCreate(dg.State.User.ID, *GuildID, v)
+	for _, v := range commands {
+		_, err := dg.ApplicationCommandCreate(dg.State.User.ID, *GuildID, v)
 		if err != nil {
 			log.Panicf("Cannot create '%v' command: %v", v.Name, err)
 		}
-		registeredCommands[i] = cmd
 	}
 }
 
 func removeSlashCommands() {
 	log.Println("🚧 Removing commands...")
-	// We need to fetch the commands, since deleting requires the command ID.
-	// We are doing this from the returned commands from `registeredCommands`, because using
-	// this will delete all the commands, which might not be desirable, so we
-	// are deleting only the commands that we added.
 
-	for _, v := range registeredCommands {
-		err := dg.ApplicationCommandDelete(dg.State.User.ID, *GuildID, v.ID)
+	// Fetch all existing registered commands
+	existingCommands, err := dg.ApplicationCommands(dg.State.User.ID, *GuildID)
+	if err != nil {
+		log.Panicf("Failed to fetch existing commands: %v", err)
+	}
+
+	// Delete all existing commands
+	for _, cmd := range existingCommands {
+		err := dg.ApplicationCommandDelete(dg.State.User.ID, *GuildID, cmd.ID)
 		if err != nil {
-			log.Panicf("Cannot delete '%v' command: %v", v.Name, err)
+			fmt.Printf("Cannot delete '%v' command: %v\n", cmd.Name, err)
+			// You can choose to log the error or handle it as needed.
+		} else {
+			fmt.Printf("🚧 Deleted '%v' command\n", cmd.Name)
 		}
 	}
 }
