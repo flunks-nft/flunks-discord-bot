@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"strings"
+	"time"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/flunks-nft/discord-bot/pkg/db"
@@ -283,9 +284,9 @@ func QueueForRaidOne(s *discordgo.Session, i *discordgo.InteractionCreate, templ
 		return "", errors.New(msg)
 	}
 	// TODO: Check if token is owned by the Discord user
-	// Check if token has raided in the last 24 hours
-	if isReady, nextValidRaidTime := nft.IsReadyForRaidQueue(); !isReady {
-		msg := fmt.Sprintf("⚠️ NFT with tokenID %v is not ready for raid queue. Still %s hours remaining", templateID, nextValidRaidTime)
+	// Check if token has raided in the same day
+	if isReady, remainingTime := nft.IsReadyForRaidQueue(); !isReady {
+		msg := fmt.Sprintf("⚠️ NFT with tokenID %v is not ready for raid queue. Still %s remaining", templateID, remainingTime.Round(time.Second).String())
 		return "", errors.New(msg)
 	}
 	// check if token is already in the raid queue

@@ -138,6 +138,14 @@ func ConcludeOneRaid() (raid Raid, err error) {
 		return raid, err
 	}
 
+	// Update LastRaidFinishedAt to current time
+	if err := tx.Model(&raid.FromNft).Select("last_raid_finished_at").Update("last_raid_finished_at", time.Now().UTC()).Error; err != nil {
+		return raid, err
+	}
+	if err := tx.Model(&raid.ToNft).Select("last_raid_finished_at").Update("last_raid_finished_at", time.Now().UTC()).Error; err != nil {
+		return raid, err
+	}
+
 	// Update NFT raiding to false
 	if err := tx.Model(&raid.FromNft).Select("raiding").Update("raiding", false).Error; err != nil {
 		return raid, err
@@ -328,16 +336,20 @@ func (nft *Nft) IsReadyForRaidQueue() (bool, time.Duration) {
 	// Get current time
 	now := time.Now()
 
-	nextValidRaidTime := nft.LastRaidFinishedAt.Add(RAID_CONCLUDE_INTERVAL_IN_SECONDS)
+	fmt.Println("LastRaidFinishedAt: ", nft.LastRaidFinishedAt)
 
-	// If the current time is less than the next valid raid time, return false
-	// and the hours remaining until the next valid raid time
-	if now.Before(nextValidRaidTime) {
-		diff := nextValidRaidTime.Sub(now)
-		return false, diff
+	// Calculate the time for the next day
+	nextDay := nft.LastRaidFinishedAt.AddDate(0, 0, 1)
+
+	// If the current time is greater than or equal to the next day,
+	// return true indicating that it's ready for the raid queue
+	// and return the time until 12:00 am next day as the second return value
+	if now.After(nextDay) || now.Equal(nextDay) {
+		return true, 0
 	}
 
-	return true, 0
+	timeUntilNextDay := nextDay.Sub(now)
+	return false, timeUntilNextDay
 }
 
 func (nft *Nft) AddToRaidQueue() error {
