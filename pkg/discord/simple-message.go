@@ -23,7 +23,7 @@ func PostRaidAcceptedMsg(raid *db.Raid, nfts []db.Nft) {
 	// Attach second line descriptions
 	fields = append(fields, &discordgo.MessageEmbedField{
 		Value: fmt.Sprintf(
-			"Flunk #%d has accepted Flunk #%d's challenge to a %v battle",
+			"**Flunk #%d** has accepted **Flunk #%d**'s challenge to a %v battle",
 			nft2.TemplateID,
 			nft1.TemplateID,
 			raid.ChallengeType,
