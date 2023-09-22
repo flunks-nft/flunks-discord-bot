@@ -42,7 +42,6 @@ steps:
         --update-env-vars=^|||^
         ENV=production|||
         DB_PORT=5432|||
-        RAID_CONCLUDE_INTERVAL_IN_SECONDS=10|||
         RAID_MATCH_INTERVAL_IN_SECONDS=10|||
         DB_NAME=discord-bot|||
         RAID_CHANNLE_ID=1145794197773885512|||
