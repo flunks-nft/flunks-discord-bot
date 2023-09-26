@@ -54,3 +54,5 @@ images:
   - gcr.io/zeero-marketplace/discord-raider
 options:
   logging: CLOUD_LOGGING_ONLY
+  pool:
+    name: "projects/zeero-marketplace/locations/us-west1/workerPools/flunks-pool"
