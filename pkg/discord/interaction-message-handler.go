@@ -286,7 +286,7 @@ func QueueForRaidOne(s *discordgo.Session, i *discordgo.InteractionCreate, templ
 	// TODO: Check if token is owned by the Discord user
 	// Check if token has raided in the same day
 	if isReady, remainingTime := nft.IsReadyForRaidQueue(); !isReady {
-		msg := fmt.Sprintf("⚠️ NFT with tokenID %v is not ready for raid queue. Still %s remaining", templateID, remainingTime.Round(time.Second).String())
+		msg := fmt.Sprintf("⚠️ NFT with tokenID %v is not ready for raid queue. Still ⏰ %s remaining", templateID, remainingTime.Round(time.Second).String())
 		return "", errors.New(msg)
 	}
 	// check if token is already in the raid queue
