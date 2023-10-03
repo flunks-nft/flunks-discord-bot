@@ -263,6 +263,43 @@ func (nft Nft) GetTraits() []Trait {
 	return nft.Traits
 }
 
+func (nft Nft) GetWinsAndLosses() (int64, int64) {
+	// Count the number of wins and losses from raid model
+	var wins, losses int64
+
+	// Preload FromRaids and ToRaids
+	if err := db.Model(nft).Association("FromRaids").Find(&nft.FromRaids); err != nil {
+		// Handle error
+	}
+	if err := db.Model(nft).Association("ToRaids").Find(&nft.ToRaids); err != nil {
+		// Handle error
+	}
+
+	// Count wins and losses from the NFT's "FromRaids"
+	for _, raid := range nft.FromRaids {
+		if raid.IsConcluded {
+			if raid.WinnerNftID == nft.ID {
+				wins++
+			} else if raid.LoserNftID == nft.ID {
+				losses++
+			}
+		}
+	}
+
+	// Count wins and losses from the NFT's "ToRaids"
+	for _, raid := range nft.ToRaids {
+		if raid.IsConcluded {
+			if raid.WinnerNftID == nft.ID {
+				wins++
+			} else if raid.LoserNftID == nft.ID {
+				losses++
+			}
+		}
+	}
+
+	return wins, losses
+}
+
 func GetNftByTemplateID(templateID uint) (Nft, error) {
 	var nft Nft
 

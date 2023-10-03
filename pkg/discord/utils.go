@@ -100,7 +100,8 @@ func respondeEditFlunkLeaderBoard(s *discordgo.Session, i *discordgo.Interaction
 	// Parse leaderboard information into a string
 	var msg string
 	for idx, nft := range nfts {
-		msg += fmt.Sprintf("🏅%d. Flunk #%v: 🎯%v\n", idx+1, nft.TemplateID, nft.Points)
+		wins, losses := nft.GetWinsAndLosses()
+		msg += fmt.Sprintf("[%d] Flunk **#%v**: %v Points [%d 🏆/%d 💔] \n", idx+1, nft.TemplateID, nft.Points, wins, wins+losses)
 	}
 
 	// Create an embed for the message
