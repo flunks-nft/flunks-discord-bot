@@ -6,6 +6,7 @@ import (
 	"os"
 	"reflect"
 	"strconv"
+	"time"
 
 	"github.com/joho/godotenv"
 )
@@ -77,4 +78,14 @@ func RandomItem(slice interface{}) interface{} {
 
 	// Retrieve a random item from the slice
 	return s.Index(rand.Intn(length)).Interface()
+}
+
+func GetRandomKeyFromMap(m map[string]string) (key string) {
+	rand.Seed(time.Now().UnixNano()) // Seed the random number generator
+	keys := make([]string, 0, len(m))
+	for k := range m {
+		keys = append(keys, k)
+	}
+
+	return keys[rand.Intn(len(keys))]
 }

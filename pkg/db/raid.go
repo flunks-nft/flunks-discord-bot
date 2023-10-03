@@ -66,7 +66,8 @@ type Raid struct {
 	LoserNftID      uint
 	LoserNft        Nft `gorm:"foreignKey:ToNftID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 
-	BattleLog battle.BattleLog `gorm:"type:jsonb"`
+	BattleLocation string           `gorm:"default:'';"`
+	BattleLog      battle.BattleLog `gorm:"type:jsonb"`
 }
 
 func (raid Raid) ChallengeTypeEmoji() string {
@@ -87,7 +88,7 @@ func LeaderBoard() []Nft {
 // 1. selecting winners
 // 2. generating fight status text
 func (raid Raid) getBattleResult() battle.BattleLog {
-	return battle.DrawBattleByClique(raid.ChallengeType.String(), raid.FromTemplateID, raid.ToTemplateID)
+	return battle.DrawBattleByClique(raid.ChallengeType.String(), raid.FromTemplateID, raid.ToTemplateID, raid.BattleLocation)
 }
 
 // ConcludeRaid completes a raid and updates the NFT scores
@@ -409,12 +410,18 @@ func QueueNextTokenPairForRaiding() (*Raid, []Nft, error) {
 		return nil, nil, err
 	}
 
+	// Pick a random key from the map as battle location
+	challengeType := getRandomChallengeType()
+	battleBgImgMap, _ := utils.BattleBgImages[challengeType.String()]
+	battleLocation := utils.GetRandomKeyFromMap(battleBgImgMap)
+
 	raid := &Raid{
 		FromTemplateID: nfts[0].TemplateID,
 		FromNftID:      nfts[0].ID,
 		ToTemplateID:   nfts[1].TemplateID,
 		ToNftID:        nfts[1].ID,
-		ChallengeType:  getRandomChallengeType(),
+		ChallengeType:  challengeType,
+		BattleLocation: battleLocation,
 	}
 
 	result := tx.Create(&raid)

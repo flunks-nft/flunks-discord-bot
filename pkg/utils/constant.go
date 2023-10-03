@@ -29,11 +29,31 @@ var CliqueEmojis = map[string]string{
 	"Geek":  "🎮",
 }
 
-var BattleBgImages = map[string]string{
-	"Prep":  "https://storage.googleapis.com/zeero-public/prep_battle.png",
-	"Jock":  "https://storage.googleapis.com/zeero-public/jock_battle.png",
-	"Freak": "https://storage.googleapis.com/zeero-public/freak_battle.png",
-	"Geek":  "https://storage.googleapis.com/zeero-public/geek_battle.png",
+var BattleBgImages = map[string]map[string]string{
+	"Prep": {
+		"Theatre":            "https://storage.googleapis.com/zeero-public/prep_theatre.png",
+		"Hairdressing Salon": "https://storage.googleapis.com/zeero-public/prep_hairdresser.png",
+		"Bleachers":          "https://storage.googleapis.com/zeero-public/prep_bleachers.png",
+		"Café":               "https://storage.googleapis.com/zeero-public/prep_cafe.png",
+	},
+	"Jock": {
+		"Pool":             "https://storage.googleapis.com/zeero-public/jock_pool.png",
+		"Basketball Court": "https://storage.googleapis.com/zeero-public/jock_court.png",
+		"Football Field":   "https://storage.googleapis.com/zeero-public/jock_footy.png",
+		"Gym":              "https://storage.googleapis.com/zeero-public/jock_gym.png",
+	},
+	"Freak": {
+		"Locker Room": "https://storage.googleapis.com/zeero-public/freak_locker_room.png",
+		"Toilet":      "https://storage.googleapis.com/zeero-public/freak_toilet.png",
+		"Outback":     "https://storage.googleapis.com/zeero-public/freak_outback.png",
+		"Shed":        "https://storage.googleapis.com/zeero-public/freak_shed.png",
+	},
+	"Geek": {
+		"Library":       "https://storage.googleapis.com/zeero-public/geek_library.png",
+		"Classroom":     "https://storage.googleapis.com/zeero-public/geek_classroom.png",
+		"Science Lab":   "https://storage.googleapis.com/zeero-public/geek_science_lab.png",
+		"Computer Room": "https://storage.googleapis.com/zeero-public/geek_computer_room.png",
+	},
 }
 
 var PixelTemplateIdToUri = map[string]string{

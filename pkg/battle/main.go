@@ -55,10 +55,10 @@ func (b Battle) Log(fromNftEdition uint, toNftEdition uint) BattleLog {
 }
 
 // GenerateBattleLog interacts with OpenAI's GPT-3.5Turbo API to generate a battle log
-func GenerateBattleLog(clique string, challenger, defender uint) (*BattleLog, error) {
+func GenerateBattleLog(clique string, challenger, defender uint, location string) (*BattleLog, error) {
 	ctx := context.Background()
 
-	prompt := gpt.GenerateBattlePrompt(clique, challenger, defender)
+	prompt := gpt.GenerateBattlePrompt(clique, challenger, defender, location)
 
 	res, err := gpt.ChapGPTClient.SimpleSend(ctx, prompt)
 	if err != nil {
@@ -128,8 +128,8 @@ func (wo WeaponOption) drawBattle() Battle {
 	}
 }
 
-func DrawBattleByClique(clique string, challenger, defender uint) BattleLog {
-	log, err := GenerateBattleLog(clique, challenger, defender)
+func DrawBattleByClique(clique string, challenger, defender uint, location string) BattleLog {
+	log, err := GenerateBattleLog(clique, challenger, defender, location)
 	if err != nil {
 		panic(err)
 	}
