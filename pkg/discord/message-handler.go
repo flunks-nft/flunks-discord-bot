@@ -27,21 +27,22 @@ func RaidMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		defer DeleteMessage(s, m)
 
 		// Check if the user is Alfred
-		// TODO: maintain an admin list
 		if ADMIN_AUTHOR_IDS.Contains(m.Author.ID) == false {
-			response := fmt.Sprintf("Only admins can use this command, ask  <@%s>", ALFREDOO_ID)
-			s.ChannelMessageSend(
-				m.ChannelID,
-				response,
-			)
+			// response := fmt.Sprintf("Only admins can use this command, ask  <@%s>", ALFREDOO_ID)
+			// s.ChannelMessageSend(
+			// 	m.ChannelID,
+			// 	response,
+			// )
+
+			// No response, ignore and return
 			return
 		}
 
 		// Create and admin message with buttons
 		msg := &discordgo.MessageSend{
 			Embed: &discordgo.MessageEmbed{
-				Title:       "Flunks Raid Playground",
-				Description: "Send Your Flunks to Daily Raids to Earn Rewards!",
+				Title:       "School Yard Battles",
+				Description: "Send Your Flunks to Daily Battle to Earn Rewards!",
 				Image: &discordgo.MessageEmbedImage{
 					URL: "https://storage.googleapis.com/zeero-public/raid_bot_face.png", // Replace with the actual image URL
 				},
