@@ -230,7 +230,14 @@ func handlesRaidHistory(s *discordgo.Session, i *discordgo.InteractionCreate) {
 				for _, record := range records {
 					recordsString += record
 				}
-				editTextResponse(s, i, recordsString)
+
+				nft, err := db.GetNftByTemplateID(templateIDUInt)
+				if err != nil {
+					msg := fmt.Sprintf("⚠️ Syncing, please try later...")
+					editTextResponse(s, i, msg)
+					return
+				}
+				respondeEditFlunkRaidHistory(s, i, recordsString, nft.Uri)
 			}
 		}
 	}

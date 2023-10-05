@@ -107,7 +107,7 @@ func respondeEditFlunkLeaderBoard(s *discordgo.Session, i *discordgo.Interaction
 
 	// Create an embed for the message
 	embed := &discordgo.MessageEmbed{
-		Title: "🏆Leaderboard",
+		Title: "🏆 Leaderboard",
 		Thumbnail: &discordgo.MessageEmbedThumbnail{
 			URL: nfts[0].Uri,
 		},
@@ -123,6 +123,30 @@ func respondeEditFlunkLeaderBoard(s *discordgo.Session, i *discordgo.Interaction
 	})
 	if err != nil {
 		log.Printf("Error handling leaderboard: %v", err)
+		return err
+	}
+	return nil
+}
+
+func respondeEditFlunkRaidHistory(s *discordgo.Session, i *discordgo.InteractionCreate, msg string, uri string) error {
+	// Create an embed for the message
+	embed := &discordgo.MessageEmbed{
+		Title: "🎮 Battle History",
+		Thumbnail: &discordgo.MessageEmbedThumbnail{
+			URL: uri,
+		},
+		Description: msg,
+		Color:       0x0099ff, // light blue, in hexadecimal
+	}
+
+	// Edit the message to contain the embed
+	_, err := s.InteractionResponseEdit(i.Interaction, &discordgo.WebhookEdit{
+		Embeds: &[]*discordgo.MessageEmbed{
+			embed,
+		},
+	})
+	if err != nil {
+		log.Printf("Error handling Raid History: %v", err)
 		return err
 	}
 	return nil

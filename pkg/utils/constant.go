@@ -17,9 +17,9 @@ var TraitNameToEmoji = map[string]string{
 }
 
 var DiscordEmojis = map[string]string{
-	"RAID_WON_EMOJI_ID":  "1144740476117860442",
-	"RAID_LOST_EMOJI_ID": "1144752213760163910",
-	"RADI_WIP_EMOJI_ID":  "1144752263697530961",
+	"RAID_WON_EMOJI_ID":  "1113587114924314706",
+	"RAID_LOST_EMOJI_ID": "939019201820131359",
+	"RADI_WIP_EMOJI_ID":  "1001950686461821038",
 }
 
 var CliqueEmojis = map[string]string{

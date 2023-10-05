@@ -198,9 +198,9 @@ func updatePoints(tx *gorm.DB, winner, loser Nft) {
 	tx.Model(&loser).Select("points").Update("points", loser.Points)
 }
 
-func GetRaidHistoryByTemplateID(tokenID uint) []string {
+func GetRaidHistoryByTemplateID(templateID uint) []string {
 	var raids []Raid
-	result := db.Where("from_template_id = ? OR to_template_id = ?", tokenID, tokenID).Preload("FromNft").Preload("ToNft").Find(&raids).Order("created_at DESC").Limit(30)
+	result := db.Where("from_template_id = ? OR to_template_id = ?", templateID, templateID).Preload("FromNft").Preload("ToNft").Find(&raids).Order("created_at DESC").Limit(30)
 	if result.Error != nil {
 		log.Println(result.Error)
 	}
@@ -216,16 +216,19 @@ func GetRaidHistoryByTemplateID(tokenID uint) []string {
 			emoji = fmt.Sprintf("<:emoji:%s>", RADI_WIP_EMOJI_ID) // Set the WIP emoji if the raid is still in progress.
 		}
 
+		if raid.WinnerNft.TemplateID != templateID {
+			// Loser emoji granted to the loser
+			emoji = fmt.Sprintf("<:emoji:%s>", RAID_LOST_EMOJI_ID)
+		}
+
 		timestamp := raid.CreatedAt.Format("2006-01-02") // Format the timestamp as needed.
 		record := fmt.Sprintf(
-			"%s %s game %s Flunk #%d ⚔️ Flunk #%d %s %s \n",
+			"%s [%s] %s Flunk #%d ⚔️ Flunk #%d \n",
 			emoji,
-			raid.ChallengeType,
+			timestamp,
 			raid.ChallengeTypeEmoji(),
 			raid.FromNft.TemplateID,
 			raid.ToNft.TemplateID,
-			"⏰",
-			timestamp,
 		)
 		records = append(records, record)
 	}
