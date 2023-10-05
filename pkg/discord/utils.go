@@ -108,8 +108,8 @@ func respondeEditFlunkLeaderBoard(s *discordgo.Session, i *discordgo.Interaction
 	// Create an embed for the message
 	embed := &discordgo.MessageEmbed{
 		Title: "🏆 Leaderboard",
-		Thumbnail: &discordgo.MessageEmbedThumbnail{
-			URL: nfts[0].Uri,
+		Image: &discordgo.MessageEmbedImage{
+			URL: "https://storage.googleapis.com/zeero-public/trophy.png",
 		},
 		Description: msg,
 		Color:       0x0099ff, // light blue, in hexadecimal
