@@ -151,14 +151,16 @@ func PostRaidDetailsMsgUpdate(raid *db.Raid, channelID string) string {
 func parseBattleLogFromNounce(raid *db.Raid) string {
 	if raid.BattleLogNounce == 0 {
 		return fmt.Sprintf(
-			"%s | %s \n",
-			raid.ChallengeTypeEmoji(), "Deciding on the weapon.",
+			"%s | %s is deciding on the weapon. \n"+
+				"...",
+			raid.ChallengeTypeEmoji(), raid.FromTemplateID,
 		)
 	}
 
 	if raid.BattleLogNounce == 1 {
 		return fmt.Sprintf(
-			"%s | %s \n",
+			"%s | %s \n"+
+				"...",
 			raid.ChallengeTypeEmoji(), raid.BattleLog.Weapon,
 		)
 	}
@@ -166,7 +168,8 @@ func parseBattleLogFromNounce(raid *db.Raid) string {
 	if raid.BattleLogNounce == 2 {
 		return fmt.Sprintf(
 			"%s | %s \n"+
-				"%s | %s \n",
+				"%s | %s \n"+
+				"...",
 			raid.ChallengeTypeEmoji(), raid.BattleLog.Weapon,
 			raid.ChallengeTypeEmoji(), raid.BattleLog.Action,
 		)

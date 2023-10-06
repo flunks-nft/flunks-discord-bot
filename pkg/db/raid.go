@@ -116,9 +116,9 @@ func (raid Raid) getBattleResult() battle.BattleLog {
 }
 
 func NextRaidToUpdateBattleStatus() (*Raid, error) {
-	// Find a raid where battle_log_nounce < 2 and BattleLogLastUpdatedAt is more than 10 seconds ago
+	// Find a raid where battle_log_nounce <= 3 and BattleLogLastUpdatedAt is more than 10 seconds ago
 	var raid *Raid
-	result := db.Where("battle_log_nounce < 2 AND battle_log_last_updated_at < ?", time.Now().Add(-10*time.Second)).Preload("FromNft").Preload("ToNft").Preload("WinnerNft").Preload("WinnerNft.Owner").Preload("LoserNft").Preload("LoserNft.Owner").Preload("FromNft.Owner").Preload("ToNft.Owner").First(&raid)
+	result := db.Where("battle_log_nounce <= 3 AND battle_log_last_updated_at < ?", time.Now().Add(-10*time.Second)).Preload("FromNft").Preload("ToNft").Preload("WinnerNft").Preload("WinnerNft.Owner").Preload("LoserNft").Preload("LoserNft.Owner").Preload("FromNft.Owner").Preload("ToNft.Owner").First(&raid)
 	if result.Error != nil {
 		return raid, result.Error
 	}
@@ -186,10 +186,10 @@ func ConcludeOneRaid() (raid *Raid, err error) {
 	}
 
 	// Update LastRaidFinishedAt to current time
-	if err := tx.Model(&raid.FromNft).Select("last_raid_finished_at").Update("last_raid_finished_at", time.Now().UTC()).Error; err != nil {
+	if err := tx.Model(&raid.FromNft).Select("last_raid_finished_at").Update("last_raid_finished_at", time.Now()).Error; err != nil {
 		return raid, err
 	}
-	if err := tx.Model(&raid.ToNft).Select("last_raid_finished_at").Update("last_raid_finished_at", time.Now().UTC()).Error; err != nil {
+	if err := tx.Model(&raid.ToNft).Select("last_raid_finished_at").Update("last_raid_finished_at", time.Now()).Error; err != nil {
 		return raid, err
 	}
 
