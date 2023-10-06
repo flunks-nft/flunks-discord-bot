@@ -70,7 +70,7 @@ type Raid struct {
 	BattleLog              battle.BattleLog `gorm:"type:jsonb"`
 	BattleLogNounce        uint             `gorm:"default:0;"`
 	BattleLogLastUpdatedAt time.Time
-	BattleLogMessageID     string
+	BattleLogMessageID     string `gorm:"default:'';"`
 }
 
 func (raid Raid) ChallengeTypeEmoji() string {
@@ -103,9 +103,9 @@ func (raid Raid) getBattleResult() battle.BattleLog {
 	return battle.DrawBattleByClique(raid.ChallengeType.String(), raid.FromTemplateID, raid.ToTemplateID, raid.BattleLocation)
 }
 
-func NextRaidToUpdateBattleStatus() (Raid, error) {
+func NextRaidToUpdateBattleStatus() (*Raid, error) {
 	// Find a raid where battle_log_nounce < 2 and BattleLogLastUpdatedAt is more than 10 seconds ago
-	var raid Raid
+	var raid *Raid
 	result := db.Where("battle_log_nounce < 2 AND battle_log_last_updated_at < ?", time.Now().Add(-10*time.Second)).First(&raid)
 	if result.Error != nil {
 		return raid, result.Error
@@ -114,7 +114,7 @@ func NextRaidToUpdateBattleStatus() (Raid, error) {
 	return raid, nil
 }
 
-func IncrementBattleLogNounce(raid Raid, msgID string) error {
+func IncrementBattleLogNounce(raid *Raid, msgID string) error {
 	// Update msgID in database
 	if msgID != "" {
 		if err := db.Model(&raid).Select("battle_log_discord_msg_id").Update("battle_log_discord_msg_id", msgID).Error; err != nil {
@@ -132,7 +132,7 @@ func IncrementBattleLogNounce(raid Raid, msgID string) error {
 
 // ConcludeRaid completes a raid and updates the NFT scores
 // win: 4; draw: 2; lose: 1
-func ConcludeOneRaid() (raid Raid, err error) {
+func ConcludeOneRaid() (raid *Raid, err error) {
 	tx := db.Begin()
 
 	// TODO: Discord raid conclude msg is still sent even if the raid is not concluded
