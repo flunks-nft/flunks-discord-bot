@@ -75,7 +75,7 @@ type Raid struct {
 
 func (r *Raid) BeforeCreate(tx *gorm.DB) (err error) {
 	r.CreatedAt = time.Now()
-	r.UpdatedAt = r.CreatedAt // or time.Now() if you prefer
+	r.UpdatedAt = r.CreatedAt
 	return
 }
 
@@ -129,17 +129,18 @@ func NextRaidToUpdateBattleStatus() (*Raid, error) {
 func IncrementBattleLogNounce(raid *Raid, msgID string) error {
 	// Update msgID in database
 	if msgID != "" {
-		if err := db.Model(&raid).Select("battle_log_msg_id").Update("battle_log_msg_id", msgID).Error; err != nil {
+		if err := db.Model(&raid).Select("battle_log_message_id").Update("battle_log_message_id", msgID).Error; err != nil {
 			return err
 		}
 	}
 
-	// Increment the nounce by 1 in database, also update the  BattleLogLastUpdatedAt to current time
-	if err := db.Model(&raid).Updates(map[string]interface{}{
-		"battle_log_nounce":             raid.BattleLogNounce + 1,
-		"battle_log_last_updated_at":    time.Now().UTC(),
-		"battle_log_discord_msg_update": true,
-	}).Error; err != nil {
+	// Increment the nounce by 1 in database
+	if err := db.Model(&raid).Select("battle_log_nounce").Update("battle_log_nounce", gorm.Expr("battle_log_nounce + ?", 1)).Error; err != nil {
+		return err
+	}
+
+	// Update the last updated time in database
+	if err := db.Model(&raid).Select("battle_log_last_updated_at").Update("battle_log_last_updated_at", time.Now()).Error; err != nil {
 		return err
 	}
 
