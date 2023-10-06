@@ -133,7 +133,7 @@ func RaidMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 			// Silently ignore if raid is not found
 			return
 		}
-		PostRaidDetailsMsg(&raid, m.ChannelID)
+		PostRaidDetailsMsgUpdate(&raid, m.ChannelID)
 
 		return
 	}

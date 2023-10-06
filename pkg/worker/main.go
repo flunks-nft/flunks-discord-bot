@@ -31,6 +31,7 @@ func InitRaidWorker(wg *sync.WaitGroup, done chan os.Signal) {
 		case <-Tiker.C:
 			createMatchedChallenge()
 			concludeRaid()
+			broadCastBattleStatusUpdate()
 
 		case <-done:
 			// Stop the worker
@@ -59,5 +60,19 @@ func concludeRaid() {
 		log.Println(err)
 		return
 	}
-	discord.PostRaidDetailsMsg(&raid, discord.RAID_LOG_CHANNEL_ID)
+
+	msgID := discord.PostRaidDetailsMsgUpdate(raid, discord.RAID_LOG_CHANNEL_ID)
+	db.IncrementBattleLogNounce(raid, msgID)
+}
+
+func broadCastBattleStatusUpdate() {
+	raid, err := db.NextRaidToUpdateBattleStatus()
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	// Edit the message with the updated battle status for the next nounce
+	msgID := discord.PostRaidDetailsMsgUpdate(raid, discord.RAID_LOG_CHANNEL_ID)
+	db.IncrementBattleLogNounce(raid, msgID)
 }

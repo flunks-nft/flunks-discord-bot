@@ -66,8 +66,11 @@ type Raid struct {
 	LoserNftID      uint
 	LoserNft        Nft `gorm:"foreignKey:ToNftID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 
-	BattleLocation string           `gorm:"default:'';"`
-	BattleLog      battle.BattleLog `gorm:"type:jsonb"`
+	BattleLocation         string           `gorm:"default:'';"`
+	BattleLog              battle.BattleLog `gorm:"type:jsonb"`
+	BattleLogNounce        uint             `gorm:"default:0;"`
+	BattleLogLastUpdatedAt time.Time
+	BattleLogMessageID     string
 }
 
 func (raid Raid) ChallengeTypeEmoji() string {
@@ -98,6 +101,33 @@ func GetRaidByID(raidID int) Raid {
 // 2. generating fight status text
 func (raid Raid) getBattleResult() battle.BattleLog {
 	return battle.DrawBattleByClique(raid.ChallengeType.String(), raid.FromTemplateID, raid.ToTemplateID, raid.BattleLocation)
+}
+
+func NextRaidToUpdateBattleStatus() (Raid, error) {
+	// Find a raid where battle_log_nounce < 2 and BattleLogLastUpdatedAt is more than 10 seconds ago
+	var raid Raid
+	result := db.Where("battle_log_nounce < 2 AND battle_log_last_updated_at < ?", time.Now().Add(-10*time.Second)).First(&raid)
+	if result.Error != nil {
+		return raid, result.Error
+	}
+
+	return raid, nil
+}
+
+func IncrementBattleLogNounce(raid Raid, msgID string) error {
+	// Update msgID in database
+	if msgID != "" {
+		if err := db.Model(&raid).Select("battle_log_discord_msg_id").Update("battle_log_discord_msg_id", msgID).Error; err != nil {
+			return err
+		}
+	}
+
+	// Increment the nounce by 1 in database
+	if err := db.Model(&raid).Select("battle_log_nounce").Update("battle_log_nounce", raid.BattleLogNounce+1).Error; err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // ConcludeRaid completes a raid and updates the NFT scores
