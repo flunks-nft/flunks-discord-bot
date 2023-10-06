@@ -47,6 +47,11 @@ func PostRaidAcceptedMsg(raid *db.Raid, nfts []db.Nft) {
 		Value:  defenderClassMsg,
 		Inline: false,
 	})
+	fields = append(fields, &discordgo.MessageEmbedField{
+		Name:   "Battle ID",
+		Value:  fmt.Sprintf("**%d**", raid.ID),
+		Inline: false,
+	})
 
 	battleBgImgMap, _ := utils.BattleBgImages[raid.ChallengeType.String()]
 	battleBgImgUrl := battleBgImgMap[raid.BattleLocation]
@@ -72,6 +77,12 @@ func PostRaidDetailsMsg(raid *db.Raid) {
 
 	winnerClass := fmt.Sprintf("<@%s> **Flunk #%d**", raid.WinnerNft.Owner.DiscordID, raid.WinnerTemplateID)
 	loserClass := fmt.Sprintf("<@%s> **Flunk #%d**", raid.LoserNft.Owner.DiscordID, raid.LoserTemplateID)
+
+	fields = append(fields, &discordgo.MessageEmbedField{
+		Name:   "Battle ID",
+		Value:  fmt.Sprintf("**%d**", raid.ID),
+		Inline: false,
+	})
 	fields = append(fields, &discordgo.MessageEmbedField{
 		Name:   "Winner Class",
 		Value:  winnerClass,
