@@ -59,5 +59,5 @@ func concludeRaid() {
 		log.Println(err)
 		return
 	}
-	discord.PostRaidDetailsMsg(&raid)
+	discord.PostRaidDetailsMsg(&raid, discord.RAID_LOG_CHANNEL_ID)
 }

@@ -48,8 +48,7 @@ func PostRaidAcceptedMsg(raid *db.Raid, nfts []db.Nft) {
 		Inline: false,
 	})
 	fields = append(fields, &discordgo.MessageEmbedField{
-		Name:   "Battle ID",
-		Value:  fmt.Sprintf("**%d**", raid.ID),
+		Value:  fmt.Sprintf("**Battle ID: %d**", raid.ID),
 		Inline: false,
 	})
 
@@ -72,15 +71,14 @@ func PostRaidAcceptedMsg(raid *db.Raid, nfts []db.Nft) {
 	}
 }
 
-func PostRaidDetailsMsg(raid *db.Raid) {
+func PostRaidDetailsMsg(raid *db.Raid, channelID string) {
 	var fields []*discordgo.MessageEmbedField
 
 	winnerClass := fmt.Sprintf("<@%s> **Flunk #%d**", raid.WinnerNft.Owner.DiscordID, raid.WinnerTemplateID)
 	loserClass := fmt.Sprintf("<@%s> **Flunk #%d**", raid.LoserNft.Owner.DiscordID, raid.LoserTemplateID)
 
 	fields = append(fields, &discordgo.MessageEmbedField{
-		Name:   "Battle ID",
-		Value:  fmt.Sprintf("**%d**", raid.ID),
+		Value:  fmt.Sprintf("**Battle ID: %d**", raid.ID),
 		Inline: false,
 	})
 	fields = append(fields, &discordgo.MessageEmbedField{
@@ -117,7 +115,7 @@ func PostRaidDetailsMsg(raid *db.Raid) {
 		},
 	}
 
-	_, err := dg.ChannelMessageSendEmbed(RAID_LOG_CHANNEL_ID, embed)
+	_, err := dg.ChannelMessageSendEmbed(channelID, embed)
 	if err != nil {
 		fmt.Println("Error sending embedded message to channel:", err)
 	}

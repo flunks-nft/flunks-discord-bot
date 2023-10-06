@@ -40,6 +40,18 @@ var (
 				},
 			},
 		},
+		{
+			Name:        "battle",
+			Description: "Retrieve battle info by ID",
+			Options: []*discordgo.ApplicationCommandOption{
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "battle_id",
+					Description: "Battle ID",
+					Required:    true,
+				},
+			},
+		},
 	}
 
 	commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){

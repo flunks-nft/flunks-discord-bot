@@ -111,6 +111,32 @@ func RaidMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 		return
 	}
+
+	if strings.HasPrefix(m.Content, "!battle") {
+		defer DeleteMessage(s, m)
+
+		re := regexp.MustCompile(`\d+`)
+		matches := re.FindStringSubmatch(m.Content)
+
+		if len(matches) > 0 {
+			fmt.Println("Extracted number:", matches[0])
+		} else {
+			fmt.Println("No numeric field found.")
+			return
+		}
+
+		battleIDStr := matches[0]
+		battleIDInt, _ := utils.StringToInt(battleIDStr)
+
+		raid := db.GetRaidByID(battleIDInt)
+		if raid.ID == 0 {
+			// Silently ignore if raid is not found
+			return
+		}
+		PostRaidDetailsMsg(&raid, m.ChannelID)
+
+		return
+	}
 }
 
 // TODO: make this a Dapper sign - verify workflow

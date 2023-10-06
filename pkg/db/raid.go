@@ -84,6 +84,15 @@ func LeaderBoard() []Nft {
 	return nfts
 }
 
+func GetRaidByID(raidID int) Raid {
+	var raid Raid
+	result := db.Preload("FromNft").Preload("ToNft").Preload("WinnerNft").Preload("WinnerNft.Owner").Preload("LoserNft").Preload("LoserNft.Owner").First(&raid, raidID)
+	if result.Error != nil {
+		log.Println(result.Error)
+	}
+	return raid
+}
+
 // concludes a raid by
 // 1. selecting winners
 // 2. generating fight status text
