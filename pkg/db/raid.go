@@ -73,6 +73,17 @@ type Raid struct {
 	BattleLogMessageID     string `gorm:"default:'';"`
 }
 
+func (r *Raid) BeforeCreate(tx *gorm.DB) (err error) {
+	r.CreatedAt = time.Now()
+	r.UpdatedAt = r.CreatedAt // or time.Now() if you prefer
+	return
+}
+
+func (r *Raid) BeforeUpdate(tx *gorm.DB) (err error) {
+	r.BattleLogLastUpdatedAt = time.Now()
+	return
+}
+
 func (raid Raid) ChallengeTypeEmoji() string {
 	return utils.CliqueEmojis[raid.ChallengeType.String()]
 }
@@ -89,10 +100,11 @@ func LeaderBoard() []Nft {
 
 func GetRaidByID(raidID int) Raid {
 	var raid Raid
-	result := db.Preload("FromNft").Preload("ToNft").Preload("WinnerNft").Preload("WinnerNft.Owner").Preload("LoserNft").Preload("LoserNft.Owner").First(&raid, raidID)
+	result := db.Preload("FromNft").Preload("ToNft").Preload("WinnerNft").Preload("WinnerNft.Owner").Preload("LoserNft").Preload("LoserNft.Owner").Preload("FromNft.Owner").Preload("ToNft.Owner").First(&raid, raidID)
 	if result.Error != nil {
 		log.Println(result.Error)
 	}
+
 	return raid
 }
 
@@ -106,7 +118,7 @@ func (raid Raid) getBattleResult() battle.BattleLog {
 func NextRaidToUpdateBattleStatus() (*Raid, error) {
 	// Find a raid where battle_log_nounce < 2 and BattleLogLastUpdatedAt is more than 10 seconds ago
 	var raid *Raid
-	result := db.Where("battle_log_nounce < 2 AND battle_log_last_updated_at < ?", time.Now().Add(-10*time.Second)).First(&raid)
+	result := db.Where("battle_log_nounce < 2 AND battle_log_last_updated_at < ?", time.Now().Add(-10*time.Second)).Preload("FromNft").Preload("ToNft").Preload("WinnerNft").Preload("WinnerNft.Owner").Preload("LoserNft").Preload("LoserNft.Owner").Preload("FromNft.Owner").Preload("ToNft.Owner").First(&raid)
 	if result.Error != nil {
 		return raid, result.Error
 	}
@@ -117,13 +129,17 @@ func NextRaidToUpdateBattleStatus() (*Raid, error) {
 func IncrementBattleLogNounce(raid *Raid, msgID string) error {
 	// Update msgID in database
 	if msgID != "" {
-		if err := db.Model(&raid).Select("battle_log_discord_msg_id").Update("battle_log_discord_msg_id", msgID).Error; err != nil {
+		if err := db.Model(&raid).Select("battle_log_msg_id").Update("battle_log_msg_id", msgID).Error; err != nil {
 			return err
 		}
 	}
 
-	// Increment the nounce by 1 in database
-	if err := db.Model(&raid).Select("battle_log_nounce").Update("battle_log_nounce", raid.BattleLogNounce+1).Error; err != nil {
+	// Increment the nounce by 1 in database, also update the  BattleLogLastUpdatedAt to current time
+	if err := db.Model(&raid).Updates(map[string]interface{}{
+		"battle_log_nounce":             raid.BattleLogNounce + 1,
+		"battle_log_last_updated_at":    time.Now().UTC(),
+		"battle_log_discord_msg_update": true,
+	}).Error; err != nil {
 		return err
 	}
 
@@ -218,7 +234,7 @@ func ConcludeOneRaid() (raid *Raid, err error) {
 	updatePoints(tx, winnerNFT, loserNFT)
 
 	// Preload the FromNft and ToNft associations for the final raid object
-	if err := tx.Preload("FromNft").Preload("ToNft").Preload("WinnerNft").Preload("WinnerNft.Owner").Preload("LoserNft").Preload("LoserNft.Owner").First(&raid).Error; err != nil {
+	if err := tx.Preload("FromNft").Preload("ToNft").Preload("WinnerNft").Preload("WinnerNft.Owner").Preload("LoserNft").Preload("LoserNft.Owner").Preload("FromNft.Owner").Preload("ToNft.Owner").First(&raid).Error; err != nil {
 		return raid, err
 	}
 
