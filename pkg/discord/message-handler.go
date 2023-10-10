@@ -54,7 +54,7 @@ func RaidMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 				discordgo.ActionsRow{
 					Components: []discordgo.MessageComponent{
 						discordgo.Button{
-							Label:    "Raid All",
+							Label:    "Battle All",
 							Style:    discordgo.PrimaryButton,
 							CustomID: "start_raid_all",
 						},

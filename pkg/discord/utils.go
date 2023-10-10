@@ -27,7 +27,7 @@ func respondeEphemeralMessage(s *discordgo.Session, i *discordgo.InteractionCrea
 func editEphemeralMessageWithMedia(s *discordgo.Session, i *discordgo.InteractionCreate, nft db.Nft) {
 	// Create the button component
 	raidButton := discordgo.Button{
-		Label:    "Raid",
+		Label:    "Battle",
 		Style:    discordgo.PrimaryButton,
 		CustomID: fmt.Sprintf("start_raid_one_%v", nft.TemplateID),
 	}
