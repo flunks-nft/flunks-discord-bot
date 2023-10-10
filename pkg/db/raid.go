@@ -256,7 +256,7 @@ func updatePoints(tx *gorm.DB, winner, loser Nft) {
 
 func GetRaidHistoryByTemplateID(templateID uint) []string {
 	var raids []Raid
-	result := db.Where("from_template_id = ? OR to_template_id = ?", templateID, templateID).Preload("FromNft").Preload("ToNft").Find(&raids).Order("created_at DESC").Limit(30)
+	result := db.Where("from_template_id = ? OR to_template_id = ?", templateID, templateID).Preload("FromNft").Preload("ToNft").Preload("WinnerNft").Preload("LoserNft").Find(&raids).Order("created_at DESC").Limit(30)
 	if result.Error != nil {
 		log.Println(result.Error)
 	}
