@@ -4,7 +4,7 @@ import generateJWT from "./jwt";
 const Button: React.FC<Record<string, never>> = () => {
   const { connect, logout, user } = useWeb3Context();
 
-  const handleClick = () => {
+  const handleLoginToggle = () => {
     if (!user?.loggedIn) {
       connect();
     } else {
@@ -20,16 +20,21 @@ const Button: React.FC<Record<string, never>> = () => {
 
   return (
     <div className="mb-7 flex flex-col items-center text-center">
-      <div className="flex justify-between gap-2">
+      <div className="flex flex-col justify-between gap-2">
         <button
-          className="border-orange bg-orange hover:bg-orange-dark rounded-md border px-4 py-2 text-black"
-          onClick={user?.loggedIn ? redirectToDiscord : handleClick}
+          className="rounded bg-black px-4 py-2 text-white transition duration-300 hover:bg-gray-600"
+          onClick={user?.loggedIn ? redirectToDiscord : handleLoginToggle}
         >
-          {user?.loggedIn ? "Click to Verify" : "Connect Dapper"}
+          {user?.loggedIn ? "Click to Verify" : "Connect Wallet"}
         </button>
-      </div>
-      <div>
-        <h1>{JSON.stringify(user, null, 2)}</h1>
+        {user?.loggedIn && (
+          <button
+            className="rounded bg-black px-4 py-2 text-white transition duration-300 hover:bg-gray-600"
+            onClick={user?.loggedIn ? handleLoginToggle : () => {}}
+          >
+            {"Sign Out"}
+          </button>
+        )}
       </div>
     </div>
   );
