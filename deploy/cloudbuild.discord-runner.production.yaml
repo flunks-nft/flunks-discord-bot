@@ -48,7 +48,8 @@ steps:
         RAID_LOG_CHANNEL_ID=1145794239729516604|||
         ZEERO_API_URL=https://flunks-backend-prod-dot-bionic-hallway-338400.uc.r.appspot.com/|||
         CLOUD_DB_CONNECTION_NAME=zeero-marketplace:us-west1:discord-bot|||
-        DISCORD_REDIRECT_URL=https://discord-runner-s2ncmw3esa-uw.a.run.app/auth/callback
+        DISCORD_REDIRECT_URL=https://discord-runner-s2ncmw3esa-uw.a.run.app/auth/callback|||
+        DISCORD_CLIENT_ID=1145812250830049421
       - --set-cloudsql-instances=zeero-marketplace:us-west1:discord-bot
 
 images:
