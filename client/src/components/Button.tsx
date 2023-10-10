@@ -25,7 +25,7 @@ const Button: React.FC<Record<string, never>> = () => {
           className="rounded bg-black px-4 py-2 text-white transition duration-300 hover:bg-gray-600"
           onClick={user?.loggedIn ? redirectToDiscord : handleLoginToggle}
         >
-          {user?.loggedIn ? "Click to Verify" : "Connect Wallet"}
+          {user?.loggedIn ? "GOT IT" : "Connect Wallet"}
         </button>
         {user?.loggedIn && (
           <button

@@ -149,5 +149,5 @@ func handleCallback(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Return a success message
-	fmt.Fprintln(w, "Authentication successful! Discord ID:", user.ID, "Wallet Address:", walletAddress)
+	fmt.Fprintln(w, "Authentication successful! Your Wallet is set to:", walletAddress)
 }
