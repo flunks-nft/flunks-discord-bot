@@ -6,6 +6,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/flunks-nft/discord-bot/pkg/db"
@@ -14,6 +15,7 @@ import (
 
 var (
 	GuildID *string
+	ENV     string
 
 	commands = []*discordgo.ApplicationCommand{
 		{
@@ -118,6 +120,8 @@ var (
 func init() {
 	flag.Parse()
 	GuildID = DefaultGuiID()
+
+	ENV = os.Getenv("ENV")
 }
 
 func registerSlashCommands() {
@@ -125,6 +129,12 @@ func registerSlashCommands() {
 
 	log.Println("🚧 Adding commands...")
 	for _, v := range commands {
+
+		if v.Name == "dapper" && ENV == "production" {
+			// skip /dapper command in production
+			continue
+		}
+
 		_, err := dg.ApplicationCommandCreate(dg.State.User.ID, *GuildID, v)
 		if err != nil {
 			log.Panicf("Cannot create '%v' command: %v", v.Name, err)
