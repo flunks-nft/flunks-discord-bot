@@ -30,7 +30,7 @@ const Button: React.FC<Record<string, never>> = () => {
         {user?.loggedIn && (
           <button
             className="rounded bg-black px-4 py-2 text-white transition duration-300 hover:bg-gray-600"
-            onClick={user?.loggedIn ? handleLoginToggle : () => {}}
+            onClick={handleLoginToggle}
           >
             {"Sign Out"}
           </button>
