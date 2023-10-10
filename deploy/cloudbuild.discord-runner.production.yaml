@@ -38,6 +38,7 @@ steps:
         JWT_SECRET=JWT_SECRET:latest,
         DISCORD_DAPPER_VERIFY_URL=DISCORD_DAPPER_VERIFY_URL:latest,
         OPENAI_KEY=OPENAI_KEY:latest,
+        DISCORD_CLIENT_SECRET=DISCORD_CLIENT_SECRET:latest,
       - >-
         --update-env-vars=^|||^
         ENV=production|||
