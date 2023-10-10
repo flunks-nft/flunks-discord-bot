@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
 	"text/template"
 
 	"github.com/flunks-nft/discord-bot/pkg/db"
@@ -153,10 +154,16 @@ func handleCallback(w http.ResponseWriter, r *http.Request) {
 	// fmt.Fprintln(w, "Authentication successful! Your Wallet is set to:", walletAddress)
 
 	// Render the HTML template
-	tmpl, err := template.ParseFiles("templates/authorized.html")
+	wd, err := os.Getwd()
 	if err != nil {
-		fmt.Println("Error in parsing template", err.Error())
-		http.Error(w, "Failed to load template", http.StatusInternalServerError)
+		log.Println(err)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+	}
+
+	tmplPath := filepath.Join(wd, "templates", "authorized.html")
+	tmpl, err := template.ParseFiles(tmplPath)
+	if err != nil {
+		http.Error(w, "Failed to load template: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 
