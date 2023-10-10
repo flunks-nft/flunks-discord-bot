@@ -14,7 +14,7 @@
         margin: 0;
       }
 
-      div {
+      .content-div {
         padding: 20px;
         border: 2px solid black;
         border-radius: 4px;
@@ -47,6 +47,12 @@
       function redirectToDiscord() {
         window.location.href = "https://discord.com/login";
       }
+
+      document.querySelectorAll("div").forEach(function (div) {
+        if (div.innerText.trim() !== "") {
+          div.classList.add("content-div");
+        }
+      });
     </script>
   </body>
 </html>
