@@ -21,4 +21,6 @@ RUN apt-get update && apt-get install -y ca-certificates && apt-get clean && rm 
 
 COPY --from=builder /app/bin/discord-runner .
 
+COPY --from=builder /app/templates ./templates
+
 EXPOSE 8080
