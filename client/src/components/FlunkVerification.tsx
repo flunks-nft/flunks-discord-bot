@@ -11,7 +11,7 @@ const FlunkVerification = () => {
       <p className="mb-4">
         {user?.loggedIn
           ? `Step 2/2: You'll need to provide Ace authorization to access your Discord Account.`
-          : `Step 1/2: We'll need to verify all your Flunks in your wallet before they can join the Flunks Raid on Discord.`}
+          : `Step 1/2: We'll need to verify all Flunks in your wallet before they can join the School Yard Battles on Discord.`}
       </p>
       <Button />
     </div>

@@ -272,12 +272,12 @@ func QueueForRaidAll(s *discordgo.Session, i *discordgo.InteractionCreate, user 
 	failedCnt := len(failedArray)
 
 	if succeedCnt == 0 {
-		return "", errors.New("⚠️ Failed to add any Flunks to the raid queue.")
+		return "", errors.New("⚠️ Failed to add any Flunks to the School Yard Battle queue.")
 	} else {
 		if failedCnt == 0 {
-			return fmt.Sprintf("✅ %v Flunks have been added to the raid queue.", succeedCnt), nil
+			return fmt.Sprintf("✅ %v Flunks have been added to the School Yard Battle queue.", succeedCnt), nil
 		} else {
-			return fmt.Sprintf("✅ %v Flunks have been added to the raid queue.\n⚠️ Failed to add %v Flunks.", succeedCnt, failedCnt), nil
+			return fmt.Sprintf("✅ %v Flunks have been added to the School Yard Battle queue.\n⚠️ Failed to add %v Flunks.", succeedCnt, failedCnt), nil
 		}
 	}
 }
@@ -293,12 +293,12 @@ func QueueForRaidOne(s *discordgo.Session, i *discordgo.InteractionCreate, templ
 	// TODO: Check if token is owned by the Discord user
 	// Check if token has raided in the same day
 	if isReady, remainingTime := nft.IsReadyForRaidQueue(); !isReady {
-		msg := fmt.Sprintf("⚠️ Flunk #%v is not ready for raid queue. Still ⏰ %s remaining", templateID, remainingTime.Round(time.Second).String())
+		msg := fmt.Sprintf("⚠️ Flunk #%v is not ready for School Yard Battle queue. Still ⏰ %s remaining", templateID, remainingTime.Round(time.Second).String())
 		return "", errors.New(msg)
 	}
 	// check if token is already in the raid queue
 	if isInRaidQueue := nft.IsInRaidQueue(); isInRaidQueue {
-		msg := fmt.Sprintf("⚠️ Flunk #%v is already in the raid queue.", templateID)
+		msg := fmt.Sprintf("⚠️ Flunk #%v is already in the School Yard Battle queue.", templateID)
 		return "", errors.New(msg)
 	}
 	// TODO: check if token is already in a raid
@@ -309,10 +309,10 @@ func QueueForRaidOne(s *discordgo.Session, i *discordgo.InteractionCreate, templ
 
 	// Add Flunk to the match queue
 	if err := nft.AddToRaidQueue(); err != nil {
-		msg := fmt.Sprintf("⚠️ Failed to add Flunk #%v to the raid queue", templateID)
+		msg := fmt.Sprintf("⚠️ Failed to add Flunk #%v to the School Yard Battle queue", templateID)
 		return "", errors.New(msg)
 	} else {
-		msg := fmt.Sprintf("✅ Flunk #%v has been added to the raid queue.", templateID)
+		msg := fmt.Sprintf("✅ Flunk #%v has been added to the School Yard Battle queue.", templateID)
 		return msg, nil
 	}
 }
