@@ -44,7 +44,7 @@ func RaidMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 				Title:       "School Yard Battles",
 				Description: "Send Your Flunks to Daily Battle to Earn Rewards!",
 				Image: &discordgo.MessageEmbedImage{
-					URL: "https://storage.googleapis.com/zeero-public/raid_bot_face.png", // Replace with the actual image URL
+					URL: "https://storage.googleapis.com/zeero-public/SYB.png", // Replace with the actual image URL
 				},
 				Footer: &discordgo.MessageEmbedFooter{
 					Text: "BETA v1.0",
