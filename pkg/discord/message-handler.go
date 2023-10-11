@@ -41,7 +41,7 @@ func RaidMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		// Create and admin message with buttons
 		msg := &discordgo.MessageSend{
 			Embed: &discordgo.MessageEmbed{
-				Title:       "School Yard Battles BETA",
+				Title:       "School Yard Battles",
 				Description: "Send Your Flunks to Daily Battle to Earn Rewards!",
 				Image: &discordgo.MessageEmbedImage{
 					URL: "https://storage.googleapis.com/zeero-public/raid_bot_face.png", // Replace with the actual image URL
