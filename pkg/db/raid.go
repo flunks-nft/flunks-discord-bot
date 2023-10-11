@@ -148,7 +148,7 @@ func IncrementBattleLogNounce(raid *Raid, msgID string) error {
 }
 
 // ConcludeRaid completes a raid and updates the NFT scores
-// win: 3; draw: 2; lose: 1
+// win: 4; draw: 2; lose: 1
 func ConcludeOneRaid() (raid *Raid, err error) {
 	tx := db.Begin()
 
@@ -245,8 +245,8 @@ func ConcludeOneRaid() (raid *Raid, err error) {
 
 // updatePoints updates the points of the winner and loser NFTs.
 func updatePoints(tx *gorm.DB, winner, loser Nft) {
-	// Update the scores based on the outcome (win: 3; draw: 2; lose: 1)
-	winner.Points += 3
+	// Update the scores based on the outcome (win: 4; draw: 2; lose: 1)
+	winner.Points += 4
 	loser.Points += 1
 
 	// Save the updated scores in the database
