@@ -5,6 +5,7 @@ import (
 	"database/sql/driver"
 	"encoding/json"
 	"fmt"
+	"math/rand"
 
 	"github.com/flunks-nft/discord-bot/pkg/gpt"
 )
@@ -13,7 +14,12 @@ import (
 func GenerateBattleLog(clique string, challenger, defender uint, location string) (*BattleLog, error) {
 	ctx := context.Background()
 
-	prompt := gpt.GenerateBattlePrompt(clique, challenger, defender, location)
+	// pick a random edition number from challenger & defender, indicating winner
+	// Generate a random number between 0 and 1
+	random := rand.Intn(2)
+	isPositiveOutcome := random == 1
+
+	prompt := gpt.GenerateBattlePrompt(clique, challenger, defender, location, isPositiveOutcome)
 
 	res, err := gpt.ChapGPTClient.SimpleSend(ctx, prompt)
 	if err != nil {
