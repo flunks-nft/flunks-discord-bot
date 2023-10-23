@@ -74,27 +74,56 @@ func PostRaidAcceptedMsg(raid *db.Raid, nfts []db.Nft) {
 func PostRaidDetailsMsgUpdate(raid *db.Raid, channelID string) string {
 	var fields []*discordgo.MessageEmbedField
 
+	// -------------------------Challenge Accepted Start-------------------------
+	fields = append(fields, &discordgo.MessageEmbedField{
+		Name:   fmt.Sprintf("%s Challenge Accepted!", raid.ChallengeTypeEmoji()),
+		Inline: false,
+	})
+
+	// Attach second line descriptions
+	fields = append(fields, &discordgo.MessageEmbedField{
+		Value: fmt.Sprintf(
+			"**Flunk #%d** has accepted **Flunk #%d**'s challenge to a %v battle in the **%s**.",
+			raid.FromTemplateID,
+			raid.ToTemplateID,
+			raid.ChallengeType,
+			raid.BattleLocation,
+		),
+		Inline: false,
+	})
+
+	challengerClass := fmt.Sprintf("<@%s> **Flunk #%d**", raid.FromNft.Owner.DiscordID, raid.FromNft.TemplateID)
+	defenderClass := fmt.Sprintf("<@%s> **Flunk #%d**", raid.ToNft.Owner.DiscordID, raid.ToNft.TemplateID)
+	fields = append(fields, &discordgo.MessageEmbedField{
+		Name:   "Challenger Class",
+		Value:  challengerClass,
+		Inline: false,
+	})
+	fields = append(fields, &discordgo.MessageEmbedField{
+		Name:   "Defender Class",
+		Value:  defenderClass,
+		Inline: false,
+	})
+
 	fields = append(fields, &discordgo.MessageEmbedField{
 		Value:  fmt.Sprintf("**Battle ID: %d**", raid.ID),
 		Inline: false,
 	})
 
-	if raid.BattleLogNounce < 3 {
-		// Battle not concluded yet, use challenger and defender
-		challengerClass := fmt.Sprintf("<@%s> **Flunk #%d**", raid.FromNft.Owner.DiscordID, raid.FromNft.TemplateID)
-		defenderClass := fmt.Sprintf("<@%s> **Flunk #%d**", raid.ToNft.Owner.DiscordID, raid.ToNft.TemplateID)
+	battleBgImgMap, _ := utils.BattleBgImages[raid.ChallengeType.String()]
+	battleBgImgUrl := battleBgImgMap[raid.BattleLocation]
 
-		fields = append(fields, &discordgo.MessageEmbedField{
-			Name:   "Challenger Class",
-			Value:  challengerClass,
-			Inline: false,
-		})
-		fields = append(fields, &discordgo.MessageEmbedField{
-			Name:   "Defender Class",
-			Value:  defenderClass,
-			Inline: false,
-		})
-	} else {
+	embed := &discordgo.MessageEmbed{
+		Fields: fields,
+		Thumbnail: &discordgo.MessageEmbedThumbnail{
+			URL: battleBgImgUrl,
+		},
+	}
+	// -------------------------Challenge Accepted End-------------------------
+
+	// -------------------------Battle Log Start-------------------------
+	// Battle concluded, display the winner and loser class
+	if raid.BattleLogNounce >= 3 {
 		winnerClass := fmt.Sprintf("<@%s> **Flunk #%d**", raid.WinnerNft.Owner.DiscordID, raid.WinnerTemplateID)
 		loserClass := fmt.Sprintf("<@%s> **Flunk #%d**", raid.LoserNft.Owner.DiscordID, raid.LoserTemplateID)
 
@@ -117,33 +146,17 @@ func PostRaidDetailsMsgUpdate(raid *db.Raid, channelID string) string {
 		Inline: false,
 	})
 
-	embed := &discordgo.MessageEmbed{
-		Fields: fields,
-		Thumbnail: &discordgo.MessageEmbedThumbnail{
-			URL: raid.FromNft.Uri,
-		},
+	// Edit message
+	_, err := dg.ChannelMessageEditEmbed(
+		channelID,
+		raid.BattleLogMessageID,
+		embed,
+	)
+	if err != nil {
+		fmt.Println("Error editing embedded message to channel:", err)
 	}
 
-	if raid.BattleLogMessageID == "" {
-		// First time sending msg
-		msg, err := dg.ChannelMessageSendEmbed(channelID, embed)
-		if err != nil {
-			fmt.Println("Error sending embedded message to channel:", err)
-		}
-
-		// return ID of the msg and new nounce
-		return msg.ID
-	} else {
-		// Later time editing msg
-		_, err := dg.ChannelMessageEditEmbed(
-			channelID,
-			raid.BattleLogMessageID,
-			embed,
-		)
-		if err != nil {
-			fmt.Println("Error editing embedded message to channel:", err)
-		}
-	}
+	// -------------------------Battle Log End-------------------------
 
 	return ""
 }

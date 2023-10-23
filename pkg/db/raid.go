@@ -133,13 +133,6 @@ func NextRaidToUpdateBattleStatus() (*Raid, error) {
 }
 
 func IncrementBattleLogNounce(raid *Raid, msgID string) error {
-	// Update msgID in database
-	if msgID != "" {
-		if err := db.Model(&raid).Select("battle_log_message_id").Update("battle_log_message_id", msgID).Error; err != nil {
-			return err
-		}
-	}
-
 	// Increment the nounce by 1 in database
 	if err := db.Model(&raid).Select("battle_log_nounce").Update("battle_log_nounce", gorm.Expr("battle_log_nounce + ?", 1)).Error; err != nil {
 		return err
