@@ -1,6 +1,7 @@
 package worker
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"sync"
@@ -71,6 +72,8 @@ func broadCastBattleStatusUpdate() {
 		log.Println(err)
 		return
 	}
+
+	fmt.Println("Updating battle status for raid:", raid.ID)
 
 	// Edit the message with the updated battle status for the next nounce
 	msgID := discord.PostRaidDetailsMsgUpdate(raid, discord.RAID_LOG_CHANNEL_ID)

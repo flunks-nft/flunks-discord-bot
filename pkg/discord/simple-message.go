@@ -9,14 +9,11 @@ import (
 )
 
 func PostRaidAcceptedMsg(raid *db.Raid, nfts []db.Nft) {
-	nft1 := nfts[0]
-	nft2 := nfts[1]
-
 	var fields []*discordgo.MessageEmbedField
 
 	// Attach fist line challenge accepted message
 	fields = append(fields, &discordgo.MessageEmbedField{
-		Name:   fmt.Sprintf("%s Challenge Accepted!", raid.ChallengeTypeEmoji()),
+		Name:   fmt.Sprintf("%s Challenge Accepted! (ID: %d)", raid.ChallengeTypeEmoji(), raid.ID),
 		Inline: false,
 	})
 
@@ -24,8 +21,8 @@ func PostRaidAcceptedMsg(raid *db.Raid, nfts []db.Nft) {
 	fields = append(fields, &discordgo.MessageEmbedField{
 		Value: fmt.Sprintf(
 			"**Flunk #%d** has accepted **Flunk #%d**'s challenge to a %v battle in the **%s**.",
-			nft2.TemplateID,
-			nft1.TemplateID,
+			raid.FromTemplateID,
+			raid.ToTemplateID,
 			raid.ChallengeType,
 			raid.BattleLocation,
 		),
@@ -33,22 +30,14 @@ func PostRaidAcceptedMsg(raid *db.Raid, nfts []db.Nft) {
 	})
 
 	// Attach the from and to classes
-	var challengeClassMsg, defenderClassMsg string
-	challengeClassMsg = fmt.Sprintf("<@%s>", nft1.Owner.DiscordID)
-	defenderClassMsg = fmt.Sprintf("<@%s>", nft2.Owner.DiscordID)
-
+	challengerClass := fmt.Sprintf("<@%s> **Flunk #%d**", raid.FromNft.Owner.DiscordID, raid.FromNft.TemplateID)
+	defenderClass := fmt.Sprintf("<@%s> **Flunk #%d**", raid.ToNft.Owner.DiscordID, raid.ToNft.TemplateID)
 	fields = append(fields, &discordgo.MessageEmbedField{
-		Name:   "Challenger Class",
-		Value:  challengeClassMsg,
+		Value:  fmt.Sprintf("**Challenger Class**: %s", challengerClass),
 		Inline: false,
 	})
 	fields = append(fields, &discordgo.MessageEmbedField{
-		Name:   "Defender Class",
-		Value:  defenderClassMsg,
-		Inline: false,
-	})
-	fields = append(fields, &discordgo.MessageEmbedField{
-		Value:  fmt.Sprintf("**Battle ID: %d**", raid.ID),
+		Value:  fmt.Sprintf("**Defender Class**: %s", defenderClass),
 		Inline: false,
 	})
 
@@ -75,8 +64,9 @@ func PostRaidDetailsMsgUpdate(raid *db.Raid, channelID string) string {
 	var fields []*discordgo.MessageEmbedField
 
 	// -------------------------Challenge Accepted Start-------------------------
+	// Attach fist line challenge accepted message
 	fields = append(fields, &discordgo.MessageEmbedField{
-		Name:   fmt.Sprintf("%s Challenge Accepted!", raid.ChallengeTypeEmoji()),
+		Name:   fmt.Sprintf("%s Challenge Accepted! (ID: %d)", raid.ChallengeTypeEmoji(), raid.ID),
 		Inline: false,
 	})
 
@@ -95,46 +85,25 @@ func PostRaidDetailsMsgUpdate(raid *db.Raid, channelID string) string {
 	challengerClass := fmt.Sprintf("<@%s> **Flunk #%d**", raid.FromNft.Owner.DiscordID, raid.FromNft.TemplateID)
 	defenderClass := fmt.Sprintf("<@%s> **Flunk #%d**", raid.ToNft.Owner.DiscordID, raid.ToNft.TemplateID)
 	fields = append(fields, &discordgo.MessageEmbedField{
-		Name:   "Challenger Class",
-		Value:  challengerClass,
+		Value:  fmt.Sprintf("**Challenger Class**: %s", challengerClass),
 		Inline: false,
 	})
 	fields = append(fields, &discordgo.MessageEmbedField{
-		Name:   "Defender Class",
-		Value:  defenderClass,
-		Inline: false,
-	})
-
-	fields = append(fields, &discordgo.MessageEmbedField{
-		Value:  fmt.Sprintf("**Battle ID: %d**", raid.ID),
+		Value:  fmt.Sprintf("**Defender Class**: %s", defenderClass),
 		Inline: false,
 	})
 
 	battleBgImgMap, _ := utils.BattleBgImages[raid.ChallengeType.String()]
 	battleBgImgUrl := battleBgImgMap[raid.BattleLocation]
 
-	embed := &discordgo.MessageEmbed{
-		Fields: fields,
-		Thumbnail: &discordgo.MessageEmbedThumbnail{
-			URL: battleBgImgUrl,
-		},
-	}
 	// -------------------------Challenge Accepted End-------------------------
 
 	// -------------------------Battle Log Start-------------------------
-	// Battle concluded, display the winner and loser class
+	// Battle concluded, display the winner class
 	if raid.BattleLogNounce >= 3 {
 		winnerClass := fmt.Sprintf("<@%s> **Flunk #%d**", raid.WinnerNft.Owner.DiscordID, raid.WinnerTemplateID)
-		loserClass := fmt.Sprintf("<@%s> **Flunk #%d**", raid.LoserNft.Owner.DiscordID, raid.LoserTemplateID)
-
 		fields = append(fields, &discordgo.MessageEmbedField{
-			Name:   "Winner Class",
-			Value:  winnerClass,
-			Inline: false,
-		})
-		fields = append(fields, &discordgo.MessageEmbedField{
-			Name:   "Loser Class",
-			Value:  loserClass,
+			Value:  fmt.Sprintf("**Winner Class**: %s", winnerClass),
 			Inline: false,
 		})
 	}
@@ -145,6 +114,13 @@ func PostRaidDetailsMsgUpdate(raid *db.Raid, channelID string) string {
 		Value:  battleLog,
 		Inline: false,
 	})
+
+	embed := &discordgo.MessageEmbed{
+		Fields: fields,
+		Thumbnail: &discordgo.MessageEmbedThumbnail{
+			URL: battleBgImgUrl,
+		},
+	}
 
 	// Edit message
 	_, err := dg.ChannelMessageEditEmbed(
