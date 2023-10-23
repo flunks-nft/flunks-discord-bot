@@ -122,7 +122,7 @@ func RaidMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		matches := re.FindStringSubmatch(m.Content)
 
 		if len(matches) > 0 {
-			fmt.Println("Extracted number:", matches[0])
+			fmt.Println("Extracted battle number:", matches[0])
 		} else {
 			fmt.Println("No numeric field found.")
 			return
