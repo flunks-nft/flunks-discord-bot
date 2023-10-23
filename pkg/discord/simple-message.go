@@ -58,17 +58,17 @@ func PostRaidAcceptedMsg(raid *db.Raid, nfts []db.Nft) {
 	embed := &discordgo.MessageEmbed{
 		Fields: fields,
 		Thumbnail: &discordgo.MessageEmbedThumbnail{
-			URL: nft1.Uri,
-		},
-		Image: &discordgo.MessageEmbedImage{
 			URL: battleBgImgUrl,
 		},
 	}
 
-	_, err := dg.ChannelMessageSendEmbed(RAID_LOG_CHANNEL_ID, embed)
+	msg, err := dg.ChannelMessageSendEmbed(RAID_LOG_CHANNEL_ID, embed)
 	if err != nil {
 		fmt.Println("Error sending embedded message to channel:", err)
 	}
+
+	// Update the raid with the message ID
+	raid.SetMsgID(msg.ID)
 }
 
 func PostRaidDetailsMsgUpdate(raid *db.Raid, channelID string) string {

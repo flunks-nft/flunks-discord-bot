@@ -73,6 +73,12 @@ type Raid struct {
 	BattleLogMessageID     string `gorm:"default:'';"`
 }
 
+func (r *Raid) SetMsgID(msgID string) {
+	r.BattleLogMessageID = msgID
+	// Sync database
+	db.Model(&r).Select("battle_log_message_id").Update("battle_log_message_id", msgID)
+}
+
 func (r *Raid) BeforeCreate(tx *gorm.DB) (err error) {
 	r.CreatedAt = time.Now()
 	r.UpdatedAt = r.CreatedAt
