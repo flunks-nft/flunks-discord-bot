@@ -8,7 +8,7 @@ import (
 	"github.com/flunks-nft/discord-bot/pkg/utils"
 )
 
-func PostRaidAcceptedMsg(raid *db.Raid, nfts []db.Nft) {
+func PostRaidAcceptedMsg(raid *db.Raid) {
 	var fields []*discordgo.MessageEmbedField
 
 	// Attach fist line challenge accepted message

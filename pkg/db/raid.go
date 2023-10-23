@@ -489,7 +489,7 @@ func GetNextQueuedTokenPair(tx *gorm.DB) ([]Nft, error) {
 	return nfts, nil
 }
 
-func QueueNextTokenPairForRaiding() (*Raid, []Nft, error) {
+func QueueNextTokenPairForRaiding() (*Raid, error) {
 	tx := db.Begin()
 	defer func() {
 		if r := recover(); r != nil {
@@ -502,7 +502,7 @@ func QueueNextTokenPairForRaiding() (*Raid, []Nft, error) {
 	if err != nil {
 		tx.Rollback()
 		log.Println(err)
-		return nil, nil, err
+		return nil, err
 	}
 
 	// Pick a random key from the map as battle location
@@ -519,11 +519,14 @@ func QueueNextTokenPairForRaiding() (*Raid, []Nft, error) {
 		BattleLocation: battleLocation,
 	}
 
-	result := tx.Create(&raid)
+	result := tx.Create(&raid).Preload("FromNft").Preload("ToNft").Preload("FromNft.Owner").Preload("ToNft.Owner")
 	if result.Error != nil {
 		tx.Rollback()
-		return nil, nil, result.Error
+		return nil, result.Error
 	}
+
+	// Select raid from the db
+	result = tx.Preload("FromNft").Preload("ToNft").Preload("FromNft.Owner").Preload("ToNft.Owner").First(&raid)
 
 	// Mark both nfts as Raiding and set QueuedForRaiding to false
 	nftUpdateData := map[string]interface{}{
@@ -535,11 +538,11 @@ func QueueNextTokenPairForRaiding() (*Raid, []Nft, error) {
 
 	if result.Error != nil {
 		tx.Rollback()
-		return nil, nil, result.Error
+		return nil, result.Error
 	}
 
 	tx.Commit()
-	return raid, nfts, nil
+	return raid, nil
 }
 
 type Trait struct {

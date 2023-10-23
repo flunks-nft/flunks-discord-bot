@@ -45,12 +45,12 @@ func InitRaidWorker(wg *sync.WaitGroup, done chan os.Signal) {
 }
 
 func createMatchedChallenge() error {
-	raid, nfts, err := db.QueueNextTokenPairForRaiding()
+	raid, err := db.QueueNextTokenPairForRaiding()
 	if err != nil {
 		return err
 	}
 
-	discord.PostRaidAcceptedMsg(raid, nfts)
+	discord.PostRaidAcceptedMsg(raid)
 
 	return nil
 }
