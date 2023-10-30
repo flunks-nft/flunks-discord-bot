@@ -317,6 +317,29 @@ type Nft struct {
 	ToRaids []Raid `gorm:"foreignKey:ToNftID"`
 }
 
+// Note: the smaller grade, the stronger the NFT
+func (nft Nft) Grade() uint {
+	// Load NFT traits if not loaded
+	if len(nft.Traits) == 0 {
+		if err := db.Model(&nft).Association("Traits").Find(&nft.Traits); err != nil {
+			// Handle error?
+		}
+	}
+
+	var total uint
+
+	// sum up power by traits and return the sum
+	for _, trait := range nft.Traits {
+		count, ok := utils.TraitValueToCount[trait.Value]
+		if !ok || count <= 0 {
+			log.Printf("Error: Invalid count for trait value %s", trait.Value)
+			continue
+		}
+		total += count
+	}
+	return total
+}
+
 func (nft Nft) GetTraits() []Trait {
 	return nft.Traits
 }
