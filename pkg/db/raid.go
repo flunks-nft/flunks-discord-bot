@@ -121,7 +121,9 @@ func (raid Raid) getBattleResult() battle.BattleLog {
 	// determine winner based on grades
 	challengerGrade := raid.FromNft.Grade()
 	defenderGrade := raid.ToNft.Grade()
-	winner := weightedRandomWinner(int(challengerGrade), int(defenderGrade))
+	challengerBonus := raid.FromNft.Bonus(raid)
+	defenderBonus := raid.ToNft.Bonus(raid)
+	winner := weightedRandomWinner(challengerGrade+challengerBonus, defenderGrade+defenderBonus)
 
 	return battle.DrawBattleByClique(raid.ChallengeType.String(), raid.FromTemplateID, raid.ToTemplateID, raid.BattleLocation, winner)
 }
@@ -333,7 +335,7 @@ type Nft struct {
 }
 
 // Note: the smaller grade, the stronger the NFT
-func (nft Nft) Grade() uint {
+func (nft Nft) Grade() int {
 	// Load NFT traits if not loaded
 	if len(nft.Traits) == 0 {
 		if err := db.Model(&nft).Association("Traits").Find(&nft.Traits); err != nil {
@@ -341,7 +343,7 @@ func (nft Nft) Grade() uint {
 		}
 	}
 
-	var total uint
+	var total int
 
 	// sum up power by traits and return the sum
 	for _, trait := range nft.Traits {
@@ -353,6 +355,33 @@ func (nft Nft) Grade() uint {
 		total += count
 	}
 	return total
+}
+
+func (nft Nft) Bonus(raid Raid) int {
+	// If raid trait clique is the same as raid clique, return 20% of the grade
+	if nft.Clique() == raid.ChallengeType.String() {
+		return -nft.Grade() / 5
+	}
+
+	return 0
+}
+
+func (nft Nft) Clique() string {
+	// Load NFT traits if not loaded
+	if len(nft.Traits) == 0 {
+		if err := db.Model(&nft).Association("Traits").Find(&nft.Traits); err != nil {
+			// Handle error?
+		}
+	}
+
+	// Iterate through traits and return the value for clique
+	for _, trait := range nft.Traits {
+		if trait.Name == "Clique" {
+			return trait.Value
+		}
+	}
+
+	return ""
 }
 
 func (nft Nft) GetTraits() []Trait {

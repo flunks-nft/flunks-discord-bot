@@ -57,7 +57,7 @@ var BattleBgImages = map[string]map[string]string{
 }
 
 // TODO: check if the ' are messing up with match making
-var TraitValueToCount = map[string]uint{
+var TraitValueToCount = map[string]int{
 	"Most likely to forget their locker code":              126,
 	"Most likely vegan":                                    125,
 	"Most likely LARPing":                                  121,

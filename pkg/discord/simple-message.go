@@ -32,15 +32,32 @@ func PostRaidAcceptedMsg(raid *db.Raid) {
 	// Attach the from and to classes
 	challengerClass := fmt.Sprintf("<@%s> **Flunk #%d**", raid.FromNft.Owner.DiscordID, raid.FromNft.TemplateID)
 	defenderClass := fmt.Sprintf("<@%s> **Flunk #%d**", raid.ToNft.Owner.DiscordID, raid.ToNft.TemplateID)
-	fields = append(fields, &discordgo.MessageEmbedField{
-		Value:  fmt.Sprintf("**Challenger Class**: %s; (**Grade**: %d)", challengerClass, raid.FromNft.Grade()),
-		Inline: false,
-	})
-	fields = append(fields, &discordgo.MessageEmbedField{
-		Value:  fmt.Sprintf("**Defender Class**: %s; (**Grade**: %d)", defenderClass, raid.ToNft.Grade()),
-		Inline: false,
-	})
+	challengerBonus := raid.FromNft.Bonus(*raid)
+	defenderBonus := raid.ToNft.Bonus(*raid)
 
+	if challengerBonus != 0 {
+		fields = append(fields, &discordgo.MessageEmbedField{
+			Value:  fmt.Sprintf("**Challenger Class**: %s; (Grade: %d**%d**)", challengerClass, raid.FromNft.Grade(), challengerBonus),
+			Inline: false,
+		})
+	} else {
+		fields = append(fields, &discordgo.MessageEmbedField{
+			Value:  fmt.Sprintf("**Challenger Class**: %s; (Grade: %d)", challengerClass, raid.FromNft.Grade()),
+			Inline: false,
+		})
+	}
+
+	if defenderBonus != 0 {
+		fields = append(fields, &discordgo.MessageEmbedField{
+			Value:  fmt.Sprintf("**Defender Class**: %s; (Grade: %d**%d**)", defenderClass, raid.ToNft.Grade(), defenderBonus),
+			Inline: false,
+		})
+	} else {
+		fields = append(fields, &discordgo.MessageEmbedField{
+			Value:  fmt.Sprintf("**Defender Class**: %s; (Grade: %d)", defenderClass, raid.ToNft.Grade()),
+			Inline: false,
+		})
+	}
 	battleBgImgMap, _ := utils.BattleBgImages[raid.ChallengeType.String()]
 	battleBgImgUrl := battleBgImgMap[raid.BattleLocation]
 
@@ -84,14 +101,33 @@ func PostRaidDetailsMsgUpdate(raid *db.Raid, channelID string) string {
 
 	challengerClass := fmt.Sprintf("<@%s> **Flunk #%d**", raid.FromNft.Owner.DiscordID, raid.FromNft.TemplateID)
 	defenderClass := fmt.Sprintf("<@%s> **Flunk #%d**", raid.ToNft.Owner.DiscordID, raid.ToNft.TemplateID)
-	fields = append(fields, &discordgo.MessageEmbedField{
-		Value:  fmt.Sprintf("**Challenger Class**: %s; (**Grade**: %d)", challengerClass, raid.FromNft.Grade()),
-		Inline: false,
-	})
-	fields = append(fields, &discordgo.MessageEmbedField{
-		Value:  fmt.Sprintf("**Defender Class**: %s; (**Grade**: %d)", defenderClass, raid.ToNft.Grade()),
-		Inline: false,
-	})
+
+	challengerBonus := raid.FromNft.Bonus(*raid)
+	defenderBonus := raid.ToNft.Bonus(*raid)
+
+	if challengerBonus != 0 {
+		fields = append(fields, &discordgo.MessageEmbedField{
+			Value:  fmt.Sprintf("**Challenger Class**: %s; (Grade: %d**%d**)", challengerClass, raid.FromNft.Grade(), challengerBonus),
+			Inline: false,
+		})
+	} else {
+		fields = append(fields, &discordgo.MessageEmbedField{
+			Value:  fmt.Sprintf("**Challenger Class**: %s; (Grade: %d)", challengerClass, raid.FromNft.Grade()),
+			Inline: false,
+		})
+	}
+
+	if defenderBonus != 0 {
+		fields = append(fields, &discordgo.MessageEmbedField{
+			Value:  fmt.Sprintf("**Defender Class**: %s; (Grade: %d**%d**)", defenderClass, raid.ToNft.Grade(), defenderBonus),
+			Inline: false,
+		})
+	} else {
+		fields = append(fields, &discordgo.MessageEmbedField{
+			Value:  fmt.Sprintf("**Defender Class**: %s; (Grade: %d)", defenderClass, raid.ToNft.Grade()),
+			Inline: false,
+		})
+	}
 
 	battleBgImgMap, _ := utils.BattleBgImages[raid.ChallengeType.String()]
 	battleBgImgUrl := battleBgImgMap[raid.BattleLocation]
@@ -102,10 +138,19 @@ func PostRaidDetailsMsgUpdate(raid *db.Raid, channelID string) string {
 	// Battle concluded, display the winner class
 	if raid.BattleLogNounce >= 3 {
 		winnerClass := fmt.Sprintf("<@%s> **Flunk #%d**", raid.WinnerNft.Owner.DiscordID, raid.WinnerTemplateID)
-		fields = append(fields, &discordgo.MessageEmbedField{
-			Value:  fmt.Sprintf("**Winner Class**: %s; (**Grade**: %d)", winnerClass, raid.WinnerNft.Grade()),
-			Inline: false,
-		})
+		bonus := raid.WinnerNft.Bonus(*raid)
+		if bonus != 0 {
+			fields = append(fields, &discordgo.MessageEmbedField{
+				Value:  fmt.Sprintf("**Winner Class**: %s; (Grade: %d**%d**)", winnerClass, raid.WinnerNft.Grade(), bonus),
+				Inline: false,
+			})
+		} else {
+			fields = append(fields, &discordgo.MessageEmbedField{
+				Value:  fmt.Sprintf("**Winner Class**: %s; (Grade: %d)", winnerClass, raid.WinnerNft.Grade()),
+				Inline: false,
+			})
+		}
+
 	}
 
 	battleLog := parseBattleLogFromNounce(raid)
