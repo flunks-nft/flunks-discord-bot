@@ -5,19 +5,14 @@ import (
 	"database/sql/driver"
 	"encoding/json"
 	"fmt"
-	"math/rand"
 
 	"github.com/flunks-nft/discord-bot/pkg/gpt"
 )
 
 // GenerateBattleLog interacts with OpenAI's GPT-3.5Turbo API to generate a battle log
-func GenerateBattleLog(clique string, challenger, defender uint, location string) (*BattleLog, error) {
+func GenerateBattleLog(clique string, challenger, defender uint, location string, winner uint) (*BattleLog, error) {
 	ctx := context.Background()
-
-	// pick a random edition number from challenger & defender, indicating winner
-	// Generate a random number between 0 and 1
-	random := rand.Intn(2)
-	isPositiveOutcome := random == 1
+	isPositiveOutcome := winner == 0
 
 	prompt := gpt.GenerateBattlePrompt(clique, challenger, defender, location, isPositiveOutcome)
 
@@ -61,8 +56,8 @@ func (bt BattleLog) Value() (driver.Value, error) {
 	return json.Marshal(bt)
 }
 
-func DrawBattleByClique(clique string, challenger, defender uint, location string) BattleLog {
-	log, err := GenerateBattleLog(clique, challenger, defender, location)
+func DrawBattleByClique(clique string, challenger, defender uint, location string, winner uint) BattleLog {
+	log, err := GenerateBattleLog(clique, challenger, defender, location, winner)
 	if err != nil {
 		panic(err)
 	}
