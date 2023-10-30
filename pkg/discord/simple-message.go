@@ -33,11 +33,11 @@ func PostRaidAcceptedMsg(raid *db.Raid) {
 	challengerClass := fmt.Sprintf("<@%s> **Flunk #%d**", raid.FromNft.Owner.DiscordID, raid.FromNft.TemplateID)
 	defenderClass := fmt.Sprintf("<@%s> **Flunk #%d**", raid.ToNft.Owner.DiscordID, raid.ToNft.TemplateID)
 	fields = append(fields, &discordgo.MessageEmbedField{
-		Value:  fmt.Sprintf("**Challenger Class**: %s", challengerClass),
+		Value:  fmt.Sprintf("**Challenger Class**: %s; (**Grade**: %d)", challengerClass, raid.FromNft.Grade()),
 		Inline: false,
 	})
 	fields = append(fields, &discordgo.MessageEmbedField{
-		Value:  fmt.Sprintf("**Defender Class**: %s", defenderClass),
+		Value:  fmt.Sprintf("**Defender Class**: %s; (**Grade**: %d)", defenderClass, raid.ToNft.Grade()),
 		Inline: false,
 	})
 
@@ -85,11 +85,11 @@ func PostRaidDetailsMsgUpdate(raid *db.Raid, channelID string) string {
 	challengerClass := fmt.Sprintf("<@%s> **Flunk #%d**", raid.FromNft.Owner.DiscordID, raid.FromNft.TemplateID)
 	defenderClass := fmt.Sprintf("<@%s> **Flunk #%d**", raid.ToNft.Owner.DiscordID, raid.ToNft.TemplateID)
 	fields = append(fields, &discordgo.MessageEmbedField{
-		Value:  fmt.Sprintf("**Challenger Class**: %s", challengerClass),
+		Value:  fmt.Sprintf("**Challenger Class**: %s; (**Grade**: %d)", challengerClass, raid.FromNft.Grade()),
 		Inline: false,
 	})
 	fields = append(fields, &discordgo.MessageEmbedField{
-		Value:  fmt.Sprintf("**Defender Class**: %s", defenderClass),
+		Value:  fmt.Sprintf("**Defender Class**: %s; (**Grade**: %d)", defenderClass, raid.ToNft.Grade()),
 		Inline: false,
 	})
 
@@ -103,7 +103,7 @@ func PostRaidDetailsMsgUpdate(raid *db.Raid, channelID string) string {
 	if raid.BattleLogNounce >= 3 {
 		winnerClass := fmt.Sprintf("<@%s> **Flunk #%d**", raid.WinnerNft.Owner.DiscordID, raid.WinnerTemplateID)
 		fields = append(fields, &discordgo.MessageEmbedField{
-			Value:  fmt.Sprintf("**Winner Class**: %s", winnerClass),
+			Value:  fmt.Sprintf("**Winner Class**: %s; (**Grade**: %d)", winnerClass, raid.WinnerNft.Grade()),
 			Inline: false,
 		})
 	}

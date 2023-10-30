@@ -118,7 +118,22 @@ func GetRaidByID(raidID int) Raid {
 // 1. selecting winners
 // 2. generating fight status text
 func (raid Raid) getBattleResult() battle.BattleLog {
-	return battle.DrawBattleByClique(raid.ChallengeType.String(), raid.FromTemplateID, raid.ToTemplateID, raid.BattleLocation)
+	// determine winner based on grades
+	challengerGrade := raid.FromNft.Grade()
+	defenderGrade := raid.ToNft.Grade()
+	winner := weightedRandomWinner(int(challengerGrade), int(defenderGrade))
+
+	return battle.DrawBattleByClique(raid.ChallengeType.String(), raid.FromTemplateID, raid.ToTemplateID, raid.BattleLocation, winner)
+}
+
+// Helper function to determine the winner based on grades
+func weightedRandomWinner(challengerGrade, defenderGrade int) uint {
+	total := challengerGrade + defenderGrade
+	r := rand.Intn(total)
+	if r < challengerGrade {
+		return 1 // defender wins
+	}
+	return 0 // challenger wins
 }
 
 func NextRaidToUpdateBattleStatus() (*Raid, error) {
