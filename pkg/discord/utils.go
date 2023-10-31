@@ -60,6 +60,9 @@ func editEphemeralMessageWithMedia(s *discordgo.Session, i *discordgo.Interactio
 		traitsString += fmt.Sprintf("%v %s: %s\n", emoji, trait.Name, trait.Value)
 	}
 
+	// Add grade
+	traitsString += fmt.Sprintf("%s %s: %d\n", "🍎", "Grade", nft.Grade())
+
 	_, err := s.InteractionResponseEdit(i.Interaction, &discordgo.WebhookEdit{
 		Content: nil,
 		Components: &[]discordgo.MessageComponent{
