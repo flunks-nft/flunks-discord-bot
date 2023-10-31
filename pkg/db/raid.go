@@ -133,9 +133,9 @@ func weightedRandomWinner(challengerGrade, defenderGrade int) uint {
 	total := challengerGrade + defenderGrade
 	r := rand.Intn(total)
 	if r < challengerGrade {
-		return 1 // defender wins
+		return 0 // challenger wins
 	}
-	return 0 // challenger wins
+	return 1 // defender wins
 }
 
 func NextRaidToUpdateBattleStatus() (*Raid, error) {
