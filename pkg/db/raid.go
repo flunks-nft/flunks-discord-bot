@@ -344,6 +344,7 @@ func (nft Nft) Grade() int {
 	}
 
 	var total int
+	var num int
 
 	// sum up power by traits and return the sum
 	for _, trait := range nft.Traits {
@@ -358,10 +359,11 @@ func (nft Nft) Grade() int {
 			continue
 		}
 		total += count
+		num++
 	}
 
 	// return avg of the total
-	return total / 6
+	return total / num
 }
 
 func (nft Nft) Bonus(raid Raid) int {
