@@ -344,21 +344,24 @@ func (nft Nft) Grade() int {
 	}
 
 	var total int
-	var num int
 
 	// sum up power by traits and return the sum
 	for _, trait := range nft.Traits {
+		// only consider Face, Head, Torso, Pigment, Backdrop and Superlative
+		if trait.Name != "Face" && trait.Name != "Head" && trait.Name != "Torso" && trait.Name != "Pigment" && trait.Name != "Backdrop" && trait.Name != "Superlative" {
+			continue
+		}
+
 		count, ok := utils.TraitValueToCount[trait.Value]
 		if !ok || count <= 0 {
 			log.Printf("Error: Invalid count for trait value %s", trait.Value)
 			continue
 		}
 		total += count
-		num++
 	}
 
-	// calculate total / num
-	return total / num
+	// return avg of the total
+	return total / 6
 }
 
 func (nft Nft) Bonus(raid Raid) int {
